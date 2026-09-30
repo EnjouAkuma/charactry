@@ -1,0 +1,68 @@
+{
+  "plugins": [
+    {
+      "id": "age-calculator",
+      "files": [
+        "age-calculator.svg",
+        "index.html",
+        "manifest.json"
+      ]
+    },
+    {
+      "id": "gallery-pro-plus",
+      "files": [
+        "gallery-pro.svg",
+        "index.html",
+        "manifest.json"
+      ]
+    },
+    {
+      "id": "memory-expansion-plus",
+      "files": [
+        "index.html",
+        "manifest.json",
+        "memory-expansion.svg"
+      ]
+    },
+    {
+      "id": "mood-board-plus",
+      "files": [
+        "index.html",
+        "manifest.json",
+        "mood-board.svg"
+      ]
+    },
+    {
+      "id": "name-gen",
+      "files": [
+        "index.html",
+        "manifest.json",
+        "name-gen.svg"
+      ]
+    },
+    {
+      "id": "smart-tags",
+      "files": [
+        "index.html",
+        "manifest.json",
+        "smart-tags.svg"
+      ]
+    },
+    {
+      "id": "story-bible-export-plus",
+      "files": [
+        "index.html",
+        "manifest.json",
+        "story-bible.svg"
+      ]
+    },
+    {
+      "id": "templates",
+      "files": [
+        "index.html",
+        "manifest.json",
+        "templates.svg"
+      ]
+    }
+  ]
+}

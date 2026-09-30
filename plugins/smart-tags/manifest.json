@@ -1,0 +1,19 @@
+{
+  "id": "smart-tags",
+  "name": "Smart Tags",
+  "version": "2.0.0",
+  "description": "Supercharges your tag system with categories, usage stats, bulk operations and tag cleanup tools.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "free",
+  "plusOnly": false,
+  "windowWidth": 860,
+  "windowHeight": 640,
+  "tags": ["tools", "tags", "organisation"],
+  "sidebar": {
+  "section": "Tools",
+  "label": "Smart Tags",
+  "icon": "tags",
+  "iconSvg": "smart-tags.svg"
+}
+}

@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Pro — Charactry PLUS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  /* ── PLUS Theme ── */
+  :root {
+    --bg:#07080f; --bg2:#0d0f1c; --bg3:#131629; --card:#0f1120;
+    --border:#1e2240; --border2:#2a2f5a;
+    --accent:#f0c040; --accent2:#d4960a;
+    --purple:#7c6aee; --purple2:#a78bfa;
+    --gold-glow:rgba(240,192,64,0.10);
+    --purple-glow:rgba(124,106,238,0.12);
+    --text:#f0edff; --text2:#9d9bbf; --text3:#4a4870;
+    --danger:#f87171; --success:#4ade80; --radius:12px;
+    --plus-gradient:linear-gradient(135deg,#f0c040,#d4960a);
+    --purple-gradient:linear-gradient(135deg,#7c6aee,#a78bfa);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;overflow:hidden}
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:10px}
+
+  #root{display:flex;flex-direction:column;height:100vh}
+
+  /* ── Titlebar ── */
+  #titlebar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:11px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+    background:linear-gradient(180deg,#0a0b18 0%,var(--bg) 100%);
+    -webkit-app-region:drag;
+  }
+  #titlebar-left{display:flex;align-items:center;gap:12px}
+  .app-name{font-family:'Cinzel',serif;font-size:16px;font-weight:700;background:var(--plus-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .plus-badge{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;background:var(--plus-gradient);color:#000;padding:2px 7px;border-radius:20px;-webkit-text-fill-color:#000}
+  .subtitle{font-size:11px;color:var(--text3);margin-top:1px}
+  #titlebar-right{display:flex;gap:8px;-webkit-app-region:no-drag}
+
+  /* ── Body ── */
+  #body{display:flex;flex:1;overflow:hidden}
+
+  /* ── Left sidebar ── */
+  #sidebar{
+    width:220px;flex-shrink:0;border-right:1px solid var(--border);
+    display:flex;flex-direction:column;overflow:hidden;background:var(--bg2);
+  }
+  #sidebar-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+  .stab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;
+    color:var(--text3);cursor:pointer;transition:all .15s;border-bottom:2px solid transparent}
+  .stab:hover{color:var(--text2)}
+  .stab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  #sidebar-search{
+    margin:8px;background:var(--bg3);border:1px solid var(--border);
+    border-radius:8px;padding:7px 10px;color:var(--text);
+    font-family:'Nunito',sans-serif;font-size:12px;outline:none;flex-shrink:0;
+  }
+  #sidebar-search:focus{border-color:var(--accent)}
+  #sidebar-list{flex:1;overflow-y:auto;padding:4px 8px 8px}
+  .sidebar-item{
+    display:flex;align-items:center;gap:8px;padding:7px 9px;
+    border-radius:9px;cursor:pointer;border:1px solid transparent;
+    transition:all .15s;margin-bottom:3px;
+  }
+  .sidebar-item:hover{background:var(--bg3);border-color:var(--border)}
+  .sidebar-item.active{background:var(--gold-glow);border-color:var(--accent)}
+  .sidebar-avatar{
+    width:30px;height:30px;border-radius:50%;flex-shrink:0;
+    background:var(--bg3);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:var(--text3);overflow:hidden;
+  }
+  .sidebar-avatar img{width:100%;height:100%;object-fit:cover}
+  .sidebar-item-name{font-size:12px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar-item-count{font-size:10px;color:var(--text3);flex-shrink:0}
+  .sidebar-item.active .sidebar-item-name{color:var(--accent)}
+
+  /* ── Main area ── */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+  /* ── Toolbar ── */
+  #toolbar{
+    display:flex;align-items:center;gap:8px;padding:10px 16px;
+    border-bottom:1px solid var(--border);flex-shrink:0;
+    background:var(--bg2);flex-wrap:wrap;-webkit-app-region:no-drag;
+  }
+  #toolbar-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0;flex-wrap:wrap}
+  #toolbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+  .filter-btn{
+    padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;
+    cursor:pointer;border:1px solid var(--border);background:var(--bg3);
+    color:var(--text3);font-family:'Nunito',sans-serif;transition:all .15s;
+  }
+  .filter-btn:hover{border-color:var(--border2);color:var(--text2)}
+  .filter-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+
+  .view-btn{
+    width:28px;height:28px;border-radius:7px;display:flex;align-items:center;
+    justify-content:center;cursor:pointer;border:1px solid var(--border);
+    background:var(--bg3);color:var(--text3);transition:all .15s;
+  }
+  .view-btn:hover{border-color:var(--border2);color:var(--text2)}
+  .view-btn.active{background:var(--gold-glow);border-color:var(--accent);color:var(--accent)}
+
+  #sort-select{
+    background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+    padding:4px 8px;color:var(--text);font-family:'Nunito',sans-serif;
+    font-size:11px;outline:none;cursor:pointer;
+  }
+  #img-count{font-size:11px;color:var(--text3);white-space:nowrap}
+
+  /* ── Gallery grid ── */
+  #gallery-scroll{flex:1;overflow-y:auto;padding:14px}
+  #gallery-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  #gallery-grid.large{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  #gallery-grid.list{grid-template-columns:1fr;gap:6px}
+
+  .gallery-tile{
+    border-radius:10px;overflow:hidden;cursor:pointer;
+    border:2px solid transparent;transition:all .2s;position:relative;
+    background:var(--card);
+  }
+  .gallery-tile:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,192,64,.12)}
+  .gallery-tile.selected{border-color:var(--accent);box-shadow:0 0 0 3px var(--gold-glow)}
+
+  .tile-img-wrap{position:relative;overflow:hidden}
+  .tile-img-wrap img{width:100%;display:block;object-fit:cover;background:var(--bg3)}
+  #gallery-grid .tile-img-wrap img{height:150px}
+  #gallery-grid.large .tile-img-wrap img{height:200px}
+  #gallery-grid.list .tile-img-wrap img{height:70px;width:70px;object-fit:cover}
+
+  .tile-type-badge{
+    position:absolute;top:6px;left:6px;font-size:9px;font-weight:800;
+    text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border-radius:20px;
+    background:rgba(7,8,15,.8);backdrop-filter:blur(4px);
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .badge-avatar {color:var(--accent);border-color:rgba(240,192,64,.3)}
+  .badge-banner {color:var(--purple2);border-color:rgba(167,139,250,.3)}
+  .badge-gallery{color:var(--text2);border-color:rgba(255,255,255,.1)}
+
+  .tile-select-check{
+    position:absolute;top:6px;right:6px;width:20px;height:20px;
+    border-radius:50%;background:rgba(7,8,15,.7);border:2px solid rgba(255,255,255,.3);
+    display:none;align-items:center;justify-content:center;font-size:11px;
+  }
+  .select-mode .tile-select-check{display:flex}
+  .gallery-tile.selected .tile-select-check{background:var(--accent);border-color:var(--accent);color:#000}
+
+  .tile-footer{padding:8px 10px;background:var(--card)}
+  .tile-label{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile-sub{font-size:10px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* List view tile */
+  #gallery-grid.list .gallery-tile{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:10px}
+  #gallery-grid.list .tile-img-wrap{border-radius:8px;overflow:hidden;flex-shrink:0;width:70px;height:70px}
+  #gallery-grid.list .tile-footer{padding:0;background:none;flex:1;min-width:0}
+  #gallery-grid.list .tile-label{font-size:13px}
+  #gallery-grid.list .tile-type-badge{position:static;display:inline-block;margin-bottom:4px}
+  #gallery-grid.list .tile-select-check{top:50%;transform:translateY(-50%)}
+
+  /* ── Empty state ── */
+  #gallery-empty{
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    height:100%;gap:12px;color:var(--text3);text-align:center;padding:40px;
+  }
+  .empty-icon-big{font-size:52px;opacity:.2}
+  .empty-title{font-family:'Cinzel',serif;font-size:16px;color:var(--text2)}
+
+  /* ── Lightbox ── */
+  #lightbox{
+    position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9999;
+    display:none;flex-direction:column;
+  }
+  #lightbox.open{display:flex}
+  #lb-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;flex-shrink:0;background:rgba(7,8,15,.8);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--border);
+  }
+  #lb-title{font-family:'Cinzel',serif;font-size:14px;color:var(--accent)}
+  #lb-meta{font-size:11px;color:var(--text3);margin-top:2px}
+  #lb-actions{display:flex;gap:8px}
+  #lb-body{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  #lb-img{
+    max-width:90%;max-height:85vh;object-fit:contain;
+    border-radius:8px;transition:transform .15s;user-select:none;
+  }
+  #lb-img.zoomed{max-width:none;max-height:none;cursor:zoom-out}
+  #lb-prev,#lb-next{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:44px;height:44px;border-radius:50%;background:rgba(7,8,15,.7);
+    border:1px solid var(--border);color:var(--text2);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;backdrop-filter:blur(6px);
+  }
+  #lb-prev{left:16px}#lb-next{right:16px}
+  #lb-prev:hover,#lb-next:hover{background:var(--gold-glow);border-color:var(--accent);color:var(--accent)}
+  #lb-counter{
+    position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+    font-size:12px;color:var(--text3);background:rgba(7,8,15,.7);
+    padding:4px 14px;border-radius:20px;border:1px solid var(--border);
+    backdrop-filter:blur(6px);
+  }
+  #lb-tags-bar{
+    padding:10px 20px;flex-shrink:0;background:rgba(7,8,15,.8);
+    border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .lb-tag{
+    padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+    background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+    cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;
+  }
+  .lb-tag:hover{border-color:var(--danger);color:var(--danger)}
+  #lb-add-tag{
+    background:none;border:1px dashed var(--border2);color:var(--text3);
+    padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;
+    font-family:'Nunito',sans-serif;transition:all .15s;
+  }
+  #lb-add-tag:hover{border-color:var(--accent);color:var(--accent)}
+  #lb-tag-input{
+    background:var(--bg3);border:1px solid var(--accent);border-radius:20px;
+    padding:3px 10px;color:var(--text);font-size:11px;font-family:'Nunito',sans-serif;
+    outline:none;width:120px;display:none;
+  }
+
+  /* ── Slideshow ── */
+  #slideshow-overlay{
+    position:fixed;inset:0;background:#000;z-index:99999;
+    display:none;align-items:center;justify-content:center;flex-direction:column;
+  }
+  #slideshow-overlay.open{display:flex}
+  #ss-img{max-width:100%;max-height:90vh;object-fit:contain;transition:opacity .4s}
+  #ss-img.fade{opacity:0}
+  #ss-info{
+    position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+    text-align:center;color:#fff;font-size:14px;
+    text-shadow:0 2px 8px rgba(0,0,0,.8);
+  }
+  #ss-counter{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px}
+  #ss-close{
+    position:absolute;top:16px;right:20px;background:rgba(0,0,0,.5);
+    border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;
+    border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;
+  }
+  #ss-progress{
+    position:absolute;bottom:0;left:0;height:3px;
+    background:var(--plus-gradient);transition:width linear;
+  }
+
+  /* ── Ref Sheet Builder ── */
+  #refsheet-panel{
+    position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;
+    display:none;align-items:center;justify-content:center;
+    padding:20px;
+    -webkit-app-region:no-drag;
+  }
+  #refsheet-panel.open{display:flex}
+  #refsheet-box{
+    background:var(--bg2);border:1px solid var(--border2);border-radius:16px;
+    width:90vw;height:88vh;
+    min-width:700px;min-height:500px;
+    max-width:98vw;max-height:95vh;
+    display:flex;flex-direction:column;
+    box-shadow:0 24px 80px rgba(0,0,0,.9);
+    overflow:auto;
+    resize:both;
+  }
+  #refsheet-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  #refsheet-title{font-family:'Cinzel',serif;font-size:16px;color:var(--accent)}
+  #refsheet-body{display:flex;flex:1;overflow:hidden}
+  #refsheet-config{width:260px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:16px}
+  #refsheet-preview{flex:1;overflow:auto;padding:20px;background:var(--bg3);display:flex;align-items:flex-start;justify-content:flex-start}
+  #refsheet-canvas-wrap{background:#fff;box-shadow:0 4px 40px rgba(0,0,0,.6);min-width:500px}
+  canvas#refsheet-canvas{display:block}
+  #refsheet-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+
+  .rs-section{margin-bottom:16px}
+  .rs-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+  .rs-select,.rs-input{
+    width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+    padding:7px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:12px;outline:none;
+  }
+  .rs-select:focus,.rs-input:focus{border-color:var(--accent)}
+  .rs-color{width:100%;height:36px;border-radius:8px;border:1px solid var(--border);cursor:pointer;background:var(--bg3)}
+  .rs-images-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .rs-img-thumb{
+    width:52px;height:52px;border-radius:6px;overflow:hidden;cursor:grab;
+    border:2px solid transparent;transition:border-color .15s,opacity .15s;position:relative;
+  }
+  .rs-img-thumb:active{cursor:grabbing}
+  .rs-img-thumb.dragging{opacity:.4;border-color:var(--accent)}
+  .rs-img-thumb.drag-over{border-color:var(--purple2);box-shadow:0 0 0 2px var(--purple2)}
+  .rs-img-thumb:hover{border-color:var(--border2)}
+  .rs-img-thumb.selected{border-color:var(--accent)}
+  .rs-img-thumb img{width:100%;height:100%;object-fit:cover}
+  .rs-img-thumb .rs-remove{
+    position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;
+    background:rgba(248,113,113,.9);color:#fff;font-size:9px;
+    display:none;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .rs-img-thumb:hover .rs-remove{display:flex}
+
+  /* ── Selection bar ── */
+  #selection-bar{
+    display:none;align-items:center;gap:10px;padding:8px 16px;
+    background:var(--gold-glow);border-top:1px solid var(--accent);
+    flex-shrink:0;-webkit-app-region:no-drag;
+  }
+  #selection-bar.visible{display:flex}
+  #sel-count{font-size:12px;font-weight:700;color:var(--accent)}
+
+  /* ── Buttons ── */
+  .btn{padding:7px 14px;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+  .btn-gold{background:var(--plus-gradient);color:#000}
+  .btn-gold:hover{opacity:.88}
+  .btn-purple{background:var(--purple-gradient);color:#fff}
+  .btn-purple:hover{opacity:.88}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:transparent;border:1px solid rgba(248,113,113,.3);color:var(--danger)}
+  .btn-danger:hover{background:rgba(248,113,113,.1)}
+  .btn-sm{padding:4px 10px;font-size:11px}
+
+  /* ── Toast ── */
+  #toast-wrap{position:fixed;bottom:16px;right:16px;z-index:99999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+  .toast{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.7);animation:tIn .18s ease}
+  .toast.success{border-color:var(--accent)}.toast.error{border-color:var(--danger)}
+  @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div style="color:var(--accent);display:flex">
+        <img src="gallery-pro.svg" style="width:22px;height:22px;filter:brightness(0) saturate(100%) invert(82%) sepia(60%) saturate(400%) hue-rotate(5deg)" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="app-name">Gallery Pro</span>
+          <span class="plus-badge">PLUS</span>
+        </div>
+        <div class="subtitle">Lightbox · Slideshow · Reference Sheet Builder</div>
+      </div>
+    </div>
+    <div id="titlebar-right">
+      <button class="btn btn-ghost btn-sm" onclick="openRefSheetBuilder()">
+        <i data-lucide="layout-template" style="width:12px;height:12px"></i> Ref Sheet Builder
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="startSlideshow()">
+        <i data-lucide="play" style="width:12px;height:12px"></i> Slideshow
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="loadAll()">
+        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="body">
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div id="sidebar-tabs">
+        <div class="stab active" id="stab-chars"  onclick="setSidebarTab('chars')">Characters</div>
+        <div class="stab"        id="stab-tags"   onclick="setSidebarTab('tags')">Tags</div>
+      </div>
+      <input id="sidebar-search" placeholder="Search…" oninput="renderSidebar()">
+      <div id="sidebar-list"></div>
+    </div>
+
+    <!-- Main -->
+    <div id="main">
+      <div id="toolbar">
+        <div id="toolbar-left">
+          <button class="filter-btn active" id="filter-all"    onclick="setFilter('all')">All</button>
+          <button class="filter-btn"        id="filter-avatar" onclick="setFilter('avatar')">Avatars</button>
+          <button class="filter-btn"        id="filter-banner" onclick="setFilter('banner')">Banners</button>
+          <button class="filter-btn"        id="filter-gallery"onclick="setFilter('gallery')">Gallery</button>
+          <span id="img-count"></span>
+        </div>
+        <div id="toolbar-right">
+          <select id="sort-select" onchange="renderGallery()">
+            <option value="char">By Character</option>
+            <option value="type">By Type</option>
+            <option value="label">By Label A–Z</option>
+          </select>
+          <div class="view-btn active" id="vbtn-grid"  onclick="setView('grid')"  title="Grid"><i data-lucide="grid-2x2" style="width:14px;height:14px"></i></div>
+          <div class="view-btn"        id="vbtn-large" onclick="setView('large')" title="Large"><i data-lucide="square" style="width:14px;height:14px"></i></div>
+          <div class="view-btn"        id="vbtn-list"  onclick="setView('list')"  title="List"><i data-lucide="list" style="width:14px;height:14px"></i></div>
+          <div class="view-btn"        id="vbtn-select"onclick="toggleSelectMode()" title="Select mode" id="select-btn"><i data-lucide="check-square" style="width:14px;height:14px"></i></div>
+        </div>
+      </div>
+
+      <div id="gallery-scroll">
+        <div id="gallery-empty">
+          <div class="empty-icon-big">🖼</div>
+          <div class="empty-title">No images found</div>
+          <div style="font-size:12px;max-width:280px;line-height:1.6">Add images to characters in Charactry, then hit Refresh to see them here.</div>
+        </div>
+        <div id="gallery-grid"></div>
+      </div>
+
+      <div id="selection-bar">
+        <span id="sel-count">0 selected</span>
+        <button class="btn btn-gold btn-sm" onclick="openRefSheetBuilderWithSelected()">
+          <i data-lucide="layout-template" style="width:11px;height:11px"></i> Build Ref Sheet
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="slideshowSelected()">
+          <i data-lucide="play" style="width:11px;height:11px"></i> Slideshow
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="downloadSelected()">
+          <i data-lucide="download" style="width:11px;height:11px"></i> Download All
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="clearSelection()">✕ Deselect All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIGHTBOX ══ -->
+<div id="lightbox">
+  <div id="lb-header">
+    <div>
+      <div id="lb-title">Image</div>
+      <div id="lb-meta"></div>
+    </div>
+    <div id="lb-actions">
+      <button class="btn btn-ghost btn-sm" onclick="lbZoomToggle()"><i data-lucide="zoom-in" style="width:12px;height:12px"></i> Zoom</button>
+      <button class="btn btn-ghost btn-sm" onclick="lbDownload()"><i data-lucide="download" style="width:12px;height:12px"></i> Save</button>
+      <button class="btn btn-gold btn-sm"  onclick="lbAddToRefSheet()"><i data-lucide="layout-template" style="width:12px;height:12px"></i> Add to Ref Sheet</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeLightbox()">✕ Close</button>
+    </div>
+  </div>
+  <div id="lb-body">
+    <img id="lb-img" src="" alt="" onclick="lbZoomToggle()">
+    <div id="lb-prev" onclick="lbNav(-1)"><i data-lucide="chevron-left" style="width:20px;height:20px"></i></div>
+    <div id="lb-next" onclick="lbNav(1)"><i data-lucide="chevron-right" style="width:20px;height:20px"></i></div>
+    <div id="lb-counter"></div>
+  </div>
+  <div id="lb-tags-bar">
+    <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Tags:</span>
+    <div id="lb-tags"></div>
+    <button id="lb-add-tag" onclick="lbShowTagInput()">+ Tag</button>
+    <input id="lb-tag-input" placeholder="Add tag…" onkeydown="lbTagKeydown(event)">
+  </div>
+</div>
+
+<!-- ══ SLIDESHOW ══ -->
+<div id="slideshow-overlay">
+  <img id="ss-img" src="" alt="">
+  <div id="ss-info">
+    <div id="ss-title"></div>
+    <div id="ss-counter"></div>
+  </div>
+  <button id="ss-close" onclick="stopSlideshow()">✕ Exit Slideshow</button>
+  <div id="ss-progress"></div>
+</div>
+
+<!-- ══ REF SHEET BUILDER ══ -->
+<div id="refsheet-panel">
+  <div id="refsheet-box">
+    <div id="refsheet-header">
+      <div id="refsheet-title">✦ Reference Sheet Builder</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeRefSheet()">✕ Close</button>
+    </div>
+    <div id="refsheet-body">
+      <div id="refsheet-config">
+
+        <div class="rs-section">
+          <div class="rs-label">Layout</div>
+          <select class="rs-select" id="rs-layout" onchange="rsLayoutChanged()">
+            <option value="grid2">2-Column Grid</option>
+            <option value="grid3">3-Column Grid</option>
+            <option value="hero">Hero + Details</option>
+            <option value="strip">Horizontal Strip</option>
+            <option value="free">✦ Free Position</option>
+          </select>
+          <div id="rs-free-hint" style="display:none;font-size:10px;color:var(--accent);margin-top:5px;line-height:1.5">
+            Drag images on the canvas to position them freely. Resize with the handles.
+          </div>
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Character</div>
+          <select class="rs-select" id="rs-char" onchange="rsCharChanged()">
+            <option value="">— No character —</option>
+          </select>
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Title</div>
+          <input class="rs-input" id="rs-title" placeholder="e.g. Character Name" oninput="renderRefSheet()">
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Subtitle / Notes</div>
+          <input class="rs-input" id="rs-subtitle" placeholder="e.g. Species · Pronouns" oninput="renderRefSheet()">
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Background Color</div>
+          <input type="color" class="rs-color" id="rs-bg" value="#0f1120" oninput="renderRefSheet()">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2);margin-top:6px">
+            <input type="checkbox" id="rs-transparent" onchange="toggleTransparentBg()" style="accent-color:var(--accent)">
+            Transparent background (PNG only)
+          </label>
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Background Image <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:6px;line-height:1.5">Image must match your canvas size exactly. It will be stretched to fit if it doesn't.</div>
+          <input type="file" id="rs-bg-img-upload" accept="image/*" onchange="loadBgImage()" style="display:none">
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById('rs-bg-img-upload').click()">
+              <i data-lucide="image" style="width:11px;height:11px"></i> Import BG Image
+            </button>
+            <button class="btn btn-ghost btn-sm" id="rs-bg-clear" style="display:none;color:var(--danger);border-color:rgba(248,113,113,.3)" onclick="clearBgImage()">✕</button>
+          </div>
+          <div id="rs-bg-img-preview" style="display:none;margin-top:6px;border-radius:6px;overflow:hidden;border:1px solid var(--border);height:50px">
+            <img id="rs-bg-img-thumb" style="width:100%;height:100%;object-fit:cover">
+          </div>
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Accent Color</div>
+          <input type="color" class="rs-color" id="rs-accent" value="#f0c040" oninput="renderRefSheet()">
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Images (click to toggle, drag to reorder)</div>
+          <div class="rs-images-list" id="rs-images-list"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="rsAddFromGallery()">
+            + Add from Gallery
+          </button>
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Show Character Info</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+            <input type="checkbox" id="rs-show-info" checked onchange="renderRefSheet()" style="accent-color:var(--accent)">
+            Include species, traits, colours etc.
+          </label>
+        </div>
+
+        <div class="rs-section">
+          <div class="rs-label">Canvas Size (px)</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Width</div>
+              <input class="rs-input" type="number" id="rs-width" value="1200" min="600" max="4000" step="100" oninput="renderRefSheet()">
+            </div>
+            <div style="font-size:13px;color:var(--text3);padding-top:16px">×</div>
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Height <span style="color:var(--accent)">auto</span></div>
+              <input class="rs-input" type="number" id="rs-height" placeholder="Auto" min="300" max="6000" step="100" oninput="renderRefSheet()" title="Leave blank for auto height">
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px">Leave height blank for automatic sizing.</div>
+        </div>
+
+      </div>
+      <div id="refsheet-preview">
+        <div id="refsheet-canvas-wrap">
+          <canvas id="refsheet-canvas"
+            onmousedown="canvasDragStart(event)"
+            onmousemove="canvasDragMove(event)"
+            onmouseup="canvasDragEnd(event)"
+            onmouseleave="canvasDragEnd(event)"
+            style="display:block;cursor:default">
+          </canvas>
+        </div>
+      </div>
+    </div>
+    <div id="refsheet-footer">
+      <button class="btn btn-ghost" onclick="closeRefSheet()">Cancel</button>
+      <button class="btn btn-gold" onclick="downloadRefSheet()">
+        <i data-lucide="download" style="width:13px;height:13px"></i> Download PNG
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+const IMG_TAGS_KEY = 'charactry_gallery_pro_tags'; // { imgKey: [tag,tag] }
+
+let characters  = [];
+let allImages   = []; // [{ id, src, label, type, charId, charName, charAvatar, tags:[] }]
+let imgTags     = {}; // persistent tag storage
+let filtered    = [];
+let activeFilter= 'all';
+let activeView  = 'grid';
+let sidebarTab  = 'chars';
+let activeCharId= null;
+let activeTag   = null;
+let selectMode  = false;
+let selected    = new Set(); // Set of img ids
+let lbIndex     = 0;
+let lbImages    = [];
+let ssTimer     = null;
+let ssIndex     = 0;
+let ssImages    = [];
+let rsImages    = []; // ref sheet selected images [{src,label}]
+let isDragging  = false;
+let lbZoomed    = false;
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+  imgTags = (await localforage.getItem(IMG_TAGS_KEY).catch(() => null)) || {};
+  await loadAll();
+  lucide.createIcons();
+});
+
+async function loadAll() {
+  try {
+    const lf = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+    if (window.electronAPI?.listAllChars && window.electronAPI?.readCharJSON) {
+      const ids    = await window.electronAPI.listAllChars();
+      const loaded = await Promise.all(ids.map(id => window.electronAPI.readCharJSON(id).catch(() => null)));
+      const disk   = loaded.filter(Boolean);
+      characters   = disk.map(dc => {
+        const lfc = lf.find(x => x.id === dc.id);
+        return lfc ? { ...dc, avatar:lfc.avatar, banner:lfc.banner, images:lfc.images, gallery:lfc.gallery } : dc;
+      });
+      lf.forEach(lfc => { if (!characters.find(x => x.id === lfc.id)) characters.push(lfc); });
+    } else {
+      characters = lf;
+    }
+  } catch { characters = (await localforage.getItem('charactry_chars').catch(() => null)) || []; }
+
+  buildAllImages();
+  renderSidebar();
+  renderGallery();
+  populateRsCharSelect();
+  lucide.createIcons();
+}
+
+function buildAllImages() {
+  allImages = [];
+  characters.forEach(c => {
+    const charName   = c.name || 'Unknown';
+    const charAvatar = c.avatar || null;
+
+    if (c.avatar) allImages.push({
+      id: `${c.id}__avatar`,
+      src: c.avatar, label: 'Avatar', type: 'avatar',
+      charId: c.id, charName, charAvatar,
+      tags: imgTags[`${c.id}__avatar`] || [],
+    });
+
+    if (c.banner) allImages.push({
+      id: `${c.id}__banner`,
+      src: c.banner, label: 'Banner', type: 'banner',
+      charId: c.id, charName, charAvatar,
+      tags: imgTags[`${c.id}__banner`] || [],
+    });
+
+    (c.images || []).forEach((img, i) => {
+      allImages.push({
+        id: `${c.id}__img__${i}`,
+        src: img.src, label: img.label || `Image ${i+1}`, type: 'gallery',
+        charId: c.id, charName, charAvatar,
+        tags: imgTags[`${c.id}__img__${i}`] || [],
+      });
+    });
+
+    // Legacy gallery array (some chars use this)
+    (c.gallery || []).forEach((src, i) => {
+      if (typeof src === 'string') allImages.push({
+        id: `${c.id}__gal__${i}`,
+        src, label: `Gallery ${i+1}`, type: 'gallery',
+        charId: c.id, charName, charAvatar,
+        tags: imgTags[`${c.id}__gal__${i}`] || [],
+      });
+    });
+  });
+}
+
+async function saveTags() {
+  await localforage.setItem(IMG_TAGS_KEY, imgTags).catch(() => {});
+}
+
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+function setSidebarTab(tab) {
+  sidebarTab = tab;
+  activeCharId = null; activeTag = null;
+  document.getElementById('stab-chars').classList.toggle('active', tab === 'chars');
+  document.getElementById('stab-tags').classList.toggle('active', tab === 'tags');
+  renderSidebar();
+  renderGallery();
+}
+
+function renderSidebar() {
+  const q    = document.getElementById('sidebar-search').value.trim().toLowerCase();
+  const list = document.getElementById('sidebar-list');
+
+  if (sidebarTab === 'chars') {
+    const chars = q ? characters.filter(c => c.name?.toLowerCase().includes(q)) : characters;
+    const withCount = chars.map(c => ({
+      c, count: allImages.filter(i => i.charId === c.id).length
+    })).filter(x => x.count > 0);
+
+    list.innerHTML = `
+      <div class="sidebar-item ${!activeCharId ? 'active' : ''}" onclick="selectChar(null)">
+        <div class="sidebar-avatar" style="font-size:10px;color:var(--accent)">ALL</div>
+        <span class="sidebar-item-name">All Characters</span>
+        <span class="sidebar-item-count">${allImages.length}</span>
+      </div>
+      ${withCount.map(({c,count}) => `
+        <div class="sidebar-item ${c.id === activeCharId ? 'active' : ''}" onclick="selectChar('${escAttr(c.id)}')">
+          <div class="sidebar-avatar">
+            ${c.avatar ? `<img src="${escAttr(c.avatar)}" alt="">` : esc((c.name||'?')[0].toUpperCase())}
+          </div>
+          <span class="sidebar-item-name">${esc(c.name)}</span>
+          <span class="sidebar-item-count">${count}</span>
+        </div>`).join('')}`;
+  } else {
+    // Tags tab
+    const tagMap = {};
+    allImages.forEach(img => (img.tags||[]).forEach(t => { tagMap[t] = (tagMap[t]||0)+1; }));
+    const tags = Object.entries(tagMap).sort((a,b) => b[1]-a[1]);
+    const fTags = q ? tags.filter(([t]) => t.toLowerCase().includes(q)) : tags;
+
+    list.innerHTML = `
+      <div class="sidebar-item ${!activeTag ? 'active' : ''}" onclick="selectTag(null)">
+        <div class="sidebar-avatar" style="font-size:10px;color:var(--purple2)">#</div>
+        <span class="sidebar-item-name">All Tags</span>
+        <span class="sidebar-item-count">${tags.length}</span>
+      </div>
+      ${fTags.map(([tag,count]) => `
+        <div class="sidebar-item ${tag === activeTag ? 'active' : ''}" onclick="selectTag('${escAttr(tag)}')">
+          <div class="sidebar-avatar" style="font-size:10px;color:var(--purple2)">#</div>
+          <span class="sidebar-item-name">${esc(tag)}</span>
+          <span class="sidebar-item-count">${count}</span>
+        </div>`).join('')}
+      ${!fTags.length ? `<div style="padding:16px;text-align:center;font-size:12px;color:var(--text3)">No tags yet.<br>Open an image and add tags!</div>` : ''}`;
+  }
+}
+
+function selectChar(id) { activeCharId = id; activeTag = null; renderSidebar(); renderGallery(); }
+function selectTag(tag) { activeTag = tag; activeCharId = null; renderSidebar(); renderGallery(); }
+
+/* ══════════════════════════════════════════════
+   GALLERY
+══════════════════════════════════════════════ */
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('filter-' + f).classList.add('active');
+  renderGallery();
+}
+
+function setView(v) {
+  activeView = v;
+  ['grid','large','list'].forEach(x => {
+    document.getElementById('vbtn-'+x).classList.toggle('active', x === v);
+  });
+  const grid = document.getElementById('gallery-grid');
+  grid.className = v === 'grid' ? 'gallery-grid' : v === 'large' ? 'gallery-grid large' : 'gallery-grid list';
+  // Adjust image heights for current view
+  renderGallery();
+}
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  document.getElementById('select-btn').classList.toggle('active', selectMode);
+  document.getElementById('gallery-grid').classList.toggle('select-mode', selectMode);
+  if (!selectMode) clearSelection();
+}
+
+function renderGallery() {
+  let imgs = [...allImages];
+  if (activeCharId)      imgs = imgs.filter(i => i.charId === activeCharId);
+  if (activeTag)         imgs = imgs.filter(i => (i.tags||[]).includes(activeTag));
+  if (activeFilter !== 'all') imgs = imgs.filter(i => i.type === activeFilter);
+
+  const sort = document.getElementById('sort-select').value;
+  if (sort === 'char')  imgs.sort((a,b) => a.charName.localeCompare(b.charName) || a.type.localeCompare(b.type));
+  if (sort === 'type')  imgs.sort((a,b) => a.type.localeCompare(b.type) || a.charName.localeCompare(b.charName));
+  if (sort === 'label') imgs.sort((a,b) => a.label.localeCompare(b.label));
+
+  filtered = imgs;
+  document.getElementById('img-count').textContent = `${imgs.length} image${imgs.length !== 1 ? 's' : ''}`;
+
+  const grid  = document.getElementById('gallery-grid');
+  const empty = document.getElementById('gallery-empty');
+
+  if (!imgs.length) {
+    grid.style.display = 'none';
+    empty.style.display = 'flex';
+    return;
+  }
+  grid.style.display = 'grid';
+  empty.style.display = 'none';
+
+  const isListView = activeView === 'list';
+  grid.innerHTML = imgs.map((img,i) => `
+    <div class="gallery-tile ${selected.has(img.id) ? 'selected' : ''}"
+      onclick="tileClick('${escAttr(img.id)}',${i})"
+      ondblclick="tileDoubleClick('${escAttr(img.id)}')"
+      title="${escAttr(img.label)} — ${escAttr(img.charName)}">
+      <div class="tile-img-wrap">
+        <img src="${escAttr(img.src)}" alt="${escAttr(img.label)}" loading="lazy"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22150%22><rect fill=%22%230f1120%22 width=%22160%22 height=%22150%22/><text x=%2280%22 y=%2280%22 text-anchor=%22middle%22 fill=%22%234a4870%22 font-size=%2212%22>No image</text></svg>'">
+        <div class="tile-type-badge badge-${img.type}">${img.type}</div>
+        <div class="tile-select-check">✓</div>
+      </div>
+      <div class="tile-footer">
+        <div class="tile-label">${esc(img.label)}</div>
+        <div class="tile-sub">${esc(img.charName)}${img.tags?.length ? ' · ' + img.tags.slice(0,2).map(esc).join(', ') : ''}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  // Update selection bar
+  const bar = document.getElementById('selection-bar');
+  bar.classList.toggle('visible', selectMode && selected.size > 0);
+  document.getElementById('sel-count').textContent = `${selected.size} selected`;
+}
+
+function tileClick(id, idx) {
+  if (selectMode) {
+    if (selected.has(id)) selected.delete(id); else selected.add(id);
+    renderGallery();
+    return;
+  }
+  openLightbox(idx);
+}
+
+function tileDoubleClick(id) {
+  if (!selectMode) return;
+  selected.add(id);
+  renderGallery();
+}
+
+function clearSelection() {
+  selected.clear();
+  renderGallery();
+}
+
+/* ══════════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════════ */
+function openLightbox(idx) {
+  lbImages = filtered;
+  lbIndex  = idx;
+  lbZoomed = false;
+  showLbImage();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function showLbImage() {
+  const img = lbImages[lbIndex];
+  if (!img) return;
+  const el = document.getElementById('lb-img');
+  el.src = img.src;
+  el.classList.remove('zoomed');
+  lbZoomed = false;
+  document.getElementById('lb-title').textContent = img.label;
+  document.getElementById('lb-meta').textContent = `${img.charName} · ${img.type}`;
+  document.getElementById('lb-counter').textContent = `${lbIndex + 1} / ${lbImages.length}`;
+  renderLbTags(img);
+}
+
+function lbNav(dir) {
+  lbIndex = ((lbIndex + dir) + lbImages.length) % lbImages.length;
+  showLbImage();
+}
+
+function lbZoomToggle() {
+  lbZoomed = !lbZoomed;
+  document.getElementById('lb-img').classList.toggle('zoomed', lbZoomed);
+}
+
+function lbDownload() {
+  const img = lbImages[lbIndex];
+  if (!img) return;
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = `${img.charName}_${img.label}`.replace(/[^a-zA-Z0-9_]/g,'_') + '.png';
+  a.click();
+  toast('Downloading…', 'success');
+}
+
+function lbAddToRefSheet() {
+  const img = lbImages[lbIndex];
+  if (!img) return;
+  if (!rsImages.find(x => x.src === img.src)) {
+    rsImages.push({ src: img.src, label: img.label, selected: true });
+    toast(`Added to Ref Sheet: ${img.label}`, 'success');
+  } else {
+    toast('Already in Ref Sheet!', 'error');
+  }
+}
+
+/* Tags */
+function renderLbTags(img) {
+  const tags = img.tags || [];
+  document.getElementById('lb-tags').innerHTML = tags.map(t =>
+    `<span class="lb-tag" onclick="lbRemoveTag('${escAttr(t)}')">${esc(t)} <span style="opacity:.5;font-size:10px">✕</span></span>`
+  ).join('');
+}
+
+function lbShowTagInput() {
+  const inp = document.getElementById('lb-tag-input');
+  inp.style.display = 'block';
+  inp.focus();
+  inp.value = '';
+}
+
+async function lbTagKeydown(e) {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim().toLowerCase();
+    if (!val) { e.target.style.display = 'none'; return; }
+    const img = lbImages[lbIndex];
+    if (!img.tags) img.tags = [];
+    if (!img.tags.includes(val)) {
+      img.tags.push(val);
+      imgTags[img.id] = img.tags;
+      await saveTags();
+      renderLbTags(img);
+      renderSidebar();
+      toast(`Tagged: ${val}`, 'success');
+    }
+    e.target.value = '';
+    e.target.style.display = 'none';
+  }
+  if (e.key === 'Escape') { e.target.style.display = 'none'; }
+}
+
+async function lbRemoveTag(tag) {
+  const img = lbImages[lbIndex];
+  if (!img?.tags) return;
+  img.tags = img.tags.filter(t => t !== tag);
+  imgTags[img.id] = img.tags;
+  await saveTags();
+  renderLbTags(img);
+  renderSidebar();
+}
+
+/* ══════════════════════════════════════════════
+   SLIDESHOW
+══════════════════════════════════════════════ */
+function startSlideshow(imgs) {
+  ssImages = imgs || filtered;
+  if (!ssImages.length) { toast('No images to show!', 'error'); return; }
+  ssIndex = 0;
+  document.getElementById('slideshow-overlay').classList.add('open');
+  showSsImage();
+  scheduleSsNext(4000);
+}
+
+function slideshowSelected() {
+  const imgs = allImages.filter(i => selected.has(i.id));
+  if (!imgs.length) { toast('Select images first!', 'error'); return; }
+  startSlideshow(imgs);
+}
+
+function showSsImage() {
+  const img = ssImages[ssIndex];
+  if (!img) return;
+  const el = document.getElementById('ss-img');
+  el.classList.add('fade');
+  setTimeout(() => {
+    el.src = img.src;
+    el.classList.remove('fade');
+  }, 200);
+  document.getElementById('ss-title').textContent = `${img.charName} — ${img.label}`;
+  document.getElementById('ss-counter').textContent = `${ssIndex + 1} / ${ssImages.length}`;
+}
+
+function scheduleSsNext(delay) {
+  clearTimeout(ssTimer);
+  const bar = document.getElementById('ss-progress');
+  bar.style.transition = 'none'; bar.style.width = '0%';
+  requestAnimationFrame(() => {
+    bar.style.transition = `width ${delay}ms linear`;
+    bar.style.width = '100%';
+  });
+  ssTimer = setTimeout(() => {
+    ssIndex = (ssIndex + 1) % ssImages.length;
+    showSsImage();
+    scheduleSsNext(4000);
+  }, delay);
+}
+
+function stopSlideshow() {
+  clearTimeout(ssTimer);
+  document.getElementById('slideshow-overlay').classList.remove('open');
+}
+
+document.getElementById('slideshow-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('slideshow-overlay') || e.target === document.getElementById('ss-img')) {
+    ssIndex = (ssIndex + 1) % ssImages.length;
+    showSsImage();
+    scheduleSsNext(4000);
+  }
+});
+
+/* ══════════════════════════════════════════════
+   DOWNLOAD
+══════════════════════════════════════════════ */
+function downloadSelected() {
+  const imgs = allImages.filter(i => selected.has(i.id));
+  if (!imgs.length) return;
+  imgs.forEach((img, i) => {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = img.src;
+      a.download = `${img.charName}_${img.label}`.replace(/[^a-zA-Z0-9_]/g,'_') + '.png';
+      a.click();
+    }, i * 300);
+  });
+  toast(`Downloading ${imgs.length} image${imgs.length !== 1 ? 's' : ''}…`, 'success');
+}
+
+/* ══════════════════════════════════════════════
+   REF SHEET BUILDER
+══════════════════════════════════════════════ */
+function populateRsCharSelect() {
+  const sel = document.getElementById('rs-char');
+  sel.innerHTML = '<option value="">— No character —</option>'
+    + characters.map(c => `<option value="${escAttr(c.id)}">${esc(c.name)}</option>`).join('');
+}
+
+function openRefSheetBuilder() {
+  if (!rsImages.length) {
+    // Auto-populate with current selection or first char
+    const src = selected.size > 0
+      ? allImages.filter(i => selected.has(i.id))
+      : filtered.slice(0, 4);
+    rsImages = src.map(i => ({ src: i.src, label: i.label, selected: true }));
+  }
+  renderRsImageList();
+  document.getElementById('refsheet-panel').classList.add('open');
+  renderRefSheet();
+}
+
+function openRefSheetBuilderWithSelected() {
+  rsImages = allImages.filter(i => selected.has(i.id)).map(i => ({ src: i.src, label: i.label, selected: true }));
+  renderRsImageList();
+  document.getElementById('refsheet-panel').classList.add('open');
+  renderRefSheet();
+}
+
+function closeRefSheet() {
+  document.getElementById('refsheet-panel').classList.remove('open');
+}
+
+function rsCharChanged() {
+  const id = document.getElementById('rs-char').value;
+  const c  = characters.find(x => x.id === id);
+  if (c) {
+    document.getElementById('rs-title').value    = c.name || '';
+    const sub = [c.species, c.pronouns, c.occupation].filter(Boolean).join(' · ');
+    document.getElementById('rs-subtitle').value = sub;
+    const charImgs = allImages.filter(i => i.charId === id);
+    rsImages = charImgs.slice(0, 6).map(i => ({ src: i.src, label: i.label, selected: true }));
+    rsFreeLayout = [];
+    renderRsImageList();
+  }
+  renderRefSheet();
+}
+
+function rsAddFromGallery() {
+  const imgs = filtered.slice(0, 8);
+  imgs.forEach(i => {
+    if (!rsImages.find(r => r.src === i.src)) rsImages.push({ src: i.src, label: i.label, selected: true });
+  });
+  if (rsImages.length > 8) rsImages = rsImages.slice(0, 8);
+  rsFreeLayout = [];
+  renderRsImageList();
+  renderRefSheet();
+  toast('Images added from gallery!', 'success');
+}
+
+let rsDragSrc = null;
+let rsBgImage = null; // HTMLImageElement or null
+
+// Free position mode state
+let rsLoadedImgs  = []; // cached HTMLImageElement array matching rsImages order — NEVER reordered
+let rsFreeLayout  = []; // [{x,y,w,h,label}] one per active image — NEVER reordered
+let rsZOrder      = []; // paint order indices — topmost last, updated on drag instead of reordering arrays
+let rsCanvasScale = 1;
+let rsDraggingImg = null; // { idx, startX, startY, origX, origY }
+let rsResizing    = null; // { idx, startX, startY, origW, origH }
+
+function renderRsImageList() {
+  const wrap = document.getElementById('rs-images-list');
+  wrap.innerHTML = rsImages.map((img, i) =>
+    `<div class="rs-img-thumb ${img.selected ? 'selected' : ''}"
+      draggable="true"
+      data-idx="${i}"
+      onclick="rsToggleImage(${i})"
+      ondragstart="rsDragStart(event,${i})"
+      ondragover="rsDragOver(event,${i})"
+      ondragleave="rsDragLeave(event)"
+      ondrop="rsDrop(event,${i})"
+      ondragend="rsDragEnd()">
+      <img src="${escAttr(img.src)}" alt="">
+      <div class="rs-remove" onclick="event.stopPropagation();rsRemoveImage(${i})">✕</div>
+    </div>`
+  ).join('');
+}
+
+function rsLayoutChanged() {
+  const layout = document.getElementById('rs-layout').value;
+  document.getElementById('rs-free-hint').style.display = layout === 'free' ? 'block' : 'none';
+  document.getElementById('refsheet-canvas').style.cursor = layout === 'free' ? 'move' : 'default';
+  if (layout === 'free') initFreeLayout();
+  renderRefSheet();
+}
+function rsDragStart(e, idx) {
+  rsDragSrc = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const thumbs = document.querySelectorAll('.rs-img-thumb');
+    if (thumbs[idx]) thumbs[idx].classList.add('dragging');
+  }, 0);
+}
+function rsDragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.rs-img-thumb').forEach(t => t.classList.remove('drag-over'));
+  const thumbs = document.querySelectorAll('.rs-img-thumb');
+  if (thumbs[idx] && idx !== rsDragSrc) thumbs[idx].classList.add('drag-over');
+}
+function rsDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function rsDrop(e, targetIdx) {
+  e.preventDefault();
+  if (rsDragSrc === null || rsDragSrc === targetIdx) return;
+  const dragged = rsImages.splice(rsDragSrc, 1)[0];
+  rsImages.splice(targetIdx, 0, dragged);
+  rsDragSrc = null;
+  rsFreeLayout = []; // force reinit so labels match new order
+  rsZOrder     = [];
+  renderRsImageList();
+  renderRefSheet();
+}
+function rsDragEnd() {
+  rsDragSrc = null;
+  document.querySelectorAll('.rs-img-thumb').forEach(t => {
+    t.classList.remove('dragging', 'drag-over');
+  });
+}
+
+/* ── Free Position Layout ── */
+function initFreeLayout() {
+  const canvasW  = Math.min(4000, Math.max(600, parseInt(document.getElementById('rs-width').value) || 1200));
+  const activeRs = rsImages.filter(i => i.selected);
+  const imgW     = Math.floor(canvasW / Math.max(activeRs.length, 1) * 0.8);
+  const imgH     = Math.round(imgW * 1.2);
+  rsFreeLayout = activeRs.map((img, i) => ({
+    x:     20 + i * (Math.min(imgW + 10, Math.floor(canvasW / Math.max(activeRs.length,1)))),
+    y:     80,
+    w:     imgW,
+    h:     imgH,
+    label: img.label || '',
+  }));
+  rsZOrder = activeRs.map((_, i) => i); // initial paint order = array order
+}
+
+function getCanvasScale() {
+  const canvas  = document.getElementById('refsheet-canvas');
+  const rect    = canvas.getBoundingClientRect();
+  return rect.width / canvas.width;
+}
+
+function hitTestFreeImages(cx, cy) {
+  // Check in reverse zOrder so topmost (last in zOrder) is hit first
+  for (let z = rsZOrder.length - 1; z >= 0; z--) {
+    const i = rsZOrder[z];
+    const r = rsFreeLayout[i];
+    if (!r) continue;
+    if (cx >= r.x && cx <= r.x + r.w && cy >= r.y && cy <= r.y + r.h) return i;
+  }
+  return -1;
+}
+
+function hitTestResizeHandle(cx, cy) {
+  const handleSize = 14;
+  for (let z = rsZOrder.length - 1; z >= 0; z--) {
+    const i = rsZOrder[z];
+    const r = rsFreeLayout[i];
+    if (!r) continue;
+    const hx = r.x + r.w - handleSize, hy = r.y + r.h - handleSize;
+    if (cx >= hx && cx <= r.x + r.w && cy >= hy && cy <= r.y + r.h) return i;
+  }
+  return -1;
+}
+
+function canvasDragStart(e) {
+  if (document.getElementById('rs-layout').value !== 'free') return;
+  const canvas = document.getElementById('refsheet-canvas');
+  const rect   = canvas.getBoundingClientRect();
+  const scale  = canvas.width / rect.width;
+  const cx     = (e.clientX - rect.left) * scale;
+  const cy     = (e.clientY - rect.top)  * scale;
+
+  const rIdx = hitTestResizeHandle(cx, cy);
+  if (rIdx >= 0) {
+    rsResizing = { idx: rIdx, startX: cx, startY: cy, origW: rsFreeLayout[rIdx].w, origH: rsFreeLayout[rIdx].h };
+    // Bring to front in zOrder only — don't touch rsFreeLayout or rsLoadedImgs arrays
+    rsZOrder = rsZOrder.filter(i => i !== rIdx);
+    rsZOrder.push(rIdx);
+    canvas.style.cursor = 'se-resize';
+    return;
+  }
+
+  const idx = hitTestFreeImages(cx, cy);
+  if (idx >= 0) {
+    rsDraggingImg = { idx, startX: cx, startY: cy, origX: rsFreeLayout[idx].x, origY: rsFreeLayout[idx].y };
+    // Bring to front in zOrder only
+    rsZOrder = rsZOrder.filter(i => i !== idx);
+    rsZOrder.push(idx);
+    canvas.style.cursor = 'grabbing';
+  }
+}
+
+function canvasDragMove(e) {
+  if (document.getElementById('rs-layout').value !== 'free') return;
+  const canvas = document.getElementById('refsheet-canvas');
+  const rect   = canvas.getBoundingClientRect();
+  const scale  = canvas.width / rect.width;
+  const cx     = (e.clientX - rect.left) * scale;
+  const cy     = (e.clientY - rect.top)  * scale;
+
+  if (rsResizing) {
+    const dx = cx - rsResizing.startX, dy = cy - rsResizing.startY;
+    rsFreeLayout[rsResizing.idx].w = Math.max(60, rsResizing.origW + dx);
+    rsFreeLayout[rsResizing.idx].h = Math.max(60, rsResizing.origH + dy);
+    drawFreeLayout();
+    return;
+  }
+
+  if (rsDraggingImg) {
+    const dx = cx - rsDraggingImg.startX, dy = cy - rsDraggingImg.startY;
+    rsFreeLayout[rsDraggingImg.idx].x = rsDraggingImg.origX + dx;
+    rsFreeLayout[rsDraggingImg.idx].y = rsDraggingImg.origY + dy;
+    drawFreeLayout();
+    return;
+  }
+
+  // Cursor hint
+  const rIdx = hitTestResizeHandle(cx, cy);
+  if (rIdx >= 0) { canvas.style.cursor = 'se-resize'; return; }
+  const idx = hitTestFreeImages(cx, cy);
+  canvas.style.cursor = idx >= 0 ? 'grab' : 'default';
+}
+
+function canvasDragEnd(e) {
+  if (rsDraggingImg || rsResizing) {
+    rsDraggingImg = null;
+    rsResizing    = null;
+    document.getElementById('refsheet-canvas').style.cursor = 'grab';
+  }
+}
+
+function drawFreeLayout() {
+  const canvas  = document.getElementById('refsheet-canvas');
+  const ctx     = canvas.getContext('2d');
+  const isTransparent = document.getElementById('rs-transparent').checked;
+  const bgColor = document.getElementById('rs-bg').value || '#0f1120';
+  const acColor = document.getElementById('rs-accent').value || '#f0c040';
+  const canvasW = canvas.width, canvasH = canvas.height;
+
+  // Clear / background
+  if (isTransparent) {
+    ctx.clearRect(0, 0, canvasW, canvasH);
+  } else if (rsBgImage) {
+    ctx.drawImage(rsBgImage, 0, 0, canvasW, canvasH);
+  } else {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvasW, canvasH);
+  }
+
+  // Accent line
+  if (!isTransparent) { ctx.fillStyle = acColor; ctx.fillRect(0, 0, canvasW, 4); }
+
+  // Title
+  const title    = document.getElementById('rs-title').value || 'Character';
+  const subtitle = document.getElementById('rs-subtitle').value || '';
+  ctx.fillStyle = acColor;
+  ctx.font = `bold ${Math.round(canvasW * 0.032)}px Cinzel, serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(title, canvasW / 2, 44);
+  if (subtitle) {
+    ctx.fillStyle = '#9d9bbf'; ctx.font = `${Math.round(canvasW * 0.016)}px Nunito, sans-serif`;
+    ctx.fillText(subtitle, canvasW / 2, 66);
+  }
+
+  // Draw each image in zOrder (bottom to top)
+  const paintOrder = rsZOrder.length === rsFreeLayout.length ? rsZOrder : rsFreeLayout.map((_,i) => i);
+  paintOrder.forEach((i) => {
+    const r   = rsFreeLayout[i];
+    const img = rsLoadedImgs[i];
+    if (!r || !img) return;
+
+    const scale = Math.max(r.w / img.width, r.h / img.height);
+    const sw = r.w / scale, sh = r.h / scale;
+    const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+
+    ctx.save();
+    roundRect(ctx, r.x, r.y, r.w, r.h, 8);
+    ctx.clip();
+    ctx.drawImage(img, sx, sy, sw, sh, r.x, r.y, r.w, r.h);
+    ctx.restore();
+
+    // Label strip
+    ctx.fillStyle = 'rgba(7,8,15,0.75)'; ctx.fillRect(r.x, r.y + r.h - 22, r.w, 22);
+    ctx.fillStyle = '#f0edff'; ctx.font = `bold ${Math.max(10, Math.round(r.w * 0.065))}px Nunito, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(r.label || '', r.x + r.w/2, r.y + r.h - 7);
+
+    // Selection indicator: resize handle
+    ctx.fillStyle = acColor;
+    ctx.fillRect(r.x + r.w - 14, r.y + r.h - 14, 14, 14);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('⤡', r.x + r.w - 7, r.y + r.h - 4);
+  });
+
+  // Watermark
+  ctx.fillStyle = acColor + '33';
+  ctx.font = `bold ${Math.round(canvasW * 0.012)}px Cinzel, serif`;
+  ctx.textAlign = 'right';
+  ctx.fillText('Made with Charactry PLUS', canvasW - 24, canvasH - 10);
+}
+
+function toggleTransparentBg() {
+  const isTransparent = document.getElementById('rs-transparent').checked;
+  document.getElementById('rs-bg').disabled = isTransparent;
+  document.getElementById('rs-bg').style.opacity = isTransparent ? '.3' : '1';
+  renderRefSheet();
+}
+
+function loadBgImage() {
+  const file = document.getElementById('rs-bg-img-upload').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      rsBgImage = img;
+      document.getElementById('rs-bg-img-thumb').src = e.target.result;
+      document.getElementById('rs-bg-img-preview').style.display = 'block';
+      document.getElementById('rs-bg-clear').style.display = '';
+      toast(`Background image loaded (${img.width}×${img.height}px)`, 'success');
+      renderRefSheet();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearBgImage() {
+  rsBgImage = null;
+  document.getElementById('rs-bg-img-upload').value = '';
+  document.getElementById('rs-bg-img-preview').style.display = 'none';
+  document.getElementById('rs-bg-clear').style.display = 'none';
+  renderRefSheet();
+  toast('Background image cleared', 'success');
+}
+
+function rsToggleImage(i) {
+  rsImages[i].selected = !rsImages[i].selected;
+  rsFreeLayout = []; // reset so free layout reinits with new image count
+  renderRsImageList();
+  renderRefSheet();
+}
+
+function rsRemoveImage(i) {
+  rsImages.splice(i, 1);
+  rsFreeLayout = [];
+  renderRsImageList();
+  renderRefSheet();
+}
+
+async function renderRefSheet() {
+  const layout = document.getElementById('rs-layout').value;
+
+  // Show/hide free hint
+  document.getElementById('rs-free-hint').style.display = layout === 'free' ? 'block' : 'none';
+
+  if (layout === 'free') {
+    await renderFreeRefSheet();
+    return;
+  }
+  const canvas  = document.getElementById('refsheet-canvas');
+  const ctx     = canvas.getContext('2d');
+  const title   = document.getElementById('rs-title').value || 'Character';
+  const subtitle= document.getElementById('rs-subtitle').value || '';
+  const bgColor = document.getElementById('rs-bg').value || '#0f1120';
+  const acColor = document.getElementById('rs-accent').value || '#f0c040';
+  const showInfo= document.getElementById('rs-show-info').checked;
+  const isTransparent = document.getElementById('rs-transparent').checked;
+  const canvasW = Math.min(4000, Math.max(600, parseInt(document.getElementById('rs-width').value) || 1200));
+  const customH = parseInt(document.getElementById('rs-height').value) || 0;
+
+  const activeRsImgs = rsImages.filter(i => i.selected);
+
+  const cols  = layout === 'grid3' ? 3 : layout === 'strip' ? activeRsImgs.length || 1 : layout === 'hero' ? 2 : 2;
+  const imgW  = layout === 'strip' ? Math.floor(canvasW / Math.max(activeRsImgs.length,1)) : Math.floor((canvasW - 40 - (cols-1)*10) / cols);
+  const imgH  = layout === 'strip' ? Math.round(imgW * 0.75) : Math.round(imgW * 1.1);
+  const rows  = layout === 'strip' || layout === 'hero' ? 1 : Math.ceil(activeRsImgs.length / cols);
+  const headerH = 80;
+  const infoH = showInfo ? 120 : 0;
+  const autoH = headerH + rows * (imgH + 10) + infoH + 30;
+  const canvasH = customH > 0 ? Math.min(6000, Math.max(300, customH)) : autoH;
+
+  canvas.width  = canvasW;
+  canvas.height = canvasH;
+
+  // Background
+  if (isTransparent) {
+    ctx.clearRect(0, 0, canvasW, canvasH);
+  } else if (rsBgImage) {
+    ctx.drawImage(rsBgImage, 0, 0, canvasW, canvasH);
+  } else {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvasW, canvasH);
+  }
+
+  // Accent line (skip if transparent)
+  if (!isTransparent) {
+    ctx.fillStyle = acColor;
+    ctx.fillRect(0, 0, canvasW, 4);
+  }
+
+  // Title
+  ctx.fillStyle = acColor;
+  ctx.font = `bold ${Math.round(canvasW * 0.032)}px Cinzel, serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(title, canvasW / 2, 44);
+
+  if (subtitle) {
+    ctx.fillStyle = isTransparent ? 'rgba(157,155,191,0.9)' : '#9d9bbf';
+    ctx.font = `${Math.round(canvasW * 0.016)}px Nunito, sans-serif`;
+    ctx.fillText(subtitle, canvasW / 2, 66);
+  }
+
+  // Images
+  if (activeRsImgs.length) {
+    const loadImg = src => new Promise(res => {
+      const img = new Image();
+      img.onload  = () => res(img);
+      img.onerror = () => res(null);
+      img.src = src;
+    });
+
+    const loadedImgs = await Promise.all(activeRsImgs.map(i => loadImg(i.src)));
+
+    loadedImgs.forEach((img, idx) => {
+      if (!img) return;
+      let x, y, w, h;
+      if (layout === 'strip') {
+        w = imgW; h = imgH; x = idx * imgW; y = headerH;
+      } else if (layout === 'hero' && idx === 0) {
+        w = Math.floor(canvasW * 0.55); h = imgH; x = 20; y = headerH;
+      } else if (layout === 'hero') {
+        const subW = Math.floor((canvasW - Math.floor(canvasW * 0.55) - 50) / 2);
+        const subH = Math.floor(imgH / 2) - 5;
+        const col  = (idx - 1) % 2, row = Math.floor((idx - 1) / 2);
+        w = subW; h = subH;
+        x = Math.floor(canvasW * 0.55) + 30 + col * (subW + 10);
+        y = headerH + row * (subH + 10);
+      } else {
+        const col = idx % cols, row = Math.floor(idx / cols);
+        w = imgW; h = imgH;
+        x = 20 + col * (imgW + 10); y = headerH + row * (imgH + 10);
+      }
+
+      const scale = Math.max(w / img.width, h / img.height);
+      const sw = w / scale, sh = h / scale;
+      const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+
+      ctx.save();
+      roundRect(ctx, x, y, w, h, 8);
+      ctx.clip();
+      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+      ctx.restore();
+
+      if (activeRsImgs[idx]?.label) {
+        ctx.fillStyle = 'rgba(7,8,15,0.75)';
+        ctx.fillRect(x, y + h - 22, w, 22);
+        ctx.fillStyle = '#f0edff';
+        ctx.font = `bold ${Math.max(10, Math.round(w * 0.065))}px Nunito, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(activeRsImgs[idx].label, x + w/2, y + h - 7);
+      }
+    });
+  }
+
+  // Info bar
+  if (showInfo) {
+    const c = characters.find(x => x.id === document.getElementById('rs-char').value);
+    if (c) {
+      const infoY = headerH + rows * (imgH + 10) + 10;
+      if (!isTransparent) {
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
+        ctx.fillRect(20, infoY, canvasW - 40, infoH - 10);
+        ctx.strokeStyle = acColor + '44';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(20, infoY, canvasW - 40, infoH - 10);
+      }
+
+      const fields = [
+        ['Species', c.species], ['Pronouns', c.pronouns], ['Alignment', c.alignment],
+        ['Hair', c.hair], ['Eyes', c.eyes], ['Height', c.height],
+      ].filter(([,v]) => v);
+
+      const colW = Math.floor((canvasW - 40) / Math.min(fields.length || 1, 6));
+      fields.slice(0, 6).forEach(([label, value], i) => {
+        const fx = 20 + i * colW + colW/2;
+        ctx.fillStyle = isTransparent ? 'rgba(74,72,112,0.9)' : '#4a4870';
+        ctx.font = `bold ${Math.round(canvasW * 0.011)}px Nunito, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(label.toUpperCase(), fx, infoY + 22);
+        ctx.fillStyle = isTransparent ? 'rgba(240,237,255,0.95)' : '#f0edff';
+        ctx.font = `${Math.round(canvasW * 0.014)}px Nunito, sans-serif`;
+        const truncated = String(value).length > 20 ? String(value).slice(0,18)+'…' : String(value);
+        ctx.fillText(truncated, fx, infoY + 42);
+      });
+
+      ctx.fillStyle = acColor + '33';
+      ctx.font = `bold ${Math.round(canvasW * 0.012)}px Cinzel, serif`;
+      ctx.textAlign = 'right';
+      ctx.fillText('Made with Charactry PLUS', canvasW - 24, canvasH - 10);
+    }
+  }
+}
+
+async function renderFreeRefSheet() {
+  const canvasW      = Math.min(4000, Math.max(600, parseInt(document.getElementById('rs-width').value) || 1200));
+  const customH      = parseInt(document.getElementById('rs-height').value) || 0;
+  const canvasH      = customH > 0 ? Math.min(6000, Math.max(300, customH)) : Math.round(canvasW * 0.75);
+  const canvas       = document.getElementById('refsheet-canvas');
+  canvas.width       = canvasW;
+  canvas.height      = canvasH;
+
+  const activeRsImgs = rsImages.filter(i => i.selected);
+
+  // Load images
+  const loadImg = src => new Promise(res => {
+    const img = new Image(); img.onload = () => res(img); img.onerror = () => res(null); img.src = src;
+  });
+  rsLoadedImgs = await Promise.all(activeRsImgs.map(i => loadImg(i.src)));
+
+  // Init free layout positions if not set or count changed
+  if (rsFreeLayout.length !== activeRsImgs.length) initFreeLayout();
+  // Keep zOrder in sync
+  if (rsZOrder.length !== activeRsImgs.length) rsZOrder = activeRsImgs.map((_, i) => i);
+
+  drawFreeLayout();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x + r, y + h); ctx.arcTo(x, y+h, x, y+h-r, r);
+  ctx.lineTo(x, y + r); ctx.arcTo(x, y, x+r, y, r);
+  ctx.closePath();
+}
+
+function downloadRefSheet() {
+  const canvas = document.getElementById('refsheet-canvas');
+  const title  = (document.getElementById('rs-title').value || 'refsheet').replace(/[^a-zA-Z0-9]/g,'_');
+  const isTransparent = document.getElementById('rs-transparent').checked;
+  const a = document.createElement('a');
+  // PNG always for quality + transparency support
+  a.href = canvas.toDataURL('image/png');
+  a.download = `${title}_refsheet.png`;
+  a.click();
+  toast(`Downloaded${isTransparent ? ' (transparent PNG)' : ''} ✦`, 'success');
+}
+
+/* ══════════════════════════════════════════════
+   KEYBOARD
+══════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('open')) {
+    if (e.key === 'ArrowLeft')  lbNav(-1);
+    if (e.key === 'ArrowRight') lbNav(1);
+    if (e.key === 'Escape')     closeLightbox();
+    if (e.key === 'z' || e.key === 'Z') lbZoomToggle();
+    if (e.key === 'd' || e.key === 'D') lbDownload();
+    return;
+  }
+  if (document.getElementById('slideshow-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') stopSlideshow();
+    if (e.key === ' ' || e.key === 'ArrowRight') { ssIndex=(ssIndex+1)%ssImages.length; showSsImage(); scheduleSsNext(4000); }
+    if (e.key === 'ArrowLeft') { ssIndex=((ssIndex-1)+ssImages.length)%ssImages.length; showSsImage(); scheduleSsNext(4000); }
+    return;
+  }
+  if (e.key === 'Escape') {
+    closeRefSheet();
+    clearSelection();
+    if (selectMode) toggleSelectMode();
+  }
+});
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function esc(s)     { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { if(!s)return''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg, type='success') {
+  const c=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>el.remove(),2200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Name Generator — Charactry</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg:#0e0e14;--bg2:#13131c;--bg3:#1a1a28;--card:#16161f;
+    --border:#2a2a3d;--accent:#a78bfa;--accent2:#7c3aed;
+    --accent-glow:rgba(167,139,250,0.18);
+    --text:#e8e6f0;--text2:#9b98b0;--text3:#5a5870;
+    --danger:#f87171;--success:#4ade80;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;overflow:hidden}
+  ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:10px}
+
+  #root{display:flex;flex-direction:column;height:100vh}
+
+  /* Titlebar */
+  #titlebar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid var(--border);flex-shrink:0;-webkit-app-region:drag}
+  #titlebar-left{display:flex;align-items:center;gap:10px}
+  .title-icon{color:var(--accent);display:flex}
+  h1{font-family:'Cinzel',serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{font-size:11px;color:var(--text3);margin-top:1px}
+
+  /* Body: sidebar + main */
+  #body{display:flex;flex:1;overflow:hidden}
+
+  /* Style sidebar */
+  #style-sidebar{width:200px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;-webkit-app-region:no-drag}
+  #style-search{margin:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:12px;outline:none}
+  #style-search:focus{border-color:var(--accent)}
+  #genre-filters{display:flex;flex-wrap:wrap;gap:4px;padding:0 10px 8px;border-bottom:1px solid var(--border)}
+  .genre-btn{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-family:'Nunito',sans-serif;transition:all .15s}
+  .genre-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  #style-list{flex:1;overflow-y:auto;padding:6px}
+  .style-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .15s;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .style-item:hover{background:var(--bg3);color:var(--text)}
+  .style-item.active{background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent)}
+  .style-item .genre-tag{font-size:9px;background:var(--bg3);padding:1px 5px;border-radius:10px;color:var(--text3);border:1px solid var(--border);flex-shrink:0}
+  .style-item.active .genre-tag{background:var(--accent-glow);border-color:var(--accent);color:var(--accent)}
+
+  /* Main panel */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden;-webkit-app-region:no-drag}
+
+  /* Controls */
+  #controls{padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+  #controls-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .ctrl-group{display:flex;flex-direction:column;gap:4px}
+  .ctrl-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+  .ctrl-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:border-color .15s;cursor:pointer}
+  .ctrl-select:focus{border-color:var(--accent)}
+  .ctrl-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;width:60px;transition:border-color .15s}
+  .ctrl-input:focus{border-color:var(--accent)}
+  #options-row{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
+  .toggle-label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);user-select:none}
+  .toggle-label input{accent-color:var(--accent);width:13px;height:13px;cursor:pointer}
+
+  /* Results */
+  #results-area{flex:1;overflow:hidden;display:flex;flex-direction:column}
+  #results-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0}
+  #results-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+  #results-actions{display:flex;gap:6px}
+  #results-scroll{flex:1;overflow-y:auto;padding:0 20px 16px}
+  #results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+  .result-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:border-color .15s;cursor:default}
+  .result-card:hover{border-color:var(--accent)}
+  .result-name{font-size:15px;font-weight:700;color:var(--text)}
+  .result-sub{font-size:10px;color:var(--text3);margin-top:2px}
+  .result-btns{display:flex;gap:4px;flex-shrink:0}
+
+  /* History */
+  #history-panel{width:220px;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+  #history-header{padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  #history-scroll{flex:1;overflow-y:auto;padding:6px}
+  .history-item{padding:7px 10px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+  .history-item:hover{background:var(--bg3);border-color:var(--border)}
+  .history-name{font-size:12px;font-weight:700;color:var(--text)}
+  .history-meta{font-size:10px;color:var(--text3);margin-top:1px}
+  .history-empty{padding:20px;text-align:center;font-size:12px;color:var(--text3)}
+
+  /* Buttons */
+  .btn{padding:7px 16px;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+  .btn-primary:hover{opacity:.88}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-sm{padding:4px 9px;font-size:11px}
+  .btn-icon{padding:4px 6px;font-size:11px}
+
+  /* Empty */
+  #empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--text3);text-align:center;padding:40px}
+  #empty .empty-icon{font-size:40px;opacity:.25}
+
+  /* Toast */
+  #toast-wrap{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+  .toast{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.5);animation:tIn .18s ease;pointer-events:auto}
+  .toast.success{border-color:var(--success)}.toast.error{border-color:var(--danger)}
+  @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div class="title-icon">
+        <img src="name-gen.svg" style="width:20px;height:20px;filter:brightness(0) saturate(100%) invert(72%) sepia(50%) saturate(500%) hue-rotate(210deg)" onerror="this.style.display='none';document.getElementById('title-lucide').style.display='flex'">
+        <span id="title-lucide" style="display:none"><i data-lucide="sparkles" style="width:20px;height:20px"></i></span>
+      </div>
+      <div>
+        <h1>Name Generator</h1>
+        <div class="subtitle" id="style-subtitle">Select a style from the left</div>
+      </div>
+    </div>
+    <div style="-webkit-app-region:no-drag">
+      <button class="btn btn-primary" onclick="generate()" id="gen-btn">
+        <i data-lucide="sparkles" style="width:13px;height:13px"></i> Generate
+      </button>
+    </div>
+  </div>
+
+  <div id="body">
+
+    <!-- Style sidebar -->
+    <div id="style-sidebar">
+      <input id="style-search" placeholder="Search styles…" oninput="renderStyleList()">
+      <div id="genre-filters"></div>
+      <div id="style-list"></div>
+    </div>
+
+    <!-- Main -->
+    <div id="main">
+      <div id="controls">
+        <div id="controls-row">
+          <div class="ctrl-group">
+            <div class="ctrl-label">Gender</div>
+            <select class="ctrl-select" id="ctrl-gender">
+              <option value="any">✦ Any</option>
+              <option value="m">♂ Male</option>
+              <option value="f">♀ Female</option>
+              <option value="n">⚧ Neutral</option>
+            </select>
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label">Count</div>
+            <input class="ctrl-input" type="number" id="ctrl-count" value="10" min="1" max="50">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label">Format</div>
+            <select class="ctrl-select" id="ctrl-format">
+              <option value="first">First only</option>
+              <option value="full">First + Surname</option>
+              <option value="sur">Surname only</option>
+              <option value="compound">Compound / Hyphenated</option>
+              <option value="title">With Title / Honorific</option>
+            </select>
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label">Length</div>
+            <select class="ctrl-select" id="ctrl-length">
+              <option value="any">Any</option>
+              <option value="short">Short (≤5 chars)</option>
+              <option value="medium">Medium (6–9)</option>
+              <option value="long">Long (10+)</option>
+            </select>
+          </div>
+        </div>
+        <div id="options-row">
+          <label class="toggle-label"><input type="checkbox" id="opt-unique" checked> Unique only</label>
+          <label class="toggle-label"><input type="checkbox" id="opt-apostrophe"> Allow apostrophes</label>
+          <label class="toggle-label"><input type="checkbox" id="opt-mixgender"> Mix genders</label>
+        </div>
+      </div>
+
+      <div id="results-area">
+        <div id="results-header">
+          <span id="results-label">Results</span>
+          <div id="results-actions">
+            <button class="btn btn-ghost btn-sm" onclick="copyAll()" id="copy-all-btn" style="display:none">
+              <i data-lucide="clipboard-copy" style="width:11px;height:11px"></i> Copy All
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="clearResults()">
+              <i data-lucide="x" style="width:11px;height:11px"></i> Clear
+            </button>
+          </div>
+        </div>
+        <div id="results-scroll">
+          <div id="empty">
+            <div class="empty-icon">✦</div>
+            <div style="font-size:13px">Pick a style and hit Generate</div>
+          </div>
+          <div id="results-grid" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History panel -->
+    <div id="history-panel">
+      <div id="history-header">
+        <span>Saved</span>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="clearHistory()" title="Clear saved names">
+          <i data-lucide="trash-2" style="width:11px;height:11px"></i>
+        </button>
+      </div>
+      <div id="history-scroll">
+        <div class="history-empty" id="history-empty">No saved names yet.<br>Click ♡ to save.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast-wrap"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   NAME DATA — 20+ styles across multiple genres
+══════════════════════════════════════════════ */
+const STYLES = [
+  /* ── Fantasy ── */
+  {
+    id:'fantasy-high', label:'High Fantasy', genre:'Fantasy',
+    m:['Aldric','Caelum','Dorian','Elowen','Faelen','Gareth','Halcyon','Idris','Jorin','Kaelthas','Lyander','Maelon','Naeris','Oryn','Phenar','Quillon','Raveth','Sorin','Thalion','Uriath','Vaelis','Wynfor','Xanthe','Yrael','Zephon'],
+    f:['Aelindra','Brynhild','Caelith','Dawnara','Elarinya','Faereth','Galadria','Haelith','Ilyndra','Jaelyth','Kaelith','Lyranis','Maeveth','Naelith','Orophea','Phaeris','Quilara','Ryanna','Seraphith','Taelyth','Urinya','Vaelith','Wynaela','Xyriel','Yvaine'],
+    n:['Aelith','Brynn','Caeld','Daevon','Eloth','Faer','Galen','Haeln','Ileth','Jael','Kaeln','Lyrel','Maeln','Naeln','Oran','Phael','Queln','Rael','Sael','Tael','Uren','Vael','Wren','Xael','Yrel'],
+    surnames:['Ashveil','Brighthollow','Coldmere','Darkwater','Evenfall','Frostmantle','Grimholt','Highgarden','Ironstave','Jadehaven','Krovenmere','Luneshire','Mirefall','Nightvale','Obsidian','Petalwind','Queensmere','Ravenholdt','Silverwood','Thornwall','Umbervane','Voidmere','Whitehaven','Xanderfall','Yewhollow'],
+    titles:['Lord','Lady','Ser','Arch','High','Elder']
+  },
+  {
+    id:'fantasy-dark', label:'Dark Fantasy', genre:'Fantasy',
+    m:['Abaddon','Balthazar','Corvus','Damien','Erebus','Faust','Grimoire','Hex','Inferno','Jace','Kael','Lucien','Malachar','Noctis','Obsidian','Plague','Quell','Raven','Shade','Thanatos','Umbra','Vex','Wrath','Xander','Zane'],
+    f:['Abyss','Belladonna','Cinder','Dusk','Ebony','Fate','Grave','Hex','Iris','Jinx','Kira','Lilith','Morrigan','Nyx','Onyx','Pyre','Quinn','Rune','Shadow','Thorn','Una','Vex','Wraith','Xena','Yara'],
+    n:['Ash','Blight','Crow','Dread','Eclipse','Fell','Gloom','Haunt','Ink','Jinx','Knell','Lore','Murk','Null','Omen','Pale','Quill','Rift','Smog','Toll','Umber','Void','Woe','Xerath','Yew'],
+    surnames:['Blackthorn','Cruelwater','Deathwhisper','Emberveil','Fellnight','Gravewind','Hellhollow','Ironblight','Jadecurse','Knellmere','Lichwater','Moorshroud','Nightfall','Obsidianvale','Plaguemere','Queensbane','Rothollow','Shadowmantle','Tombwall','Unraveling','Voidstep','Wraithhaven','Xaneblight','Yewfall','Zombiemere'],
+    titles:['Dark','Void','Fell','Shadow','Grim','Dread']
+  },
+  {
+    id:'fantasy-fae', label:'Fae / Elvish', genre:'Fantasy',
+    m:["Aear","Caladwen","Elenmir","Faerondil","Galandel","Halcyon","Iorel","Jaenor","Kaelindor","Liriel","Maerondel","Naerindil","Oromir","Phaerondil","Quelanar","Raelindor","Saelindel","Thaerondil","Urindel","Vaelindor","Wynindel","Xaerindil","Yaelanar","Zaelanar"],
+    f:["Aeariel","Caladiel","Elenriel","Faeriel","Galanriel","Halcyriel","Ioriel","Jaeniel","Kaeliel","Liriel","Maeriel","Naeriel","Oromiel","Phaeriel","Quelaniel","Raeliel","Saeliel","Thaeriel","Uriniel","Vaeliel","Wyniniel","Xaeriniel","Yaeliniel","Zaeliniel"],
+    n:["Aear","Calan","Elen","Faer","Galan","Halcy","Ior","Jaen","Kael","Liri","Maer","Naer","Oro","Phaer","Quelan","Rael","Sael","Thaer","Urin","Vael","Wyn","Xaer","Yael","Zael"],
+    surnames:["Aearindel","Caladindel","Elenindel","Faerindel","Galanindel","Halcyindel","Iorindel","Jaenindel","Kaelindel","Liriindel","Maerindel","Naerindel","Oroindel","Phaerindel","Quelaindel","Raelindel","Saelindel","Thaerindel","Urinindel","Vaelindel"],
+    titles:["Prince","Princess","Duke","Duchess","Sovereign","Wyld"]
+  },
+  {
+    id:'fantasy-tribal', label:'Tribal / Shamanic', genre:'Fantasy',
+    m:['Akoru','Boran','Chakru','Durka','Ekoru','Fortu','Goruk','Harku','Ikoru','Jurka','Kortu','Lurku','Morku','Nortu','Okoru','Purka','Qurku','Rurtu','Surku','Turku','Ukoru','Vurku','Wurtu','Xurku','Zurku'],
+    f:['Akara','Boraa','Chakra','Durka','Ekara','Forta','Goraa','Harka','Ikara','Jurka','Korta','Lurka','Morka','Norta','Okara','Purka','Qurka','Rurta','Surka','Turka','Ukara','Vurka','Wurta','Xurka','Zurka'],
+    n:['Aku','Boru','Chak','Dur','Eku','Fort','Gor','Har','Iku','Jur','Kor','Lur','Mor','Nor','Oku','Pur','Qur','Rur','Sur','Tur','Uku','Vur','Wur','Xur','Zur'],
+    surnames:['Bearclaw','Cloudwalker','Deeproot','Earthsong','Firethorn','Greatstone','Highwind','Ironbone','Jadeclaw','Kniferoot','Longstride','Moonfire','Nighthowl','Oakthorn','Proudhoof','Quickfoot','Riverstone','Stormhide','Trueclaw','Underroot','Voidhowl','Windcaller','Xurstone','Yellowfang','Zerohide'],
+    titles:['Chief','Shaman','Elder','Warchief','Spirit','Great']
+  },
+
+  /* ── Sci-Fi ── */
+  {
+    id:'scifi-terran', label:'Terran / Future', genre:'Sci-Fi',
+    m:['Aiden','Blaze','Caden','Drake','Ethan','Falcon','Gage','Hawk','Ivan','Jace','Kade','Liam','Marcus','Nova','Owen','Phoenix','Quinn','Ryder','Slate','Titan','Unit','Vance','Walker','Xero','Zane'],
+    f:['Astra','Blaze','Cass','Dove','Echo','Flux','Gaia','Halo','Ion','Juno','Kira','Luna','Mira','Nova','Orbit','Pulse','Quinn','Raze','Sol','Terra','Unity','Vega','Wave','Xara','Zena'],
+    n:['Arc','Bolt','Core','Drift','Edge','Flux','Grid','Haze','Ion','Jolt','Kore','Lux','Mesh','Node','Orbit','Prism','Quad','Rift','Sync','Tron','Unit','Volt','Wave','Xeno','Zero'],
+    surnames:['Ashenforge','Binaryfield','Coremantle','Datashard','Electronveil','Fieldwave','Gridmere','Hexfall','Ionstream','Jumpgate','Kinetek','Lightspeed','Meshwork','Nanowave','Orbitfall','Prismfield','Quantum','Relaywave','Signacore','Terrafield','Unistream','Voidgate','Warpfield','Xenocore','Zerofield'],
+    titles:['Commander','Officer','Specialist','Agent','Director','Captain']
+  },
+  {
+    id:'scifi-alien', label:'Alien / Xeno', genre:'Sci-Fi',
+    m:["Ax'rath","Bx'orel","Cx'thun","Dx'vael","Ex'rath","Fx'orel","Gx'thun","Hx'vael","Ix'rath","Jx'orel","Kx'thun","Lx'vael","Mx'rath","Nx'orel","Ox'thun","Px'vael","Qx'rath","Rx'orel","Sx'thun","Tx'vael","Ux'rath","Vx'orel","Wx'thun","Xx'vael","Zx'rath"],
+    f:["Az'rath","Bz'orel","Cz'thun","Dz'vael","Ez'rath","Fz'orel","Gz'thun","Hz'vael","Iz'rath","Jz'orel","Kz'thun","Lz'vael","Mz'rath","Nz'orel","Oz'thun","Pz'vael","Qz'rath","Rz'orel","Sz'thun","Tz'vael","Uz'rath","Vz'orel","Wz'thun","Xz'vael","Zz'rath"],
+    n:["Xal","Yx'l","Zxl","Axl","Bxl","Cxl","Dxl","Exl","Fxl","Gxl","Hxl","Ixl","Jxl","Kxl","Lxl","Mxl","Nxl","Oxl","Pxl","Qxl","Rxl","Sxl","Txl","Uxl","Vxl"],
+    surnames:["Xal'veth","Yx'loth","Zxl'rath","Axl'veth","Bxl'loth","Cxl'rath","Dxl'veth","Exl'loth","Fxl'rath","Gxl'veth","Hxl'loth","Ixl'rath","Jxl'veth","Kxl'loth","Lxl'rath","Mxl'veth","Nxl'loth","Oxl'rath","Pxl'veth","Qxl'loth"],
+    titles:['Hive','Cluster','Nest','Brood','Swarm','Prime']
+  },
+  {
+    id:'scifi-cyber', label:'Cyberpunk', genre:'Sci-Fi',
+    m:['Axel','Byte','Cipher','Data','Encrypt','Flux','Ghost','Hack','Index','Jax','Kill','Logic','Matrix','Null','Override','Pixel','Query','Root','Static','Trojan','Upload','Vector','Wire','Xor','Zero'],
+    f:['Ash','Bit','Chrome','Dash','Encode','Frag','Glitch','Hex','Input','Jade','Keys','Lag','Mesh','Nano','Output','Port','Queue','Relay','Signal','Token','User','Virus','Weld','Xena','Yield'],
+    n:['0x','1s','2b','3d','4k','5g','6ix','7th','8bit','9mm','A1','B2','C3','D4','E5','F6','G7','H8','I9','J0','K1','L2','M3','N4','O5'],
+    surnames:['Blackcode','Chromefield','Datastream','Encode','Flashdrive','Gridlock','Hardwire','Infosec','Jailbreak','Kernel','Lowping','Megabyte','Netsec','Opensource','Payload','Quantumbit','Rootkit','Shellcode','Trojanfield','Userbase','Virusfield','Wormhole','Xenodata','Yieldfield','Zeroday'],
+    titles:['Netrunner','Hacker','Runner','Fixer','Corp','Street']
+  },
+
+  /* ── Historical ── */
+  {
+    id:'japanese', label:'Japanese', genre:'Historical',
+    m:['Akira','Daisuke','Fumio','Haruto','Isamu','Jun','Kazuki','Makoto','Naoki','Osamu','Ren','Ryuu','Satoru','Takeshi','Yuu','Akihiro','Daiki','Goro','Hiroshi','Kenji','Masaru','Noboru','Ryo','Shiro','Taro'],
+    f:['Akiko','Chiyo','Fumiko','Hanako','Izumi','Jun','Keiko','Mana','Nao','Okiku','Rei','Saki','Tsubaki','Ume','Yuki','Aiko','Chika','Hana','Hikari','Kimi','Miku','Nana','Riko','Sakura','Yui'],
+    n:['Ai','Haru','Ichi','Kaze','Mori','Nami','Rin','Toki','Yoru','Zen','Aki','Hoshi','Kane','Mizu','Nori','Sora','Tsuki','Yama','Zuki','Ao'],
+    surnames:['Fujiwara','Hashimoto','Inoue','Kobayashi','Matsumoto','Nakamura','Ogawa','Sato','Tanaka','Watanabe','Yamamoto','Abe','Goto','Hayashi','Ito','Kato','Kimura','Mori','Nishimura','Okamoto'],
+    titles:['Sensei','Sama','San','Dono','Kun','Chan']
+  },
+  {
+    id:'chinese', label:'Chinese', genre:'Historical',
+    m:['Bao','Chen','Deng','Fang','Gang','Hao','Jian','Kang','Lei','Ming','Peng','Qiang','Rui','Sheng','Tao','Wei','Xiao','Yang','Zhao','Zhi','An','Bo','Chang','Da','Feng'],
+    f:['Ai','Bai','Chun','Dan','Fang','Gui','Hua','Jing','Li','Mei','Ning','Ping','Qian','Rong','Shu','Ting','Wei','Xia','Yan','Zhen','Bi','Cai','Die','Er','Fen'],
+    n:['An','Bo','Ce','Di','Fa','Ge','He','Ji','Ke','Le','Mi','Ne','Ou','Pi','Qi','Re','Si','Ti','Vu','Wu','Xi','Yi','Ze','Zhu'],
+    surnames:['Chen','Li','Wang','Zhang','Liu','Yang','Huang','Zhao','Wu','Zhou','Xu','Sun','Ma','Hu','Lin','Guo','He','Gao','Luo','Zheng'],
+    titles:['Lord','Lady','General','Scholar','Master','Imperial']
+  },
+  {
+    id:'nordic', label:'Norse / Nordic', genre:'Historical',
+    m:['Bjorn','Erik','Gunnar','Halvard','Ivar','Jostein','Knud','Leif','Magnus','Njord','Olaf','Ragnar','Sigurd','Thor','Ulf','Valdis','Wulfric','Yriar','Asbjorn','Dag','Einar','Floki','Geir','Helge','Ingvar'],
+    f:['Astrid','Birgitta','Dagny','Edda','Freya','Gudrun','Helga','Ingrid','Jorunn','Kari','Liv','Maja','Nora','Ragnhild','Sigrid','Thora','Unn','Valdis','Ylva','Asa','Brynja','Dalla','Eira','Gerd','Hild'],
+    n:['Ari','Bjorg','Dag','Eid','Fin','Gard','Halv','Ing','Jord','Keld','Lund','Mard','Nord','Ord','Ran','Sind','Tord','Urd','Vard','Ward'],
+    surnames:['Eriksson','Bjornsson','Sigurdsson','Thorvaldsen','Leifsson','Odinsdottir','Freyadottir','Thordottir','Magnusson','Gustavsson','Halvorsen','Karlsson','Larsson','Nilsson','Olsson','Petersson','Svensson','Lindqvist','Bergstrom','Johansson'],
+    titles:['Jarl','Thane','Skald','Shield-Maiden','Berserker','Chieftain']
+  },
+  {
+    id:'celtic', label:'Celtic / Gaelic', genre:'Historical',
+    m:["Aodh","Bran","Cian","Diarmuid","Eoin","Fionn","Gabhán","Lugh","Naoise","Oisín","Rónán","Seamus","Tadhg","Uilliam","Fergus","Conor","Declan","Padraig","Cormac","Donal","Eamonn","Gael","Keane","Lorcan","Muiris"],
+    f:["Aoife","Brigid","Caoimhe","Deirdre","Eithne","Fionnuala","Grainne","Isibeal","Sorcha","Roisin","Niamh","Muireann","Liadan","Nuala","Orlaith","Siobhan","Maeve","Clodagh","Ailbhe","Sadhbh","Ciara","Sinead","Orla","Eilish","Nessa"],
+    n:['Aer','Brog','Cloch','Draoi','Earn','Finn','Glor','Rath','Sior','Tir','Uain','Veil','Wren','Xiol','Yann'],
+    surnames:["O'Brien","O'Connor","O'Sullivan","O'Neill","Murphy","Kelly","Byrne","Ryan","Walsh","Kennedy","McCarthy","Quinn","Kavanagh","Gallagher","McLoughlin","MacCormack","MacAllister","Flanagan","Sheridan","Doyle"],
+    titles:["High King","Chieftain","Bard","Druid","Warrior","Saint"]
+  },
+  {
+    id:'arabic', label:'Arabic / Middle Eastern', genre:'Historical',
+    m:['Amir','Bilal','Darius','Farid','Hassan','Ibrahim','Jasim','Karim','Layth','Malik','Nasser','Omar','Qasim','Rashid','Salim','Tariq','Umar','Waled','Yusuf','Zaid','Ahmed','Basim','Cyrus','Dawud','Ehsan'],
+    f:['Amira','Basma','Dina','Fatima','Hana','Isra','Jasmine','Khadija','Layla','Maha','Nadia','Rima','Salma','Yasmin','Zahra','Aisha','Bushra','Ceylan','Dalia','Esra','Farida','Ghada','Hiba','Inaya','Joud'],
+    n:['Ala','Bahr','Dajn','Eid','Fajr','Ghar','Hawa','Ijaz','Jalal','Kawn','Lail','Majd','Nasr','Qalb','Rima','Sirr','Tali','Uns','Wird','Zahr'],
+    surnames:['Al-Rashid','Al-Malik','Ibn Khaldun','Al-Farabi','Al-Hassan','Bensalah','Al-Masri','Ibn Ali','Al-Qasim','Al-Jawhari','Al-Aziz','Ibn Yusuf','Al-Amin','Al-Zahid','Al-Wathiq','Benkhalil','Al-Mutasim','Ibn Rushd','Al-Muwaffaq','Al-Mansur'],
+    titles:['Sultan','Emir','Sheikh','Vizier','Caliph','Sayyid']
+  },
+  {
+    id:'indian', label:'Indian / Sanskrit', genre:'Historical',
+    m:['Arjun','Bharat','Chandra','Dev','Eklavya','Ganesh','Harsh','Indra','Jay','Kiran','Lakshman','Mohan','Neel','Om','Prem','Rahul','Sanjay','Tarun','Uday','Vikram','Yash','Aryan','Bhaskar','Dhruv','Govind'],
+    f:['Aarti','Bhavna','Chitra','Deepa','Ekta','Gita','Hema','Ila','Jaya','Kavya','Lata','Maya','Nisha','Priya','Radha','Seema','Tara','Uma','Vidya','Yami','Ananya','Divya','Geeta','Kiran','Meera'],
+    n:['Aadi','Bija','Chit','Deva','Ekam','Gyan','Hari','Indu','Jal','Kara','Loka','Mana','Nada','Prana','Rasa','Sat','Tapa','Uma','Vata','Yuga'],
+    surnames:['Sharma','Patel','Singh','Kumar','Gupta','Mehta','Joshi','Verma','Shah','Reddy','Nair','Pillai','Rao','Iyer','Menon','Bose','Chatterjee','Banerjee','Ghosh','Mukherjee'],
+    titles:['Raja','Rani','Maharaja','Maharani','Pandit','Sri']
+  },
+
+  /* ── Modern / Western ── */
+  {
+    id:'english-modern', label:'Modern English', genre:'Modern',
+    m:['Aaron','Ben','Calvin','Dylan','Ethan','Felix','Grant','Henry','Isaac','Jack','Kyle','Leo','Mason','Noah','Oscar','Parker','Quinn','Riley','Sam','Tyler','Victor','Will','Xander','Zack','Eli'],
+    f:['Abby','Bella','Chloe','Dana','Emma','Faith','Grace','Holly','Iris','Jade','Kate','Lily','Maya','Nora','Olivia','Paige','Quinn','Rose','Sophie','Tara','Una','Violet','Wren','Zoe','Aria'],
+    n:['Ash','Blake','Cam','Drew','Eden','Finn','Gray','Harper','Indigo','Jules','Kit','Lane','Morgan','Nova','Oak','Piper','Reed','Sage','Scout','Taylor','Uma','Vale','Winter','Xen','Zen'],
+    surnames:['Anderson','Baker','Carter','Davis','Evans','Foster','Green','Hall','Jones','King','Lewis','Moore','Nelson','Parker','Quinn','Roberts','Smith','Taylor','Walker','Young'],
+    titles:['Dr.','Prof.','Ms.','Mr.','Mx.','Rev.']
+  },
+  {
+    id:'french', label:'French', genre:'Modern',
+    m:['Adrien','Baptiste','Clément','Damien','Émile','Florian','Gaston','Hugo','Isidore','Jules','Laurent','Marcel','Nicolas','Olivier','Pierre','Rémi','Sébastien','Théo','Valentin','Xavier','Yves','Alexis','Bruno','Cedric','Denis'],
+    f:['Adèle','Brigitte','Camille','Delphine','Elise','Françoise','Giselle','Hélène','Isabelle','Juliette','Léa','Marie','Nathalie','Océane','Pauline','Renée','Sophie','Thibault','Valérie','Yvette','Anaïs','Chloé','Diane','Estelle','Fleur'],
+    n:['Aimé','Bel','Céleste','Doux','Esprit','Fleur','Grâce','Honneur','Idéal','Joie','Lumière','Miel','Noble','Outre','Paix','Rêve','Sage','Temps','Vrai'],
+    surnames:['Beaumont','Charpentier','Dubois','Faure','Girard','Hubert','Laurent','Martin','Nicolas','Petit','Renard','Simon','Thomas','Vidal','Bernard','Leclerc','Moreau','Fontaine','Rousseau','Mercier'],
+    titles:['Monsieur','Madame','Mademoiselle','Comte','Comtesse','Duc']
+  },
+  {
+    id:'spanish', label:'Spanish / Latin', genre:'Modern',
+    m:['Alejandro','Carlos','Diego','Eduardo','Felipe','Gabriel','Héctor','Ignacio','Javier','Luis','Marco','Nicolás','Oscar','Pablo','Rafael','Rodrigo','Santiago','Tomás','Victor','Xavier','Andres','Bernardo','César','Dante','Emilio'],
+    f:['Alejandra','Beatriz','Carmen','Daniela','Elena','Fernanda','Gloria','Helena','Isabella','Juliana','Laura','María','Natalia','Olivia','Paloma','Rosa','Sofía','Valentina','Ximena','Yasmin','Adriana','Camila','Esperanza','Florencia','Gabriela'],
+    n:['Amor','Brillo','Cielo','Dulce','Estrella','Fuego','Gloria','Honor','Iris','Luz','Magia','Noble','Paz','Reina','Sol','Tierra','Vida','Xochitl','Zafiro'],
+    surnames:['Álvarez','Bermúdez','Castro','Delgado','Espinoza','Flores','García','Hernández','Iglesias','Jiménez','López','Martínez','Núñez','Ortiz','Pérez','Ramírez','Sánchez','Torres','Vargas','Vega'],
+    titles:['Don','Doña','Señor','Señora','Doctor','Licenciado']
+  },
+
+  /* ── Other / Unique ── */
+  {
+    id:'demon-devil', label:'Demon / Devil', genre:'Other',
+    m:['Aamon','Bael','Caym','Dantalion','Eligor','Focalor','Gaap','Haures','Ipos','Jinn','Kimaris','Leraje','Malphas','Naberius','Orobas','Purson','Raum','Sitri','Uvall','Valac','Vine','Xaphan','Zepar','Andras','Barbatos'],
+    f:['Agrat','Baalat','Circe','Devana','Empusa','Fury','Gorgon','Hecate','Isheth','Jezebel','Kali','Lamia','Mormo','Naamah','Oya','Pandora','Rusalka','Sedna','Tiamat','Unseen','Vexia','Walpurga','Xola','Yuki-Onna','Zora'],
+    n:['Bane','Curse','Doom','Dread','Envy','Flame','Gloom','Hate','Ire','Jinx','Knell','Lust','Malice','Null','Odium','Pain','Ruin','Spite','Torment','Umbra','Vile','Wrath','Xerath','Yore','Zeal'],
+    surnames:["Bloodpact","Doomcoven","Hellfire","Ironcurse","Jadecurse","Knellpact","Lichscorn","Malicemere","Nightpact","Obliquen","Plaguefire","Queensbane","Rotcoven","Shadowpact","Tombscorn","Unhallowed","Voidpact","Wrathfire","Xanepact","Yearncurse"],
+    titles:['Archdemon','Prince of','Lord of','Void','Infernal','Dark']
+  },
+  {
+    id:'angel-divine', label:'Angel / Divine', genre:'Other',
+    m:['Ariel','Cassiel','Daniel','Ezekiel','Gabriel','Haniel','Israfil','Jophiel','Kemuel','Lucifer','Michael','Nathan','Orifiel','Phanuel','Raguel','Saraqael','Tzaphkiel','Uriel','Verchiel','Wormwood','Xathanael','Yahriel','Zaphkiel','Azrael','Baraqiel'],
+    f:['Adriel','Chamuel','Dina','Erin','Firiel','Gadreel','Hope','Ithuriel','Joy','Kalinda','Lumiel','Myra','Nithael','Oriel','Peniel','Qael','Raduriel','Seraphiel','Theliel','Unity','Vanael','Wael','Xael','Yael','Zael'],
+    n:['Aura','Bliss','Cloud','Dawn','Ember','Flame','Grace','Halo','Iris','Joy','Kindle','Light','Mercy','Nova','Oracle','Peace','Quiet','Radiance','Seraph','Truth','Unity','Virtue','Whisper','Xanadu','Zeal'],
+    surnames:['Brightwinged','Cloudborne','Dawnforged','Eternalfire','Faithkeeper','Goldenveil','Holymantle','Ironwing','Justiceborn','Kindlelight','Luminary','Mercyfall','Noblefire','Oathkeeper','Peaceborn','Radiantfall','Sacredfire','Truemantle','Unbroken','Virtueborn'],
+    titles:['Archangel','Seraph','Cherub','Guardian','Holy','Celestial']
+  },
+  {
+    id:'void-cosmic', label:'Void / Cosmic', genre:'Other',
+    m:["Azath'ul","Bex'athon","Cthon'ael","Dyz'rael","Eth'ralon","Fyx'athon","Gza'thul","Hyx'rael","Ith'ralon","Jyx'athon","Kza'thul","Lyx'rael","Myz'ralon","Nyx'athon","Oze'thul","Pyx'rael","Qza'ralon","Ryx'athon","Syz'thul","Tyx'rael"],
+    f:["Azar'eth","Byx'arel","Cyz'reth","Dyx'arel","Eth'rael","Fyz'reth","Gyx'arel","Hyz'reth","Itz'arel","Jyx'reth","Kyz'arel","Lyx'reth","Myz'arel","Nyx'reth","Oyz'arel","Pyz'reth","Qyx'arel","Ryz'reth","Syx'arel","Tyz'reth"],
+    n:["Void","Null","Rift","Abyss","Ether","Warp","Flux","Drift","Vex","Nox","Aze","Byx","Cyz","Dyx","Eyx","Fyz","Gyx","Hyz","Itz","Jyx"],
+    surnames:["Abyss-Caller","Beyond-Veil","Cosmic-Drift","Deep-Rift","Ether-Born","Far-Reaches","Galaxy-Void","Horizon-Null","Infinite-Dark","Jumper-Rift","Kinetic-Void","Lost-Nebula","Midnight-Rift","Night-Eternal","Orbit-Null","Phase-Rift","Quantum-Void","Rift-Walker","Space-Drift","Time-Null"],
+    titles:['The Eternal','Beyond','Void-Walker','Star-Eater','Cosmic','Null']
+  },
+  {
+    id:'mythic-greek', label:'Greek / Roman Myth', genre:'Other',
+    m:['Achilles','Apollo','Ares','Atlas','Cronos','Dionysus','Hephaestus','Hermes','Hypnos','Jason','Leonidas','Morpheus','Narcissus','Odysseus','Orion','Perseus','Poseidon','Prometheus','Theseus','Titans','Adonis','Castor','Daedalus','Endymion','Helios'],
+    f:['Aphrodite','Artemis','Athena','Callisto','Daphne','Echo','Eris','Hecate','Hera','Hestia','Iris','Medusa','Nemesis','Nyx','Persephone','Psyche','Selene','Thetis','Tyche','Calliope','Circe','Demeter','Electra','Galatea','Harmonia'],
+    n:['Aeon','Chaos','Cosmos','Daemon','Elysium','Fate','Gaia','Hubris','Ichor','Karma','Logos','Moira','Nemesis','Oracle','Pathos','Rhea','Styx','Tartarus','Urge','Xenos'],
+    surnames:['of Olympus','of Athens','of Sparta','of Thebes','of Corinth','the Swift','the Wise','the Bold','the Just','the Fierce','the Cursed','the Blessed','the Fallen','the Risen','the Eternal','son of Zeus','daughter of Ares','child of Fate','herald of Dawn','keeper of Flame'],
+    titles:['God of','Goddess of','Hero of','Champion of','Keeper of','Oracle of']
+  },
+];
+
+const GENRES = ['All', ...new Set(STYLES.map(s => s.genre))];
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let activeStyle   = STYLES[0];
+let activeGenre   = 'All';
+let results       = [];
+let savedNames    = JSON.parse(localStorage.getItem('ng_saved') || '[]');
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  buildGenreFilters();
+  renderStyleList();
+  renderHistory();
+  lucide.createIcons();
+});
+
+/* ══════════════════════════════════════════════
+   UI BUILDERS
+══════════════════════════════════════════════ */
+function buildGenreFilters() {
+  const wrap = document.getElementById('genre-filters');
+  wrap.innerHTML = GENRES.map(g =>
+    `<button class="genre-btn ${g === activeGenre ? 'active' : ''}" onclick="setGenre('${g}')">${g}</button>`
+  ).join('');
+}
+
+function setGenre(g) {
+  activeGenre = g;
+  buildGenreFilters();
+  renderStyleList();
+}
+
+function renderStyleList() {
+  const q      = document.getElementById('style-search').value.trim().toLowerCase();
+  const list   = document.getElementById('style-list');
+  const filtered = STYLES.filter(s => {
+    const matchGenre = activeGenre === 'All' || s.genre === activeGenre;
+    const matchQ     = !q || s.label.toLowerCase().includes(q) || s.genre.toLowerCase().includes(q);
+    return matchGenre && matchQ;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--text3)">No styles found.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(s =>
+    `<div class="style-item ${s.id === activeStyle?.id ? 'active' : ''}" onclick="selectStyle('${s.id}')">
+      <span>${s.label}</span>
+      <span class="genre-tag">${s.genre}</span>
+    </div>`
+  ).join('');
+}
+
+function selectStyle(id) {
+  activeStyle = STYLES.find(s => s.id === id) || STYLES[0];
+  document.getElementById('style-subtitle').textContent = `${activeStyle.label} · ${activeStyle.genre}`;
+  renderStyleList();
+}
+
+/* ══════════════════════════════════════════════
+   GENERATION
+══════════════════════════════════════════════ */
+function generate() {
+  if (!activeStyle) { toast('Pick a style first!', 'error'); return; }
+
+  const gender    = document.getElementById('ctrl-gender').value;
+  const count     = Math.min(50, Math.max(1, parseInt(document.getElementById('ctrl-count').value) || 10));
+  const format    = document.getElementById('ctrl-format').value;
+  const length    = document.getElementById('ctrl-length').value;
+  const uniqueOnly= document.getElementById('opt-unique').checked;
+  const allowApos = document.getElementById('opt-apostrophe').checked;
+  const mixGender = document.getElementById('opt-mixgender').checked;
+
+  const s = activeStyle;
+
+  function getPool(g) {
+    if (g === 'any' || mixGender) return [...(s.m||[]), ...(s.f||[]), ...(s.n||[])];
+    return s[g] || s.n || s.m || [];
+  }
+
+  function filterName(name) {
+    if (!allowApos && name.includes("'")) return false;
+    if (length === 'short'  && name.replace(/[' ]/g,'').length > 5)  return false;
+    if (length === 'medium' && (name.replace(/[' ]/g,'').length < 6 || name.replace(/[' ]/g,'').length > 9)) return false;
+    if (length === 'long'   && name.replace(/[' ]/g,'').length < 10) return false;
+    return true;
+  }
+
+  function buildName() {
+    const pool = getPool(gender).filter(filterName);
+    if (!pool.length) return null;
+
+    const first = pick(pool);
+    const sur   = s.surnames?.length ? pick(s.surnames) : '';
+    const title = s.titles?.length   ? pick(s.titles)   : '';
+
+    switch(format) {
+      case 'full':     return sur ? `${first} ${sur}` : first;
+      case 'sur':      return sur || first;
+      case 'compound': {
+        const pool2 = getPool(gender).filter(filterName);
+        const second = pool2.length ? pick(pool2) : first;
+        return `${first}-${second}`;
+      }
+      case 'title':    return title ? `${title} ${first}${sur ? ' '+sur : ''}` : first;
+      default:         return first;
+    }
+  }
+
+  const used = new Set();
+  const out  = [];
+  let attempts = 0;
+
+  while (out.length < count && attempts < 500) {
+    attempts++;
+    const name = buildName();
+    if (!name) break;
+    if (uniqueOnly && used.has(name)) continue;
+    used.add(name);
+    out.push({ name, style: activeStyle.label, genre: activeStyle.genre, gender });
+  }
+
+  if (!out.length) { toast('No names for those settings — try relaxing filters!', 'error'); return; }
+
+  results = out;
+  renderResults();
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+/* ══════════════════════════════════════════════
+   RESULTS
+══════════════════════════════════════════════ */
+function renderResults() {
+  const grid   = document.getElementById('results-grid');
+  const empty  = document.getElementById('empty');
+  const label  = document.getElementById('results-label');
+  const copyAllBtn = document.getElementById('copy-all-btn');
+
+  empty.style.display  = 'none';
+  grid.style.display   = 'grid';
+  copyAllBtn.style.display = '';
+
+  label.textContent = `${results.length} names · ${activeStyle?.label || ''}`;
+
+  grid.innerHTML = results.map((r, i) =>
+    `<div class="result-card">
+      <div>
+        <div class="result-name">${esc(r.name)}</div>
+        <div class="result-sub">${esc(r.style)} · ${esc(r.genre)}</div>
+      </div>
+      <div class="result-btns">
+        <button class="btn btn-ghost btn-icon" onclick="saveName(${i})" title="Save name">
+          <i data-lucide="heart" style="width:12px;height:12px"></i>
+        </button>
+        <button class="btn btn-ghost btn-icon" onclick="copyText('${escAttr(r.name)}')" title="Copy">
+          <i data-lucide="copy" style="width:12px;height:12px"></i>
+        </button>
+      </div>
+    </div>`
+  ).join('');
+
+  lucide.createIcons();
+}
+
+function clearResults() {
+  results = [];
+  document.getElementById('results-grid').style.display = 'none';
+  document.getElementById('empty').style.display = '';
+  document.getElementById('copy-all-btn').style.display = 'none';
+  document.getElementById('results-label').textContent = 'Results';
+}
+
+function copyAll() {
+  const text = results.map(r => r.name).join('\n');
+  navigator.clipboard.writeText(text).then(() => toast(`Copied ${results.length} names!`, 'success'));
+}
+
+/* ══════════════════════════════════════════════
+   SAVED / HISTORY
+══════════════════════════════════════════════ */
+function saveName(i) {
+  const r = results[i];
+  if (!r) return;
+  if (savedNames.find(s => s.name === r.name)) { toast('Already saved!', 'error'); return; }
+  savedNames.unshift({ ...r, savedAt: Date.now() });
+  if (savedNames.length > 100) savedNames = savedNames.slice(0, 100);
+  localStorage.setItem('ng_saved', JSON.stringify(savedNames));
+  renderHistory();
+  toast(`Saved "${r.name}"!`, 'success');
+}
+
+function renderHistory() {
+  const scroll = document.getElementById('history-scroll');
+  const empty  = document.getElementById('history-empty');
+
+  if (!savedNames.length) {
+    empty.style.display = '';
+    scroll.querySelectorAll('.history-item').forEach(el => el.remove());
+    return;
+  }
+
+  empty.style.display = 'none';
+  const items = savedNames.map((s, i) =>
+    `<div class="history-item">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:4px">
+        <div>
+          <div class="history-name">${esc(s.name)}</div>
+          <div class="history-meta">${esc(s.style)}</div>
+        </div>
+        <div style="display:flex;gap:3px;flex-shrink:0">
+          <button class="btn btn-ghost btn-icon" onclick="copyText('${escAttr(s.name)}')" title="Copy">
+            <i data-lucide="copy" style="width:10px;height:10px"></i>
+          </button>
+          <button class="btn btn-ghost btn-icon" onclick="removeSaved(${i})" title="Remove">
+            <i data-lucide="x" style="width:10px;height:10px"></i>
+          </button>
+        </div>
+      </div>
+    </div>`
+  ).join('');
+
+  // Replace content but keep the empty div
+  const existing = scroll.querySelectorAll('.history-item');
+  existing.forEach(el => el.remove());
+  scroll.insertAdjacentHTML('beforeend', items);
+  lucide.createIcons();
+}
+
+function removeSaved(i) {
+  savedNames.splice(i, 1);
+  localStorage.setItem('ng_saved', JSON.stringify(savedNames));
+  renderHistory();
+}
+
+function clearHistory() {
+  savedNames = [];
+  localStorage.setItem('ng_saved', JSON.stringify(savedNames));
+  renderHistory();
+  toast('Saved names cleared', 'success');
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast(`Copied!`, 'success'));
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function toast(msg, type = 'success') {
+  const c  = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+/* Keyboard shortcut */
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate();
+});
+</script>
+</body>
+</html>

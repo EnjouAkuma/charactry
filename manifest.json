@@ -1,0 +1,13 @@
+{
+  "name": "Charactry — Personal OC Archive",
+  "short_name": "Charactry",
+  "description": "Character and worldbuilding manager. Your data stays in your browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e0e14",
+  "theme_color": "#0b0b12",
+  "icons": [
+    { "src": "assets/charactry_icon.png", "sizes": "802x804", "type": "image/png", "purpose": "any" }
+  ]
+}

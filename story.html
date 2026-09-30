@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Charactry — Stories</title>
+<link rel="icon" href="assets/charactry_transparent.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="web/bridge.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+:root{
+  --bg:#0e0e14;--bg2:#13131c;--bg3:#1a1a28;--sb:#0b0b12;
+  --border:#2a2a3d;--accent:#a78bfa;--accent2:#7c3aed;
+  --accent-glow:rgba(167,139,250,.18);
+  --text:#e8e6f0;--text2:#9b98b0;--text3:#5a5870;--danger:#f87171;
+  /* character tag / mention colors — user-customizable */
+  --mention-bg:rgba(167,139,250,.18);
+  --mention-color:#a78bfa;
+  --mention-border:rgba(167,139,250,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:14px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+
+/* TOPBAR */
+#topbar{height:42px;background:var(--sb,var(--bg2));border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+  flex-shrink:0;-webkit-app-region:drag;user-select:none}
+.tb-l,.tb-r{display:flex;align-items:center;gap:8px;-webkit-app-region:no-drag}
+.logo{font-family:'Cinzel',serif;font-size:13px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* LAYOUT */
+#layout{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+#sb-top{padding:10px 10px 6px;flex-shrink:0}
+#sb-lbl,#sb-chlbl{font-size:10px;color:var(--text3);letter-spacing:.6px;font-weight:800;padding:0 2px;margin-bottom:6px}
+#sb-chlbl{padding:4px 10px 4px;flex-shrink:0}
+#story-list{overflow-y:auto;padding:0 4px;max-height:180px}
+.s-item{display:flex;align-items:center;gap:5px;padding:6px 8px;border-radius:7px;
+  cursor:pointer;color:var(--text2);font-size:12px;transition:all .12s;margin-bottom:1px}
+.s-item:hover{background:var(--bg3);color:var(--text)}
+.s-item.active{background:var(--accent-glow);color:var(--accent);font-weight:700;
+  border:1px solid rgba(167,139,250,.3)}
+.s-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s-count{font-size:9px;color:var(--text3)}
+.s-del{opacity:0;background:none;border:none;color:var(--danger);cursor:pointer;
+  font-size:11px;padding:1px 4px}
+.s-item:hover .s-del{opacity:.7}
+#sb-div{height:1px;background:var(--border);margin:6px 8px;flex-shrink:0}
+#chapter-list{flex:1;overflow-y:auto;padding:0 4px}
+.ch-item{display:flex;align-items:center;gap:5px;padding:6px 8px;border-radius:7px;
+  cursor:pointer;color:var(--text2);font-size:12px;transition:all .12s;margin-bottom:1px}
+.ch-item:hover{background:var(--bg3);color:var(--text)}
+.ch-item.active{background:var(--accent-glow);color:var(--accent);font-weight:700}
+.ch-num{font-size:9px;color:var(--text3);font-weight:800;min-width:14px}
+.ch-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-acts{display:flex;gap:1px;opacity:0}
+.ch-item:hover .ch-acts{opacity:1}
+.ch-btn{background:none;border:none;cursor:pointer;font-size:11px;padding:2px 4px;
+  border-radius:3px;color:var(--text3)}
+.ch-btn:hover{color:var(--text)}.ch-btn.red:hover{color:var(--danger)}
+#sb-foot{padding:8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:5px}
+
+/* EDITOR AREA */
+#editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* TOOLBAR */
+#toolbar{display:flex;align-items:center;gap:3px;padding:6px 10px;
+  border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;background:var(--bg2)}
+.t-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:700;transition:all .12s}
+.t-btn:hover{border-color:var(--accent);color:var(--text)}
+.t-sep{width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0}
+#ch-inp{background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-size:12px;padding:4px 9px;outline:none;
+  font-family:'Nunito',sans-serif;width:180px}
+#ch-inp:focus{border-color:var(--accent)}
+#ch-inp::placeholder{color:var(--text3)}
+
+/* SPLIT PANE — write left, live preview right (always visible) */
+#panes{flex:1;display:flex;overflow:hidden}
+
+/* WRITE PANE — plain textarea, source of truth */
+#write-pane{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid var(--border);
+  min-width:0;
+}
+#ta{
+  flex:1;
+  background:transparent;border:none;outline:none;resize:none;
+  color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;line-height:1.85;
+  padding:30px 40px;overflow-y:auto;tab-size:2;
+  /* CRITICAL: pre-wrap so newlines show but DON'T reflow pasted content weirdly */
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+#ta::placeholder{color:var(--text3);font-style:italic}
+
+/* LIVE PREVIEW PANE — always shown, updates as you type */
+#preview-pane{
+  flex:1;overflow-y:auto;
+  border-left:none; /* border already on write-pane right */
+  min-width:0;
+}
+#preview-label{
+  font-size:9px;letter-spacing:.6px;font-weight:800;color:var(--text3);
+  padding:6px 14px 0;text-align:right;user-select:none;pointer-events:none;
+}
+#preview{
+  padding:24px 36px 30px;font-size:15px;line-height:1.85;color:var(--text);
+  font-family:'Nunito',sans-serif;
+}
+#preview h1{font-family:'Cinzel',serif;font-size:22px;font-weight:700;
+  color:var(--text);margin:.8em 0 .3em}
+#preview h2{font-family:'Cinzel',serif;font-size:18px;font-weight:700;
+  color:var(--text);margin:.7em 0 .3em}
+#preview h3{font-family:'Cinzel',serif;font-size:15px;font-weight:600;
+  color:var(--text2);margin:.6em 0 .2em}
+#preview p{margin-bottom:.65em}
+#preview strong{color:var(--accent);font-weight:700}
+#preview em{color:var(--text2);font-style:italic}
+#preview s{opacity:.45;text-decoration:line-through}
+#preview blockquote{border-left:3px solid var(--accent);padding-left:14px;
+  color:var(--text2);font-style:italic;margin:.6em 0}
+#preview hr{border:none;border-top:1px solid var(--border);margin:1.2em 0}
+#preview .mention{
+  border-radius:12px;
+  padding:2px 10px;font-weight:700;font-size:.88em;cursor:pointer;
+  display:inline;white-space:nowrap;
+  transition:filter .12s;
+}
+#preview .mention:hover{filter:brightness(1.2);}
+
+/* Per-character tag color popover */
+#tag-popover{
+  position:fixed;z-index:9999;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.7);
+  padding:13px 15px;min-width:260px;display:none;
+  flex-direction:column;gap:10px;
+}
+#tag-popover.open{display:flex;}
+.tp-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.tp-label{font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:800;min-width:72px}
+.tp-swatch{width:26px;height:26px;border-radius:6px;border:2px solid var(--border);cursor:pointer;flex-shrink:0}
+.tp-hex{font-size:11px;color:var(--text2);min-width:52px}
+.tp-preview-pill{border-radius:10px;padding:2px 10px;font-weight:700;font-size:12px;white-space:nowrap}
+#preview .blank{margin-bottom:.3em}
+
+/* divider label between panes */
+#pane-div{
+  width:1px;background:var(--border);flex-shrink:0;position:relative;
+}
+
+/* FOOTER */
+#footer{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 14px;border-top:1px solid var(--border);font-size:11px;
+  color:var(--text3);flex-shrink:0;background:var(--bg2)}
+
+/* MENTION DROPDOWN */
+#mdrop{position:fixed;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.6);
+  z-index:9999;min-width:240px;max-height:260px;overflow-y:auto;display:none}
+.mi{display:flex;align-items:center;gap:10px;padding:9px 13px;
+  cursor:pointer;transition:background .1s;font-size:13px}
+.mi:hover,.mi.on{background:var(--bg3)}
+.mi-av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.mi-in{width:28px;height:28px;border-radius:50%;background:var(--bg3);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--text2);flex-shrink:0}
+
+/* BUTTONS */
+.btn{padding:5px 11px;border-radius:7px;font-size:12px;
+  font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+/* btn-p uses --accent-grad which applyTheme sets dynamically */
+.btn-p{background:var(--accent);color:#fff}
+.btn-g{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-g:hover{border-color:var(--accent);color:var(--text)}
+
+/* ── Lucide Icons ─────────────────────────────────────────────────────────── */
+i[data-lucide]{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.t-btn i[data-lucide]{width:14px;height:14px;stroke-width:2.25;pointer-events:none}
+.btn i[data-lucide]{width:13px;height:13px;stroke-width:2;vertical-align:middle}
+.btn-p i[data-lucide], .btn-g i[data-lucide]{width:11px;height:11px;stroke-width:2.5}
+.ch-btn i[data-lucide]{width:12px;height:12px;stroke-width:2;pointer-events:none}
+#topbar i[data-lucide]{width:18px;height:18px;stroke-width:2}
+.s-del i[data-lucide]{width:11px;height:11px;stroke-width:2.5;pointer-events:none}
+.tp-close-btn i[data-lucide]{width:14px;height:14px;stroke-width:2.5}
+
+/* EMPTY */
+#empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:12px;color:var(--text3);text-align:center;padding:40px}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="tb-l">
+    <img src="assets/stories.svg" style="width:20px;height:20px;flex-shrink:0;filter:var(--icon-filter,brightness(0) invert(1));opacity:.85" onerror="this.style.display='none'" aria-hidden="true">
+    <span class="logo" id="story-logo-span">Stories</span>
+  </div>
+  <div class="tb-r">
+    <button class="btn btn-g" style="padding:3px 9px;font-size:11px" onclick="exportMD()" style="display:inline-flex;align-items:center;gap:5px"><i data-lucide="download"></i> .md</button>
+    <button id="story-export-sheet-btn" class="btn btn-g" style="padding:3px 9px;font-size:11px" onclick="exportPDF(null)" style="display:inline-flex;align-items:center;gap:5px"><i data-lucide="file-text"></i> <span id="story-export-sheet-lbl">Sheet</span></button>
+  </div>
+</div>
+
+<div id="layout">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="sb-top">
+      <div id="sb-lbl">STORIES</div>
+      <div id="story-list"></div>
+      <button id="new-story-btn" class="btn btn-p" style="width:100%;margin-top:6px;font-size:11px;padding:6px"
+        onclick="createStory()" style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><i data-lucide="plus"></i> <span id="new-story-lbl">New Story</span></button>
+    </div>
+    <div id="sb-div"></div>
+    <div id="sb-chlbl">CHAPTERS</div>
+    <div id="chapter-list"></div>
+    <div id="sb-foot">
+      <button id="add-chapter-btn" class="btn btn-g" style="flex:1;font-size:11px;padding:5px"
+        onclick="addChapter()" style="display:inline-flex;align-items:center;justify-content:center;gap:5px"><i data-lucide="plus"></i> <span id="add-chapter-lbl">Chapter</span></button>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editor-area">
+    <div id="toolbar">
+      <button class="t-btn" onclick="fmtH1()" title="Heading 1"><i data-lucide="heading-1"></i></button>
+      <button class="t-btn" onclick="fmtH2()" title="Heading 2"><i data-lucide="heading-2"></i></button>
+      <button class="t-btn" onclick="fmtH3()" title="Heading 3"><i data-lucide="heading-3"></i></button>
+      <div class="t-sep"></div>
+      <button class="t-btn" onclick="fmtWrap('**','**')" title="Bold"><i data-lucide="bold"></i></button>
+      <button class="t-btn" onclick="fmtWrap('*','*')" title="Italic"><i data-lucide="italic"></i></button>
+      <button class="t-btn" onclick="fmtWrap('~~','~~')" title="Strikethrough"><i data-lucide="strikethrough"></i></button>
+      <div class="t-sep"></div>
+      <button class="t-btn" onclick="fmtQuote()" title="Blockquote"><i data-lucide="quote"></i></button>
+      <button class="t-btn" onclick="fmtInsert('\n---\n')" title="Scene break"><i data-lucide="minus"></i></button>
+      <div style="flex:1"></div>
+      <input id="ch-inp" placeholder="Chapter title…" oninput="renameChapter(this.value)" data-i18n-placeholder="stories.chapterPlaceholder">
+    </div>
+
+    <div id="panes">
+      <div id="write-pane">
+        <textarea id="ta"
+          placeholder="Start writing here…&#10;&#10;Markdown: **bold**  *italic*  ~~strike~~&#10;# Heading  ## H2  ### H3&#10;&gt; quote  --- scene break&#10;&#10;Type @Name to mention a character"
+          spellcheck="true"></textarea>
+      </div>
+      <div id="pane-div"></div>
+      <div id="preview-pane">
+        <div id="preview-label" data-i18n="stories.livePreview">LIVE PREVIEW</div>
+        <div id="preview"></div>
+      </div>
+    </div>
+
+    <div id="footer">
+      <div style="display:flex;gap:14px">
+        <span id="f-words-span">📝 <b id="f-w">0</b> words</span>
+        <span id="f-chars-span">🔤 <b id="f-c">0</b> chars</span>
+        <span id="f-read-span">📖 <b id="f-r">1</b> min read</span>
+      </div>
+      <span id="f-s" data-i18n="stories.allSaved">All saved ✓</span>
+    </div>
+  </div>
+</div>
+
+<div id="mdrop"></div>
+<div id="tag-popover">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+    <div style="font-size:11px;font-weight:800;color:var(--text);letter-spacing:.5px" id="tp-char-name">Character</div>
+    <button onclick="closeTagPopover()" class="tp-close-btn" style="background:none;border:none;color:var(--text3);cursor:pointer;line-height:1;padding:0 2px;display:flex;align-items:center"><i data-lucide="x"></i></button>
+  </div>
+  <div class="tp-row">
+    <span class="tp-label" id="tp-lbl-textcolor" data-i18n="stories.textColor">TEXT COLOR</span>
+    <div class="tp-swatch" id="tp-swatch-color" onclick="document.getElementById('tp-inp-color').click()"></div>
+    <input type="color" id="tp-inp-color" style="display:none" oninput="tpPreview()">
+    <span class="tp-hex" id="tp-lbl-color">#ffffff</span>
+  </div>
+  <div class="tp-row">
+    <span class="tp-label" id="tp-lbl-background" data-i18n="stories.background">BACKGROUND</span>
+    <div class="tp-swatch" id="tp-swatch-bg" onclick="document.getElementById('tp-inp-bg').click()"></div>
+    <input type="color" id="tp-inp-bg" style="display:none" oninput="tpPreview()">
+    <input type="range" id="tp-inp-alpha" min="0" max="100" value="20"
+      style="width:64px;accent-color:var(--accent)" oninput="tpPreview()">
+    <span class="tp-hex" id="tp-lbl-alpha">20%</span>
+  </div>
+  <div class="tp-row">
+    <span class="tp-label" id="tp-lbl-preview" data-i18n="stories.preview">PREVIEW</span>
+    <span class="tp-preview-pill" id="tp-preview-pill">@Name</span>
+  </div>
+  <div style="display:flex;gap:6px;margin-top:2px">
+    <button id="tp-use-default-btn" class="btn btn-g" style="flex:1;font-size:11px;padding:5px" onclick="tpReset()" data-i18n="stories.useDefault">Use Default</button>
+    <button id="tp-apply-btn" class="btn btn-p" style="flex:1;font-size:11px;padding:5px" onclick="tpSave()" data-i18n="stories.apply">Apply ✓</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════
+   i18n — standalone bootstrap for story.html
+   Loads language JSON via Electron IPC or fetch,
+   defines t() globally, applies to DOM at init.
+   ═══════════════════════════════════════════════ */
+let _i18nStory   = {};   // target language data
+let _i18nStoryEn = {};   // English fallback
+
+function t(key) {
+  // dot-notation lookup, target language first then English fallback
+  const parts = key.split('.');
+  let v = _i18nStory;
+  for (const p of parts) { v = (v && typeof v === 'object') ? v[p] : undefined; }
+  if (v && typeof v === 'string') return v;
+  let ve = _i18nStoryEn;
+  for (const p of parts) { ve = (ve && typeof ve === 'object') ? ve[p] : undefined; }
+  return (ve && typeof ve === 'string') ? ve : '';
+}
+
+async function _loadLangJSON(code) {
+  // 1. Try Electron IPC (handles packaged app paths correctly)
+  try {
+    if (window.electronAPI && typeof window.electronAPI.lang === 'object' && window.electronAPI.lang) {
+      const raw = await window.electronAPI.lang.readFile(code);
+      if (raw) return JSON.parse(raw);
+    }
+  } catch(e) {}
+  // 2. Fallback: fetch relative to story.html (works in dev and packaged)
+  try {
+    const res = await fetch('./languages/' + code + '.json');
+    if (res.ok) return await res.json();
+  } catch(e) {}
+  return null;
+}
+
+async function loadI18n(langCode) {
+  try {
+    // Always load English as base fallback
+    const enData = await _loadLangJSON('en');
+    if (enData) _i18nStoryEn = enData;
+
+    if (langCode && langCode !== 'en') {
+      const data = await _loadLangJSON(langCode);
+      if (data) _i18nStory = data;
+      else _i18nStory = _i18nStoryEn; // lang file missing → use English
+    } else {
+      _i18nStory = _i18nStoryEn;
+    }
+  } catch(e) { console.warn('[story i18n]', e); }
+}
+
+function applyI18nStory() {
+  // Apply translations to all static DOM elements
+  // data-i18n attributes → textContent
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+  // data-i18n-placeholder attributes → placeholder
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const val = t(key);
+    if (val) el.placeholder = val;
+  });
+
+  // Elements that need special handling (contain child nodes/icons)
+  const logoSpan = document.getElementById('story-logo-span');
+  if (logoSpan) logoSpan.textContent = t('stories.title') || 'Stories';
+
+  const exportLbl = document.getElementById('story-export-sheet-lbl');
+  if (exportLbl) exportLbl.textContent = t('stories.exportSheet') || 'Sheet';
+
+  const newStoryLbl = document.getElementById('new-story-lbl');
+  if (newStoryLbl) newStoryLbl.textContent = t('stories.newStory') || 'New Story';
+
+  const addChapterLbl = document.getElementById('add-chapter-lbl');
+  if (addChapterLbl) addChapterLbl.textContent = t('stories.chapter') || 'Chapter';
+
+  // textarea placeholder (multiline)
+  const taEl = document.getElementById('ta');
+  if (taEl) {
+    const ph = t('stories.editorPlaceholder');
+    if (ph) taEl.placeholder = ph;
+  }
+
+  // Refresh stats line units (footer already set up, just re-render)
+  updateStats();
+}
+
+/* ═══════════════════════════════════════════════
+   THEME
+   ═══════════════════════════════════════════════ */
+const THEMES=[
+  {label:'Charactry PLUS', bg:'#080b14',bg2:'#0d1122',bg3:'#121830',sb:'#05070f',card:'#0f1426',border:'#1e2b50',accent:'#f0c040',accent2:'#6688f5'},
+  {label:'Deep Dark',     bg:'#0e0e14',bg2:'#13131c',bg3:'#1a1a28',sb:'#0b0b12',card:'#16161f',border:'#2a2a3d',accent:'#a78bfa',accent2:'#7c3aed'},
+  {label:'Midnight Blue', bg:'#080d1a',bg2:'#0c1220',bg3:'#101828',sb:'#060b14',card:'#0d1525',border:'#1a2540',accent:'#60a5fa',accent2:'#2563eb'},
+  {label:'Forest',        bg:'#080f0a',bg2:'#0c150e',bg3:'#0f1c12',sb:'#050c06',card:'#0f1a10',border:'#1a3020',accent:'#4ade80',accent2:'#16a34a'},
+  {label:'Blood Moon',    bg:'#110505',bg2:'#170707',bg3:'#1e0b0b',sb:'#0c0303',card:'#1a0808',border:'#3a1010',accent:'#f87171',accent2:'#dc2626'},
+  {label:'Rose Dust',     bg:'#12080f',bg2:'#180b14',bg3:'#1f0e1b',sb:'#0d0509',card:'#1c0d18',border:'#3a1530',accent:'#f9a8d4',accent2:'#db2777'},
+  {label:'Obsidian Gold', bg:'#0f0d07',bg2:'#15120a',bg3:'#1b180e',sb:'#0a0902',card:'#1a1608',border:'#362e10',accent:'#fbbf24',accent2:'#d97706'},
+];
+function h2r(h,a){
+  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function applyTheme(){
+  try{
+    const cfg = _settings || {};
+    const t=THEMES.find(x=>x.label===cfg.themeLabel)||THEMES[0];
+    const S=document.documentElement.style;
+    S.setProperty('--bg',         t.bg);
+    S.setProperty('--bg2',        t.bg2);
+    S.setProperty('--bg3',        t.bg3);
+    S.setProperty('--sb',         t.sb||t.bg2);
+    S.setProperty('--sidebar-bg', t.sb||t.bg2);
+    S.setProperty('--card',       t.card||t.bg3);
+    S.setProperty('--border',     t.border);
+    document.body.style.background=t.bg;
+
+    const a1  = cfg.accentColor1 || t.accent;
+    const a2  = cfg.accentColor2 || t.accent2 || a1;
+    const dir = cfg.accentDir    || '135deg';
+    const mode= cfg.accentMode   || 'solid';
+
+    S.setProperty('--accent',      a1);
+    S.setProperty('--accent2',     a2);
+    S.setProperty('--accent-glow', h2r(a1,.18));
+
+    let st=document.getElementById('story-accent-style');
+    if(!st){st=document.createElement('style');st.id='story-accent-style';document.head.appendChild(st);}
+    if(mode==='gradient'){
+      const grad=`linear-gradient(${dir},${a1},${a2})`;
+      st.textContent=`
+        .btn-p{background:${grad}!important;}
+        .s-item.active{background:${h2r(a1,.18)}!important;color:${a1}!important;border-color:${h2r(a1,.3)}!important;}
+        .ch-item.active{background:${h2r(a1,.18)}!important;color:${a1}!important;}
+      `;
+    } else {
+      st.textContent=`
+        .btn-p{background:${a1}!important;}
+        .s-item.active{background:${h2r(a1,.18)}!important;color:${a1}!important;border-color:${h2r(a1,.3)}!important;}
+        .ch-item.active{background:${h2r(a1,.18)}!important;color:${a1}!important;}
+      `;
+    }
+
+    const mc  = cfg.mentionColor  || a1;
+    const mBg = cfg.mentionBg     || a1;
+    const mA  = cfg.mentionBgAlpha!==undefined ? cfg.mentionBgAlpha : 18;
+    S.setProperty('--mention-color',  mc);
+    S.setProperty('--mention-bg',     h2r(mBg, mA/100));
+    S.setProperty('--mention-border', h2r(mc, .45));
+  }catch(e){}
+}
+
+/* ═══════════════════════════════════════════════
+   DATA  — backed by localforage (IndexedDB)
+   ═══════════════════════════════════════════════ */
+const sj=(s,d)=>{try{return JSON.parse(s||'null')??d;}catch{return d;}};
+let stories  = [];
+let chars    = [];
+let _settings = {};
+
+let storyId=null, chapId=null, saveT=null, previewT=null;
+
+// Save stories async — fire and forget
+const save = () => localforage.setItem('charactry_stories', stories).catch(e=>console.warn('save stories',e));
+const getS=()=>stories.find(s=>s.id===storyId)||null;
+const getCh=()=>{const s=getS();return s?(s.chapters||[]).find(c=>c.id===chapId)||null:null;};
+const uid=()=>'_'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const safeName=s=>(s||'file').replace(/[^a-z0-9]/gi,'_').slice(0,50);
+
+// Poll for char updates from index.html every 3s (localforage doesn't fire cross-window storage events)
+setInterval(async ()=>{
+  try {
+    const updated = await localforage.getItem('charactry_chars');
+    if (updated) {
+      const tagColors = await localforage.getItem('charactry_tag_colors').catch(()=>null) || {};
+      updated.forEach(c => {
+        if (tagColors[c.id]) {
+          const tc = tagColors[c.id];
+          c.tagColor = tc.color; c.tagBg = tc.bg; c.tagBgAlpha = tc.alpha;
+        }
+      });
+      chars = updated;
+    }
+  } catch(e) {}
+}, 3000);
+
+/* ═══════════════════════════════════════════════
+   TEXTAREA  —  the one source of truth
+   ═══════════════════════════════════════════════ */
+const ta = document.getElementById('ta');
+
+/* ── PASTE: strip \r, collapse multiple blank lines, trim leading/trailing whitespace per-line ── */
+ta.addEventListener('paste', e => {
+  e.preventDefault();
+  let text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  // Normalise line endings: \r\n and \r → \n
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Collapse 3+ consecutive blank lines down to 2
+  text = text.replace(/\n{3,}/g, '\n\n');
+  // Insert via execCommand so Ctrl+Z works
+  insertText(text);
+});
+
+ta.addEventListener('input', () => {
+  updateStats();
+  setSt(t('stories.saving')||'Saving…');
+  clearTimeout(saveT);
+  saveT = setTimeout(() => { flush(); setSt(t('stories.allSaved')||'All saved ✓'); }, 900);
+  checkMention();
+  schedPreview();
+});
+
+ta.addEventListener('keydown', e => mentionKD(e));
+ta.addEventListener('scroll',  hideMention);
+ta.addEventListener('blur',    () => setTimeout(hideMention, 150));
+ta.addEventListener('click',   hideMention);
+
+function flush(){
+  const ch=getCh();
+  if(ch){ ch.content=ta.value; save(); }
+}
+
+function loadTA(content){
+  // Restore panes if showEmpty() hid them
+  ['write-pane','pane-div','preview-pane'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='';
+  });
+  const empty=document.getElementById('empty');
+  if(empty) empty.style.display='none';
+  // Normalise on load too — in case old data has \r\n
+  ta.value = (content||'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  updateStats();
+  setSt(t('stories.allSaved')||'All saved ✓');
+  renderPreview();
+}
+
+/* ═══════════════════════════════════════════════
+   insertText — uses execCommand so Ctrl+Z works natively
+   Falls back to manual splice if execCommand unavailable
+   ═══════════════════════════════════════════════ */
+function insertText(text) {
+  ta.focus();
+  // execCommand preserves the native undo stack
+  const ok = document.execCommand('insertText', false, text);
+  if (!ok) {
+    // Fallback (shouldn't be needed in Electron/Chromium)
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const v = ta.value;
+    ta.value = v.slice(0, s) + text + v.slice(e);
+    ta.selectionStart = ta.selectionEnd = s + text.length;
+    ta.dispatchEvent(new Event('input'));
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   MARKDOWN PREVIEW  (live, no toggle needed)
+   ═══════════════════════════════════════════════ */
+function mentionStyle(c){
+  const cfg = _settings || {};
+  const defColor = cfg.mentionColor  || getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a78bfa';
+  const defBg    = cfg.mentionBg     || defColor;
+  const defAlpha = cfg.mentionBgAlpha!==undefined ? cfg.mentionBgAlpha : 18;
+
+  const color = (c&&c.tagColor) ? c.tagColor : defColor;
+  const bg    = (c&&c.tagBg)    ? c.tagBg    : defBg;
+  const alpha = (c&&c.tagBgAlpha!==undefined) ? c.tagBgAlpha : defAlpha;
+  const bgRgba = h2r(bg, alpha/100);
+  const borderRgba = h2r(color, .45);
+  return `background:${bgRgba};color:${color};border:1px solid ${borderRgba};`;
+}
+
+function mdToHTML(raw){
+  if(!raw) return `<p style="color:var(--text3);font-style:italic">${t('stories.nothingWritten')||'Nothing written yet…'}</p>`;
+  function inline(t){
+    let s=esc(t);
+    s=s.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+    s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/\*(.+?)\*/g,'<em>$1</em>');
+    s=s.replace(/~~(.+?)~~/g,'<s>$1</s>');
+    // @mention — greedy name match, renders with per-character colors
+    s=s.replace(/@([\w\u00C0-\u024F][\w\u00C0-\u024F' \-]{0,60}?)(?=[^\w\u00C0-\u024F'\-]|$)/g,(m,n)=>{
+      const nm=n.trim();
+      const c=chars.find(c=>c.name===nm)
+             ||chars.find(c=>c.name.toLowerCase()===nm.toLowerCase())
+             ||chars.find(c=>c.name.toLowerCase().startsWith(nm.toLowerCase()));
+      const id=c?c.id:'';
+      const display=c?esc(c.name):esc(nm);
+      const style=mentionStyle(c);
+      return `<span class="mention" style="${style}" onclick="openTagPicker('${id}',event)">@${display}</span>`;
+    });
+    return s;
+  }
+  let html='';
+  for(const line of raw.split('\n')){
+    const t=line.trimEnd();
+    if     (/^### .+/.test(t))  html+=`<h3>${inline(t.slice(4))}</h3>`;
+    else if(/^## .+/.test(t))   html+=`<h2>${inline(t.slice(3))}</h2>`;
+    else if(/^# .+/.test(t))    html+=`<h1>${inline(t.slice(2))}</h1>`;
+    else if(/^---+$/.test(t))   html+=`<hr>`;
+    else if(/^> .+/.test(t))    html+=`<blockquote>${inline(t.slice(2))}</blockquote>`;
+    else if(t)                  html+=`<p>${inline(t)}</p>`;
+    else                        html+=`<p class="blank">&nbsp;</p>`;
+  }
+  return html;
+}
+
+function renderPreview(){
+  const el = document.getElementById('preview');
+  if(el) el.innerHTML = mdToHTML(ta.value);
+}
+function schedPreview(){
+  clearTimeout(previewT);
+  previewT = setTimeout(renderPreview, 250);
+}
+
+/* ═══════════════════════════════════════════════
+   TOOLBAR ACTIONS
+   All use insertText() → native undo stack preserved
+   ═══════════════════════════════════════════════ */
+function fmtWrap(pre, post){
+  ta.focus();
+  const s=ta.selectionStart, e=ta.selectionEnd;
+  const sel=ta.value.slice(s,e)||'text';
+  // Select → replace via insertText so undo works
+  ta.selectionStart=s; ta.selectionEnd=e;
+  insertText(pre+sel+post);
+  // Re-select just the inner text
+  ta.selectionStart=s+pre.length;
+  ta.selectionEnd=s+pre.length+sel.length;
+}
+
+function fmtLinePrefix(prefix){
+  ta.focus();
+  const s=ta.selectionStart;
+  const v=ta.value;
+  const lineStart=v.lastIndexOf('\n',s-1)+1;
+  const lineEnd=v.indexOf('\n',s);
+  const line=v.slice(lineStart, lineEnd===-1?undefined:lineEnd);
+  // Toggle: if already prefixed, remove it
+  if(line.startsWith(prefix)){
+    ta.selectionStart=lineStart;
+    ta.selectionEnd=lineStart+prefix.length;
+    insertText('');
+  } else {
+    ta.selectionStart=lineStart;
+    ta.selectionEnd=lineStart;
+    insertText(prefix);
+  }
+}
+
+function fmtInsert(text){ insertText(text); }
+function fmtH1(){ fmtLinePrefix('# '); }
+function fmtH2(){ fmtLinePrefix('## '); }
+function fmtH3(){ fmtLinePrefix('### '); }
+function fmtQuote(){ fmtLinePrefix('> '); }
+
+/* ═══════════════════════════════════════════════
+   STATS + STATUS
+   ═══════════════════════════════════════════════ */
+function updateStats(){
+  const txt=ta.value;
+  const w=txt.trim()?txt.trim().split(/\s+/).length:0;
+  const mins=Math.max(1,Math.round(w/200));
+  const wSpan=document.getElementById('f-words-span');
+  const cSpan=document.getElementById('f-chars-span');
+  const rSpan=document.getElementById('f-read-span');
+  if(wSpan) wSpan.innerHTML=`\u{1F4DD} <b>${w.toLocaleString()}</b> ${t('stories.words')||'words'}`;
+  if(cSpan) cSpan.innerHTML=`\u{1F524} <b>${txt.length.toLocaleString()}</b> ${t('stories.chars')||'chars'}`;
+  if(rSpan) rSpan.innerHTML=`\u{1F4D6} <b>${mins}</b> ${t('stories.minRead')||'min read'}`;
+}
+function setSt(m){const e=document.getElementById('f-s');if(e)e.textContent=m;}
+
+/* ═══════════════════════════════════════════════
+   @MENTION AUTOCOMPLETE
+   Key insight: we track the @ anchor position and the current
+   query. On Enter/Tab we pick; on Space/newline we dismiss.
+   We intercept Enter in keydown BEFORE the textarea processes it
+   so no stray newline gets inserted when picking a mention.
+   ═══════════════════════════════════════════════ */
+let mAnch=-1, mFoc=0, mActive=false;
+
+function checkMention(){
+  const pos=ta.selectionStart;
+  const before=ta.value.slice(0,pos);
+  const ai=before.lastIndexOf('@');
+  if(ai===-1){ hideMention(); return; }
+  const fragment=before.slice(ai+1);
+  // If anything between @ and cursor is a space or newline → not a live mention
+  if(/[\s\n]/.test(fragment)){ hideMention(); return; }
+  // Empty query (just typed @) → hide until they type at least 1 char
+  if(!fragment){ hideMention(); return; }
+  const ms=chars.filter(c=>c.name.toLowerCase().includes(fragment.toLowerCase())).slice(0,8);
+  if(!ms.length){ hideMention(); return; }
+  mAnch=ai;
+  mActive=true;
+  showMention(ms,fragment);
+}
+
+function showMention(ms, query){
+  const drop=document.getElementById('mdrop');
+  // Position: anchor near the textarea caret row
+  const rect=ta.getBoundingClientRect();
+  const lh=parseFloat(getComputedStyle(ta).lineHeight)||26;
+  const textBefore=ta.value.slice(0,mAnch);
+  const lines=textBefore.split('\n');
+  const lineIndex=lines.length-1;
+  const visLine=Math.max(0,lineIndex-(ta.scrollTop/lh|0));
+  const top=rect.top+visLine*lh+lh+6;
+  const left=rect.left+44;
+  drop.style.cssText=`display:block;left:${Math.min(left,window.innerWidth-260)}px;top:${Math.min(top,window.innerHeight-280)}px`;
+  mFoc=0;
+  drop.innerHTML=ms.map((c,i)=>`
+    <div class="mi${i===0?' on':''}" data-id="${c.id}" onmousedown="event.preventDefault();pickMention('${c.id}')">
+      ${c.avatar
+        ?`<img class="mi-av" src="${esc(c.avatar)}">`
+        :`<div class="mi-in">${esc((c.name||'?')[0])}</div>`}
+      <div style="min-width:0">
+        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</div>
+        ${c.pronouns||c.species
+          ?`<div style="font-size:10px;color:var(--text3)">${[c.pronouns,c.species].filter(Boolean).join(' · ')}</div>`
+          :''}
+      </div>
+    </div>`).join('');
+}
+
+function hideMention(){
+  document.getElementById('mdrop').style.display='none';
+  mAnch=-1;
+  mActive=false;
+}
+
+function pickMention(id){
+  const c=chars.find(x=>x.id===id); if(!c) return;
+  // Select exactly from the @ to the current cursor position, replace whole thing
+  const curPos=ta.selectionStart;
+  ta.focus();
+  ta.setSelectionRange(mAnch, curPos);
+  // Insert @Name followed by a space (no newline, no extra junk)
+  const replacement='@'+c.name+' ';
+  // Use execCommand so undo works
+  const ok=document.execCommand('insertText',false,replacement);
+  if(!ok){
+    const v=ta.value;
+    ta.value=v.slice(0,mAnch)+replacement+v.slice(curPos);
+    ta.selectionStart=ta.selectionEnd=mAnch+replacement.length;
+    ta.dispatchEvent(new Event('input'));
+  }
+  hideMention();
+}
+
+function mentionKD(e){
+  // If mention dropdown is open, intercept nav keys
+  if(!mActive) return;
+  const d=document.getElementById('mdrop');
+  if(d.style.display==='none'){ mActive=false; return; }
+  const its=d.querySelectorAll('.mi');
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    mFoc=Math.min(mFoc+1,its.length-1);
+    its.forEach((el,i)=>el.classList.toggle('on',i===mFoc));
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    mFoc=Math.max(mFoc-1,0);
+    its.forEach((el,i)=>el.classList.toggle('on',i===mFoc));
+  } else if(e.key==='Enter'||e.key==='Tab'){
+    // Prevent Enter from inserting a newline when picking a mention
+    e.preventDefault();
+    const id=its[mFoc]?.dataset?.id;
+    if(id) pickMention(id);
+  } else if(e.key==='Escape'){
+    e.preventDefault();
+    hideMention();
+  }
+  // Any other key: let it through, checkMention will update or hide via 'input' event
+}
+
+function openChar(id){
+  if(!id) return;
+  localStorage.setItem('charactry_open_char',id);
+  if(window.opener) window.opener.focus();
+}
+
+/* ═══════════════════════════════════════════════
+   PER-CHARACTER TAG COLOR POPOVER
+   Click any @mention tag in the preview to open it
+   ═══════════════════════════════════════════════ */
+let tpCharId = null;
+
+function openTagPicker(charId, event){
+  event.stopPropagation();
+  const c = chars.find(x=>x.id===charId);
+  tpCharId = charId;
+
+  const pop = document.getElementById('tag-popover');
+
+  // Get current colors for this character (or defaults)
+  const cfg = _settings || {};
+  const defColor = cfg.mentionColor  || getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a78bfa';
+  const defBg    = cfg.mentionBg     || defColor;
+  const defAlpha = cfg.mentionBgAlpha!==undefined ? cfg.mentionBgAlpha : 18;
+
+  const color = (c&&c.tagColor)             ? c.tagColor    : defColor;
+  const bg    = (c&&c.tagBg)                ? c.tagBg       : defBg;
+  const alpha = (c&&c.tagBgAlpha!==undefined)? c.tagBgAlpha : defAlpha;
+
+  // Populate inputs
+  document.getElementById('tp-char-name').textContent = c ? '@'+c.name : '@Unknown';
+  document.getElementById('tp-inp-color').value = color;
+  document.getElementById('tp-inp-bg').value    = bg;
+  document.getElementById('tp-inp-alpha').value = alpha;
+  document.getElementById('tp-swatch-color').style.background = color;
+  document.getElementById('tp-swatch-bg').style.background    = bg;
+  document.getElementById('tp-lbl-color').textContent  = color;
+  document.getElementById('tp-lbl-alpha').textContent  = Math.round(alpha)+'%';
+  tpUpdatePreview(color, bg, alpha);
+
+  // Position near click — keep within viewport
+  pop.style.left = '0px';
+  pop.style.top  = '0px';
+  pop.style.display = 'flex'; // temporarily show to measure
+  const popW = pop.offsetWidth  || 265;
+  const popH = pop.offsetHeight || 230;
+  pop.style.display = '';
+  const margin = 12;
+  let x = event.clientX;
+  let y = event.clientY + 14;
+  if (x + popW + margin > window.innerWidth)  x = window.innerWidth  - popW - margin;
+  if (y + popH + margin > window.innerHeight) y = event.clientY - popH - 8;
+  if (x < margin) x = margin;
+  if (y < margin) y = margin;
+  pop.style.left = x+'px';
+  pop.style.top  = y+'px';
+  pop.classList.add('open');
+  requestAnimationFrame(()=>{ if(typeof lucide!=='undefined') lucide.createIcons(); });
+
+  // Close on outside click
+  setTimeout(()=>document.addEventListener('click', tpOutsideClick, {once:true}), 10);
+}
+
+function tpOutsideClick(e){
+  const pop = document.getElementById('tag-popover');
+  if(!pop.contains(e.target)) closeTagPopover();
+  else document.addEventListener('click', tpOutsideClick, {once:true});
+}
+
+function closeTagPopover(){
+  document.getElementById('tag-popover').classList.remove('open');
+  tpCharId = null;
+}
+
+function tpPreview(){
+  const color = document.getElementById('tp-inp-color').value;
+  const bg    = document.getElementById('tp-inp-bg').value;
+  const alpha = parseFloat(document.getElementById('tp-inp-alpha').value);
+  document.getElementById('tp-swatch-color').style.background = color;
+  document.getElementById('tp-swatch-bg').style.background    = bg;
+  document.getElementById('tp-lbl-color').textContent  = color;
+  document.getElementById('tp-lbl-alpha').textContent  = Math.round(alpha)+'%';
+  tpUpdatePreview(color, bg, alpha);
+}
+
+function tpUpdatePreview(color, bg, alpha){
+  const pill = document.getElementById('tp-preview-pill');
+  const name = document.getElementById('tp-char-name').textContent || '@Name';
+  pill.textContent  = name;
+  pill.style.background   = h2r(bg, alpha/100);
+  pill.style.color        = color;
+  pill.style.border       = `1px solid ${h2r(color, .45)}`;
+}
+
+async function tpSave(){
+  if(!tpCharId) return;
+  const color = document.getElementById('tp-inp-color').value;
+  const bg    = document.getElementById('tp-inp-bg').value;
+  const alpha = parseFloat(document.getElementById('tp-inp-alpha').value);
+
+  // Update in-memory chars array
+  const c = chars.find(x=>x.id===tpCharId);
+  if(c){ c.tagColor=color; c.tagBg=bg; c.tagBgAlpha=alpha; }
+
+  // Persist tag colors in a SEPARATE key so index.html char saves never clobber them
+  const tagColors = (await localforage.getItem('charactry_tag_colors').catch(()=>null)) || {};
+  tagColors[tpCharId] = { color, bg, alpha };
+  await localforage.setItem('charactry_tag_colors', tagColors).catch(e=>console.warn('save tag colors',e));
+
+  closeTagPopover();
+  renderPreview();
+}
+
+async function tpReset(){
+  if(!tpCharId) return;
+  const c = chars.find(x=>x.id===tpCharId);
+  if(c){ delete c.tagColor; delete c.tagBg; delete c.tagBgAlpha; }
+
+  const tagColors = (await localforage.getItem('charactry_tag_colors').catch(()=>null)) || {};
+  delete tagColors[tpCharId];
+  await localforage.setItem('charactry_tag_colors', tagColors).catch(e=>console.warn('save tag colors',e));
+
+  closeTagPopover();
+  renderPreview();
+}
+
+/* ═══════════════════════════════════════════════
+   STORY / CHAPTER LISTS
+   ═══════════════════════════════════════════════ */
+function renderSL(){
+  const el=document.getElementById('story-list');
+  if(!stories.length){
+    el.innerHTML=`<div style="font-size:11px;color:var(--text3);padding:4px 6px">${t('stories.noStories')||'No stories yet'}</div>`;
+    return;
+  }
+  el.innerHTML=stories.map(s=>`
+    <div class="s-item${s.id===storyId?' active':''}" onclick="loadStory('${s.id}')">
+      <span class="s-name" ondblclick="event.stopPropagation();renameStory('${s.id}')"
+        title="Double-click to rename">${esc(s.title||'Untitled')}</span>
+      <span class="s-count">${(s.chapters||[]).length}ch</span>
+      <button class="s-del" onclick="event.stopPropagation();delStory('${s.id}')"><i data-lucide="x"></i></button>
+    </div>`).join('');
+  requestAnimationFrame(()=>{ if(typeof lucide!=='undefined') lucide.createIcons(); });
+}
+
+function renderCL(){
+  const el=document.getElementById('chapter-list');
+  const s=getS();
+  if(!s||(s.chapters||[]).length===0){
+    el.innerHTML=`<div style="font-size:11px;color:var(--text3);padding:8px 10px">${t('stories.noChapters')||'No chapters'}</div>`;
+    return;
+  }
+  el.innerHTML=s.chapters.map((ch,i)=>`
+    <div class="ch-item${ch.id===chapId?' active':''}" onclick="loadChapter('${ch.id}')">
+      <span class="ch-num">${i+1}</span>
+      <span class="ch-title">${esc(ch.title||'Untitled')}</span>
+      <span class="ch-acts">
+        <button class="ch-btn" onclick="event.stopPropagation();exportPDF('${ch.id}')"
+          title="Export chapter sheet"><i data-lucide="file-text"></i></button>
+        <button class="ch-btn red" onclick="event.stopPropagation();delChap('${ch.id}')"
+          title="Delete chapter"><i data-lucide="trash-2"></i></button>
+      </span>
+    </div>`).join('');
+  requestAnimationFrame(()=>{ if(typeof lucide!=='undefined') lucide.createIcons(); });
+}
+
+/* ═══════════════════════════════════════════════
+   STORY CRUD
+   ═══════════════════════════════════════════════ */
+function createStory(){
+  const s={id:uid(),title:'New Story',chapters:[]};
+  const ch={id:uid(),title:'Chapter 1',content:''};
+  s.chapters.push(ch);
+  stories.push(s);
+  save();
+  storyId=s.id; chapId=ch.id;
+  renderSL(); renderCL();
+  loadTA('');
+  document.getElementById('ch-inp').value=ch.title;
+  setTimeout(()=>renameStory(s.id),80);
+}
+
+function delStory(id){
+  if(!confirm('Delete this story and all its chapters?')) return;
+  stories=stories.filter(s=>s.id!==id);
+  if(storyId===id){ storyId=null; chapId=null; showEmpty(); }
+  save(); renderSL(); if(storyId) renderCL();
+}
+
+function renameStory(id){
+  renderSL();
+  const nm=document.querySelector(`.s-item[onclick="loadStory('${id}')"] .s-name`);
+  if(!nm) return;
+  const s=stories.find(x=>x.id===id); if(!s) return;
+  const inp=document.createElement('input');
+  inp.value=s.title||'';
+  inp.style.cssText='all:unset;font:700 12px Nunito,sans-serif;color:var(--text);background:var(--bg3);border:1px solid var(--accent);border-radius:4px;padding:1px 6px;width:100%';
+  inp.onclick=e=>e.stopPropagation();
+  const done=()=>{s.title=inp.value.trim()||'Untitled';save();renderSL();};
+  inp.onblur=done;
+  inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape')renderSL();};
+  nm.replaceWith(inp); inp.focus(); inp.select();
+}
+
+function loadStory(id){
+  flush();
+  storyId=id;
+  const s=getS(); if(!s) return;
+  chapId=(s.chapters||[])[0]?.id||null;
+  renderSL(); renderCL();
+  if(chapId){
+    const ch=getCh();
+    loadTA(ch?.content||'');
+    document.getElementById('ch-inp').value=ch?.title||'';
+  } else showEmpty();
+}
+
+/* ═══════════════════════════════════════════════
+   CHAPTER CRUD
+   ═══════════════════════════════════════════════ */
+function addChapter(){
+  const s=getS(); if(!s){alert('Select a story first!');return;}
+  flush();
+  const ch={id:uid(),title:'Chapter '+((s.chapters||[]).length+1),content:''};
+  s.chapters.push(ch); save();
+  chapId=ch.id;
+  renderCL();
+  loadTA('');
+  document.getElementById('ch-inp').value=ch.title;
+}
+
+function delChap(id){
+  const s=getS(); if(!s) return;
+  if((s.chapters||[]).length<=1){alert('A story needs at least one chapter!');return;}
+  if(!confirm('Delete this chapter?')) return;
+  s.chapters=s.chapters.filter(c=>c.id!==id);
+  save();
+  if(chapId===id){
+    chapId=s.chapters[0].id;
+    const ch=getCh();
+    loadTA(ch?.content||'');
+    document.getElementById('ch-inp').value=ch?.title||'';
+  }
+  renderCL();
+}
+
+function renameChapter(title){
+  const ch=getCh(); if(!ch) return;
+  ch.title=title;
+  clearTimeout(saveT);
+  saveT=setTimeout(()=>{save();setSt(t('stories.allSaved')||'All saved ✓');renderCL();},700);
+}
+
+function loadChapter(id){
+  flush();
+  chapId=id;
+  renderCL();
+  const ch=getCh(); if(!ch) return;
+  loadTA(ch.content||'');
+  document.getElementById('ch-inp').value=ch.title||'';
+}
+
+function showEmpty(){
+  // Hide write + preview panes but keep them in DOM (so ta stays valid)
+  ['write-pane','pane-div','preview-pane'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  // Show or create the empty-state overlay inside #panes
+  let empty=document.getElementById('empty');
+  if(!empty){
+    empty=document.createElement('div');
+    empty.id='empty';
+    empty.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--text3);text-align:center;padding:40px';
+    document.getElementById('panes').appendChild(empty);
+  }
+  empty.innerHTML=
+    `<div style="font-size:48px">📖</div>`+
+    `<div style="font-family:Cinzel,serif;font-size:15px;color:var(--text2)">${t('stories.selectStory')||'Select or create a story'}</div>`+
+    `<div style="font-size:12px">${t('stories.sidebarHint')||'Use the sidebar to get started'}</div>`;
+  empty.style.display='flex';
+}
+
+/* ═══════════════════════════════════════════════
+   EXPORT
+   ═══════════════════════════════════════════════ */
+function exportMD(){
+  const s=getS(); if(!s) return; flush();
+  const text=(s.chapters||[]).map((ch,i)=>`# ${ch.title||'Chapter '+(i+1)}\n\n${ch.content||''}`).join('\n\n---\n\n');
+  dlFile(text,safeName(s.title)+'.md','text/markdown');
+}
+
+function exportPDF(chapId2){
+  const s=getS(); if(!s) return; flush();
+  const chs=chapId2?(s.chapters||[]).filter(c=>c.id===chapId2):(s.chapters||[]);
+  const E2=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Build per-character color lookup (same logic as mentionStyle())
+  const cfg = _settings || {};
+  const defColor = cfg.mentionColor  || '#7c3aed';
+  const defBg    = cfg.mentionBg     || defColor;
+  const defAlpha = cfg.mentionBgAlpha!==undefined ? cfg.mentionBgAlpha : 18;
+
+  function exportMentionStyle(c){
+    const color = (c&&c.tagColor)              ? c.tagColor    : defColor;
+    const bg    = (c&&c.tagBg)                 ? c.tagBg       : defBg;
+    const alpha = (c&&c.tagBgAlpha!==undefined) ? c.tagBgAlpha : defAlpha;
+    const bgRgba = h2r(bg, alpha/100);
+    const borderRgba = h2r(color, .45);
+    return `background:${bgRgba};color:${color};border:1px solid ${borderRgba};`;
+  }
+
+  function il(t){
+    let s=E2(t);
+    s=s.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+    s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/\*(.+?)\*/g,'<em>$1</em>');
+    s=s.replace(/~~(.+?)~~/g,'<s>$1</s>');
+    s=s.replace(/@([\w\u00C0-\u024F][\w\u00C0-\u024F' \-]{0,60}?)(?=[^\w\u00C0-\u024F'\-]|$)/g,(m,n)=>{
+      const nm=n.trim();
+      const c=chars.find(c=>c.name===nm)
+             ||chars.find(c=>c.name.toLowerCase()===nm.toLowerCase())
+             ||chars.find(c=>c.name.toLowerCase().startsWith(nm.toLowerCase()));
+      const style=exportMentionStyle(c);
+      const display=c?E2(c.name):E2(nm);
+      return `<span style="${style}border-radius:12px;padding:1px 9px;font-weight:700;font-size:.9em;white-space:nowrap;display:inline;">@${display}</span>`;
+    });
+    return s;
+  }
+
+  function mdx(raw){
+    let o='';
+    for(const line of (raw||'').split('\n')){
+      const t=line.trimEnd();
+      if     (/^### .+/.test(t))   o+=`<h3>${il(t.slice(4))}</h3>`;
+      else if(/^## .+/.test(t))    o+=`<h2>${il(t.slice(3))}</h2>`;
+      else if(/^# .+/.test(t))     o+=`<h1>${il(t.slice(2))}</h1>`;
+      else if(/^---+$/.test(t))    o+=`<div class="sb">· · ·</div>`;
+      else if(/^> .+/.test(t))     o+=`<blockquote>${il(t.slice(2))}</blockquote>`;
+      else if(t)                   o+=`<p>${il(t)}</p>`;
+      else                         o+=`<p class="blank"></p>`;  // blank line = paragraph gap
+    }
+    return o;
+  }
+
+  const body=chs.map((ch,i)=>`
+    <div${i>0?' class="pb"':''}>
+      <h2 class="ct">${E2(ch.title||'Chapter '+(i+1))}</h2>
+      ${mdx(ch.content||'')}
+    </div>`).join('\n');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>${E2(s.title||'Story')}<\/title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;color:#1a1a2e;background:#fff;
+  padding:56px 64px;max-width:780px;margin:0 auto;font-size:15px;line-height:1.9}
+@media print{body{padding:24px}@page{margin:2cm}.pb{page-break-before:always}}
+.tp{text-align:center;padding:90px 0 60px;border-bottom:2px solid #e0dff0;margin-bottom:56px}
+.tp h1{font-family:'Cinzel',serif;font-size:34px;font-weight:700;margin-bottom:10px}
+.tp p{color:#888;font-size:13px}
+h1{font-family:'Cinzel',serif;font-size:24px;margin:1em 0 .4em}
+h2{font-family:'Cinzel',serif;font-size:19px;margin:1em 0 .3em}
+h3{font-family:'Cinzel',serif;font-size:15px;color:#3a3a5e;margin:.8em 0 .3em}
+.ct{font-family:'Cinzel',serif;font-size:20px;border-bottom:2px solid #7c3aed;padding-bottom:8px;margin-bottom:26px}
+p{margin-bottom:.85em}
+p.blank{margin-bottom:.6em;min-height:.6em}
+strong{font-weight:700;color:#4c1d95}
+em{font-style:italic;color:#444}
+s{opacity:.45;text-decoration:line-through}
+blockquote{border-left:3px solid #7c3aed;padding-left:14px;color:#555;font-style:italic;margin:.8em 0}
+.sb{text-align:center;color:#aaa;letter-spacing:6px;margin:1.5em 0;font-size:13px}
+.pb{page-break-before:always;margin-top:56px}
+<\/style><\/head><body>
+<div class="tp">
+  <h1>${E2(s.title||'Untitled Story')}<\/h1>
+  <p>${chs.length} chapter${chs.length!==1?'s':''} · ${new Date().toLocaleDateString()}<\/p>
+</div>
+${body}
+<\/body><\/html>`;
+
+  const name=chapId2
+    ?`${safeName(s.title)}_${safeName(chs[0]?.title||'chapter')}.html`
+    :`${safeName(s.title)}_full.html`;
+  dlFile(html,name,'text/html');
+}
+
+function dlFile(content,name,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ═══════════════════════════════════════════════
+   INIT — async load then start
+   ═══════════════════════════════════════════════ */
+async function initStory() {
+  // Load all data in parallel, with one-time migration from old localStorage
+  const migrateKey = async (key, fallback) => {
+    let val = await localforage.getItem(key);
+    if (val === null) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          val = JSON.parse(raw);
+          await localforage.setItem(key, val);
+          localStorage.removeItem(key);
+        }
+      } catch(e) {}
+    }
+    return val !== null ? val : fallback;
+  };
+
+  [stories, chars, _settings] = await Promise.all([
+    migrateKey('charactry_stories', []),
+    migrateKey('charactry_chars',   []),
+    migrateKey('charactry_settings',{}),
+  ]);
+
+  // Load i18n based on saved language setting — must happen before any rendering
+  await loadI18n((_settings && _settings.language) || 'en');
+  applyI18nStory();
+
+  // Merge separately-stored tag colors onto chars (survives index.html overwrites)
+  try {
+    const tagColors = await localforage.getItem('charactry_tag_colors');
+    if (tagColors) {
+      chars.forEach(c => {
+        if (tagColors[c.id]) {
+          const tc = tagColors[c.id];
+          c.tagColor    = tc.color;
+          c.tagBg       = tc.bg;
+          c.tagBgAlpha  = tc.alpha;
+        }
+      });
+    }
+  } catch(e) {}
+
+  applyTheme();
+  // Re-apply any per-variable UI colour overrides saved from main settings
+  if (_settings && _settings.uiColors) {
+    Object.entries(_settings.uiColors).forEach(([id, val]) => {
+      if (id === 'sidebar-bg') document.documentElement.style.setProperty('--sidebar-bg', val);
+      else document.documentElement.style.setProperty('--' + id, val);
+    });
+  }
+
+  // Check if Scene Engine (or anything else) queued a story to open
+  const pending = await localforage.getItem('charactry_pending_story').catch(()=>null);
+  if (pending) await localforage.removeItem('charactry_pending_story').catch(()=>{});
+
+  renderSL();
+  if(stories.length){
+    // If we have a pending story ID, jump straight to it — otherwise open the first
+    const targetId = pending?.storyId || null;
+    const s = (targetId && stories.find(x => x.id === targetId)) || stories[0];
+    storyId=s.id;
+    const targetChapId = pending?.chapId || null;
+    chapId = (targetChapId && (s.chapters||[]).find(c=>c.id===targetChapId)?.id)
+           || (s.chapters||[])[0]?.id || null;
+    renderSL(); renderCL();
+    if(chapId){
+      const ch=getCh();
+      loadTA(ch?.content||'');
+      document.getElementById('ch-inp').value=ch?.title||'';
+    } else showEmpty();
+  } else {
+    showEmpty();
+  }
+}
+
+initStory();
+
+// Init lucide after all scripts loaded
+function _initLucide(){
+  if(typeof lucide!=='undefined'){ lucide.createIcons(); }
+  else { setTimeout(_initLucide, 50); }
+}
+window.addEventListener('load', _initLucide);
+</script>
+
+<script>
+// Story window branding — sync with main window PLUS status
+(async function() {
+  try {
+    const settings = await localforage.getItem('charactry_settings');
+    if (!settings?.serialCode) return;
+    // Quick hash check — same HMAC-SHA256 as main window
+    const SALT = 'CHARACTRY_PLUS_2026_SALT_XK9';
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey('raw', enc.encode(SALT),
+      {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+    const sig = await crypto.subtle.sign('HMAC', key, enc.encode(settings.serialCode.toUpperCase().trim()));
+    const hash = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    // Load hashes via Electron if available
+    let valid = false;
+    if (window.electronAPI?.loadHashes) {
+      const raw = await window.electronAPI.loadHashes();
+      if (raw) {
+        const matches = raw.match(/['"][0-9a-f]{64}['"]/g) || [];
+        valid = matches.map(m=>m.slice(1,-1)).includes(hash);
+      }
+    }
+    if (valid) {
+      document.title = 'Charactry PLUS — Stories';
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) favicon.href = 'assets/charactryplus_transparent.png';
+      // Swap taskbar icon via IPC
+      if (window.electronAPI?.setAppIcon) window.electronAPI.setAppIcon(true).catch(()=>{});
+    }
+  } catch(e) { /* silent fail - branding is cosmetic */ }
+})();
+</script>
+</body>
+</html>

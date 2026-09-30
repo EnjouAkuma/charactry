@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Tags — Charactry</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg:          #0e0e14;
+    --bg2:         #13131c;
+    --bg3:         #1a1a28;
+    --card:        #16161f;
+    --border:      #2a2a3d;
+    --accent:      #a78bfa;
+    --accent2:     #7c3aed;
+    --accent-glow: rgba(167,139,250,0.18);
+    --text:        #e8e6f0;
+    --text2:       #9b98b0;
+    --text3:       #5a5870;
+    --danger:      #f87171;
+    --success:     #4ade80;
+    --radius:      12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; background: var(--bg); color: var(--text);
+    font-family: 'Nunito', sans-serif; font-size: 14px; overflow: hidden;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 10px; }
+
+  /* ── Layout ── */
+  #root { display: flex; flex-direction: column; height: 100vh; }
+
+  #titlebar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+  }
+  #titlebar-left { display: flex; align-items: center; gap: 10px; }
+  .title-icon { color: var(--accent); display: flex; }
+  h1 {
+    font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .subtitle { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  #titlebar-right { -webkit-app-region: no-drag; }
+
+  #content {
+    flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 16px 20px;
+  }
+
+  /* ── Stat cards ── */
+  #stat-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    margin-bottom: 16px; flex-shrink: 0;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px;
+  }
+  .stat-num {
+    font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700;
+    color: var(--accent); line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 1px; margin-top: 4px;
+  }
+
+  /* ── Main grid ── */
+  #main-grid {
+    display: grid; grid-template-columns: 1fr 260px; gap: 16px;
+    flex: 1; overflow: hidden; min-height: 0;
+  }
+
+  /* ── Tag list ── */
+  #tag-list-panel {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  #tag-list-header {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
+  #tag-search {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px; color: var(--text);
+    font-family: 'Nunito', sans-serif; font-size: 12px; outline: none;
+  }
+  #tag-search:focus { border-color: var(--accent); }
+  .filter-btn {
+    padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
+    cursor: pointer; border: 1px solid var(--border); background: var(--bg3);
+    color: var(--text3); font-family: 'Nunito', sans-serif; transition: all .15s;
+  }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #tag-list-scroll { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .tag-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 14px; border-bottom: 1px solid rgba(255,255,255,.03);
+    transition: background .1s;
+  }
+  .tag-row:hover { background: var(--bg3); }
+  .tag-row:last-child { border-bottom: none; }
+  .tag-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); min-width: 0; }
+  .tag-bar-wrap {
+    width: 60px; height: 3px; background: var(--bg3);
+    border-radius: 3px; overflow: hidden; flex-shrink: 0;
+  }
+  .tag-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+  .tag-count { font-size: 11px; color: var(--text3); flex-shrink: 0; min-width: 36px; text-align: right; }
+  .tag-cat-badge {
+    font-size: 9px; background: var(--bg3); color: var(--text3);
+    padding: 1px 6px; border-radius: 20px; border: 1px solid var(--border);
+    flex-shrink: 0; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cat-btn {
+    font-size: 10px; padding: 2px 7px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--text3);
+    font-family: 'Nunito', sans-serif; transition: all .15s; flex-shrink: 0;
+  }
+  .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px;
+  }
+
+  /* ── Categories panel ── */
+  #cat-panel {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  #cat-panel-header {
+    padding: 10px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    font-size: 11px; font-weight: 700; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 1.2px;
+  }
+  #cat-add-row {
+    display: flex; gap: 6px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  #new-cat-input {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px; color: var(--text);
+    font-family: 'Nunito', sans-serif; font-size: 12px; outline: none;
+  }
+  #new-cat-input:focus { border-color: var(--accent); }
+  #cat-list-scroll { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .cat-card {
+    margin: 4px 10px; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .cat-card-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+  }
+  .cat-card-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .cat-delete-btn {
+    font-size: 10px; padding: 2px 7px; border-radius: 6px; cursor: pointer;
+    border: 1px solid rgba(248,113,113,.3); background: transparent; color: var(--danger);
+    font-family: 'Nunito', sans-serif; transition: all .15s;
+  }
+  .cat-delete-btn:hover { background: rgba(248,113,113,.1); }
+  .cat-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cat-pill {
+    background: var(--bg2); color: var(--text2); font-size: 11px;
+    padding: 2px 8px; border-radius: 20px; border: 1px solid var(--border);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .pill-remove {
+    cursor: pointer; opacity: .5; font-size: 10px; transition: opacity .15s;
+    background: none; border: none; color: var(--text2); padding: 0; line-height: 1;
+  }
+  .pill-remove:hover { opacity: 1; }
+  .cat-empty { font-size: 11px; color: var(--text3); font-style: italic; }
+  #cat-uncategorised { padding: 8px 14px; font-size: 11px; color: var(--text3); }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 7px 14px; border: none; border-radius: 8px; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 12px;
+    transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Cat picker popup ── */
+  #cat-picker {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; z-index: 9999; min-width: 220px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.7); display: none;
+  }
+  #cat-picker.open { display: block; }
+  #cat-picker-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .picker-btn {
+    display: block; width: 100%; text-align: left; margin-bottom: 6px;
+    padding: 8px 12px; border-radius: 8px; cursor: pointer;
+    background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600;
+    transition: all .15s;
+  }
+  .picker-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #cat-picker-cancel {
+    display: block; width: 100%; margin-top: 8px; padding: 7px;
+    border-radius: 8px; cursor: pointer; background: transparent;
+    border: 1px solid var(--border); color: var(--text3);
+    font-family: 'Nunito', sans-serif; font-size: 12px; transition: all .15s;
+  }
+  #cat-picker-cancel:hover { color: var(--text); border-color: var(--text3); }
+
+  /* ── Toast ── */
+  #toast-container {
+    position: fixed; bottom: 16px; right: 16px; z-index: 99999;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    animation: toastIn .2s ease; pointer-events: auto;
+  }
+  .toast.success { border-color: var(--success); }
+  .toast.error   { border-color: var(--danger);  }
+  @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div class="title-icon"><img src="smart-tags.svg" style="width:20px;height:20px;filter:brightness(0) saturate(100%) invert(72%) sepia(50%) saturate(500%) hue-rotate(210deg) brightness(100%)"></div>
+      <div>
+        <h1>Smart Tags</h1>
+        <div class="subtitle">Tag categories, usage stats & cleanup</div>
+      </div>
+    </div>
+    <div id="titlebar-right">
+      <button class="btn btn-ghost" onclick="loadAll()" style="font-size:11px;padding:5px 10px">
+        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div id="content">
+    <!-- Stat row -->
+    <div id="stat-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Unique Tags</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-mostused">—</div><div class="stat-label">Most Used</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-single">—</div><div class="stat-label">Single Use</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-cats">—</div><div class="stat-label">Categories</div></div>
+    </div>
+
+    <!-- Main grid -->
+    <div id="main-grid">
+
+      <!-- Tag list -->
+      <div id="tag-list-panel">
+        <div id="tag-list-header">
+          <input id="tag-search" placeholder="Search tags…" oninput="renderTagList()">
+          <button class="filter-btn active" id="filter-all"        onclick="setFilter('all')">All</button>
+          <button class="filter-btn"        id="filter-uncategorised" onclick="setFilter('uncategorised')">Uncategorised</button>
+          <button class="filter-btn"        id="filter-single"     onclick="setFilter('single')">Single Use</button>
+        </div>
+        <div id="tag-list-scroll"></div>
+      </div>
+
+      <!-- Categories -->
+      <div id="cat-panel">
+        <div id="cat-panel-header">Tag Categories</div>
+        <div id="cat-add-row">
+          <input id="new-cat-input" placeholder="New category…" onkeydown="if(event.key==='Enter')addCategory()">
+          <button class="btn btn-primary" onclick="addCategory()" style="padding:6px 10px;font-size:12px">+</button>
+        </div>
+        <div id="cat-list-scroll"></div>
+        <div id="cat-uncategorised"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Cat picker -->
+<div id="cat-picker">
+  <div id="cat-picker-title"></div>
+  <div id="cat-picker-btns"></div>
+  <button id="cat-picker-cancel" onclick="closePicker()">Cancel</button>
+</div>
+
+<!-- Toasts -->
+<div id="toast-container"></div>
+
+<script>
+/* ── State ── */
+let characters     = [];
+let tagCategories  = {};  // { catName: [tag, tag, ...] }
+let tagUsage       = {};  // { tag: count }
+let allTags        = [];
+let currentFilter  = 'all';
+let pickerTag      = null;
+
+/* ── Init ── */
+async function loadAll() {
+  // Load characters from shared localforage (same instance as main app)
+  characters    = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+  tagCategories = (await localforage.getItem('charactry_tag_categories').catch(() => null)) || {};
+  buildTagUsage();
+  render();
+}
+
+function buildTagUsage() {
+  tagUsage = {};
+  characters.forEach(c => {
+    // Handle both string and array formats defensively
+    const raw = c.tags || '';
+    const tags = Array.isArray(raw)
+      ? raw
+      : raw.split(',');
+    tags.map(t => t.trim().toLowerCase()).filter(Boolean).forEach(tag => {
+      tagUsage[tag] = (tagUsage[tag] || 0) + 1;
+    });
+  });
+  allTags = Object.keys(tagUsage).sort((a, b) => tagUsage[b] - tagUsage[a]);
+}
+
+async function saveCategories() {
+  await localforage.setItem('charactry_tag_categories', tagCategories).catch(() => {});
+}
+
+/* ── Render ── */
+function render() {
+  renderStats();
+  renderTagList();
+  renderCatPanel();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderStats() {
+  const catSet     = new Set(Object.values(tagCategories).flat());
+  const singleUse  = allTags.filter(t => tagUsage[t] === 1);
+  document.getElementById('stat-total').textContent   = allTags.length;
+  document.getElementById('stat-mostused').textContent = allTags.length ? tagUsage[allTags[0]] : 0;
+  document.getElementById('stat-single').textContent  = singleUse.length;
+  document.getElementById('stat-cats').textContent    = Object.keys(tagCategories).length;
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('filter-' + f).classList.add('active');
+  renderTagList();
+}
+
+function renderTagList() {
+  const q      = document.getElementById('tag-search').value.trim().toLowerCase();
+  const catSet = new Set(Object.values(tagCategories).flat());
+  const maxUsage = allTags.length ? tagUsage[allTags[0]] : 1;
+
+  let filtered = allTags;
+
+  if (currentFilter === 'uncategorised') filtered = filtered.filter(t => !catSet.has(t));
+  if (currentFilter === 'single')        filtered = filtered.filter(t => tagUsage[t] === 1);
+  if (q) filtered = filtered.filter(t => t.includes(q));
+
+  const scroll = document.getElementById('tag-list-scroll');
+
+  if (!filtered.length) {
+    scroll.innerHTML = '<div class="empty-state">No tags found.</div>';
+    return;
+  }
+
+  scroll.innerHTML = filtered.slice(0, 80).map(tag => {
+    const pct    = Math.round((tagUsage[tag] / maxUsage) * 100);
+    const catEntry = Object.entries(tagCategories).find(([, tags]) => tags.includes(tag));
+    const badge  = catEntry
+      ? `<span class="tag-cat-badge" title="${esc(catEntry[0])}">${esc(catEntry[0])}</span>`
+      : '';
+    return `<div class="tag-row">
+      <span class="tag-name">${esc(tag)}</span>
+      ${badge}
+      <div class="tag-bar-wrap"><div class="tag-bar-fill" style="width:${pct}%"></div></div>
+      <span class="tag-count">${tagUsage[tag]} char${tagUsage[tag] !== 1 ? 's' : ''}</span>
+      <button class="cat-btn" onclick="openPicker('${escAttr(tag)}')">+ Cat</button>
+    </div>`;
+  }).join('');
+}
+
+function renderCatPanel() {
+  const cats   = Object.keys(tagCategories);
+  const scroll = document.getElementById('cat-list-scroll');
+
+  if (!cats.length) {
+    scroll.innerHTML = '<div class="empty-state" style="padding:20px">No categories yet.<br>Add one above!</div>';
+  } else {
+    scroll.innerHTML = cats.map(cat => {
+      const tags = tagCategories[cat] || [];
+      const pills = tags.length
+        ? tags.map(tag =>
+            `<span class="cat-pill">${esc(tag)}
+              <button class="pill-remove" onclick="removeFromCat('${escAttr(cat)}','${escAttr(tag)}')">✕</button>
+            </span>`
+          ).join('')
+        : '<span class="cat-empty">Empty</span>';
+      return `<div class="cat-card">
+        <div class="cat-card-header">
+          <span class="cat-card-name">${esc(cat)}</span>
+          <button class="cat-delete-btn" onclick="deleteCat('${escAttr(cat)}')">✕ Delete</button>
+        </div>
+        <div class="cat-pills">${pills}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Uncategorised count
+  const catSet = new Set(Object.values(tagCategories).flat());
+  const uncatCount = allTags.filter(t => !catSet.has(t)).length;
+  document.getElementById('cat-uncategorised').textContent =
+    uncatCount > 0
+      ? `${uncatCount} uncategorised tag${uncatCount !== 1 ? 's' : ''} — click + Cat to assign.`
+      : '';
+}
+
+/* ── Category actions ── */
+async function addCategory() {
+  const input = document.getElementById('new-cat-input');
+  const name  = input.value.trim();
+  if (!name)          { toast('Enter a category name!', 'error'); return; }
+  if (tagCategories[name]) { toast('Category already exists!', 'error'); return; }
+  tagCategories[name] = [];
+  await saveCategories();
+  input.value = '';
+  render();
+  toast(`"${name}" created!`, 'success');
+}
+
+async function deleteCat(cat) {
+  delete tagCategories[cat];
+  await saveCategories();
+  render();
+  toast(`"${cat}" deleted`, 'success');
+}
+
+async function removeFromCat(cat, tag) {
+  if (!tagCategories[cat]) return;
+  tagCategories[cat] = tagCategories[cat].filter(t => t !== tag);
+  await saveCategories();
+  render();
+}
+
+/* ── Cat picker ── */
+function openPicker(tag) {
+  const cats = Object.keys(tagCategories);
+  if (!cats.length) { toast('Create a category first!', 'error'); return; }
+
+  // If only one category, assign directly
+  if (cats.length === 1) {
+    assignToCat(tag, cats[0]);
+    return;
+  }
+
+  pickerTag = tag;
+  document.getElementById('cat-picker-title').textContent = `Add "${tag}" to category:`;
+  document.getElementById('cat-picker-btns').innerHTML = cats.map(cat =>
+    `<button class="picker-btn" onclick="assignToCat('${escAttr(tag)}','${escAttr(cat)}')">${esc(cat)}</button>`
+  ).join('');
+  document.getElementById('cat-picker').classList.add('open');
+}
+
+async function assignToCat(tag, cat) {
+  closePicker();
+  if (!tagCategories[cat]) return;
+  if (!tagCategories[cat].includes(tag)) {
+    tagCategories[cat].push(tag);
+    await saveCategories();
+    render();
+    toast(`"${tag}" → ${cat}`, 'success');
+  } else {
+    toast(`Already in ${cat}`, 'error');
+  }
+}
+
+function closePicker() {
+  document.getElementById('cat-picker').classList.remove('open');
+  pickerTag = null;
+}
+
+/* ── Helpers ── */
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toast(msg, type = 'success') {
+  const c    = document.getElementById('toast-container');
+  const el   = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+/* ── Close picker on outside click ── */
+document.addEventListener('click', e => {
+  const picker = document.getElementById('cat-picker');
+  if (picker.classList.contains('open') && !picker.contains(e.target) && !e.target.closest('.cat-btn')) {
+    closePicker();
+  }
+});
+
+/* ── Keyboard shortcuts ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePicker();
+});
+
+/* ── Boot ── */
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAll();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>

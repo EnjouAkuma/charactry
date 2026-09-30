@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age Calculator — Charactry</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg:#0e0e14;--bg2:#13131c;--bg3:#1a1a28;--card:#16161f;
+    --border:#2a2a3d;--accent:#a78bfa;--accent2:#7c3aed;
+    --accent-glow:rgba(167,139,250,0.18);
+    --text:#e8e6f0;--text2:#9b98b0;--text3:#5a5870;
+    --danger:#f87171;--success:#4ade80;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;overflow:hidden}
+  ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:10px}
+
+  #root{display:flex;flex-direction:column;height:100vh}
+
+  /* Titlebar */
+  #titlebar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid var(--border);flex-shrink:0;-webkit-app-region:drag}
+  #titlebar-left{display:flex;align-items:center;gap:10px}
+  h1{font-family:'Cinzel',serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{font-size:11px;color:var(--text3);margin-top:1px}
+
+  /* Tabs */
+  #tabs{display:flex;gap:2px;padding:10px 20px 0;border-bottom:1px solid var(--border);flex-shrink:0;-webkit-app-region:no-drag}
+  .tab{padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-size:12px;font-weight:700;color:var(--text3);transition:all .15s;border:1px solid transparent;border-bottom:none;margin-bottom:-1px}
+  .tab:hover{color:var(--text2);background:var(--bg3)}
+  .tab.active{color:var(--accent);background:var(--card);border-color:var(--border);border-bottom-color:var(--card)}
+
+  /* Body */
+  #body{flex:1;overflow-y:auto;padding:20px}
+
+  /* Sections */
+  .section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  .section-title{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .section-title i{color:var(--accent)}
+
+  /* Forms */
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+  .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .form-group{display:flex;flex-direction:column;gap:5px}
+  .form-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+  .form-input,.form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+  .form-input:focus,.form-select:focus{border-color:var(--accent)}
+  .form-select option{background:var(--bg2)}
+  .hint{font-size:10px;color:var(--text3);font-style:italic;margin-top:2px}
+
+  /* Result cards */
+  .result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:16px}
+  .result-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+  .result-big{font-family:'Cinzel',serif;font-size:28px;font-weight:700;color:var(--accent);line-height:1}
+  .result-sub{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:5px}
+  .result-card.accent{border-color:var(--accent);background:var(--accent-glow)}
+  .result-card.accent .result-big{font-size:22px}
+
+  /* Timeline bar */
+  #life-bar-wrap{margin-top:16px}
+  #life-bar-label{font-size:11px;color:var(--text3);margin-bottom:6px;display:flex;justify-content:space-between}
+  #life-bar-track{height:12px;background:var(--bg3);border-radius:20px;overflow:hidden;border:1px solid var(--border)}
+  #life-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease}
+  #life-stage-badge{margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--accent)}
+
+  /* Zodiac / birthday */
+  .info-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+  .info-icon{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+  .info-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px}
+  .info-value{font-size:14px;font-weight:700;color:var(--text);margin-top:1px}
+
+  /* Character comparison */
+  .char-age-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;transition:border-color .15s}
+  .char-age-row:hover{border-color:var(--accent)}
+  .char-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text3);flex-shrink:0;overflow:hidden}
+  .char-avatar img{width:100%;height:100%;object-fit:cover}
+  .char-info{flex:1;min-width:0}
+  .char-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .char-meta{font-size:11px;color:var(--text3);margin-top:1px}
+  .char-age-badge{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0;min-width:50px;text-align:right}
+
+  /* Calendar builder */
+  .calendar-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+  .calendar-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .calendar-name{font-size:14px;font-weight:700;color:var(--text)}
+  .month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+  .month-input-row{display:flex;align-items:center;gap:6px}
+  .month-num{font-size:11px;color:var(--text3);width:20px;flex-shrink:0;text-align:right}
+
+  /* Buttons */
+  .btn{padding:7px 16px;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+  .btn-primary:hover{opacity:.88}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:transparent;border:1px solid rgba(248,113,113,.3);color:var(--danger)}
+  .btn-danger:hover{background:rgba(248,113,113,.1)}
+  .btn-sm{padding:5px 10px;font-size:11px}
+
+  /* Empty */
+  .empty{text-align:center;padding:30px;color:var(--text3);font-size:13px}
+
+  /* Toast */
+  #toast-wrap{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+  .toast{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.5);animation:tIn .18s ease}
+  .toast.success{border-color:var(--success)}.toast.error{border-color:var(--danger)}
+  @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Hidden */
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div style="color:var(--accent);display:flex">
+        <img src="age-calculator.svg" style="width:20px;height:20px;filter:brightness(0) saturate(100%) invert(72%) sepia(50%) saturate(500%) hue-rotate(210deg)" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <h1>Age Calculator</h1>
+        <div class="subtitle">Birthdate → age · world calendars · character comparison</div>
+      </div>
+    </div>
+    <div style="-webkit-app-region:no-drag;display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="loadCharacters()">
+        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh Characters
+      </button>
+    </div>
+  </div>
+
+  <div id="tabs">
+    <div class="tab active" onclick="switchTab('calc')"    id="tab-calc">🗓 Calculator</div>
+    <div class="tab"        onclick="switchTab('compare')" id="tab-compare">👥 Compare Characters</div>
+    <div class="tab"        onclick="switchTab('calendars')"id="tab-calendars">🌍 World Calendars</div>
+  </div>
+
+  <div id="body">
+
+    <!-- ══ TAB: CALCULATOR ══ -->
+    <div id="pane-calc">
+
+      <div class="section">
+        <div class="section-title"><i data-lucide="calendar" style="width:16px;height:16px"></i> Calendar & Dates</div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <div class="form-label">Calendar System</div>
+            <select class="form-select" id="cal-select" onchange="onCalendarChange()">
+              <option value="real">🌍 Real World (Gregorian)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Current Year</div>
+            <input class="form-input" type="number" id="current-year" value="2026" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Current Month</div>
+            <input class="form-input" type="number" id="current-month" value="3" min="1" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Current Day</div>
+            <input class="form-input" type="number" id="current-day" value="14" min="1" oninput="calculate()">
+          </div>
+          <div class="form-group" id="days-per-year-group" style="display:none">
+            <div class="form-label">Days per Year</div>
+            <input class="form-input" type="number" id="days-per-year" value="365" min="1" oninput="calculate()">
+            <div class="hint">Custom calendar only</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><i data-lucide="user" style="width:16px;height:16px"></i> Character Birthdate</div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <div class="form-label">Birth Year</div>
+            <input class="form-input" type="number" id="birth-year" placeholder="e.g. 1998" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Birth Month</div>
+            <input class="form-input" type="number" id="birth-month" placeholder="e.g. 7" min="1" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Birth Day</div>
+            <input class="form-input" type="number" id="birth-day" placeholder="e.g. 22" min="1" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Or — Load Character</div>
+            <select class="form-select" id="char-select" onchange="loadFromCharacter()">
+              <option value="">— Pick a character —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Lifespan (years)</div>
+            <input class="form-input" type="number" id="lifespan" value="80" min="1" oninput="calculate()">
+            <div class="hint">Used for life stage % bar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="results-section" class="section hidden">
+        <div class="section-title"><i data-lucide="sparkles" style="width:16px;height:16px"></i> Results</div>
+
+        <div class="result-grid" id="result-cards"></div>
+
+        <div id="life-bar-wrap">
+          <div id="life-bar-label">
+            <span id="life-stage-label">Life Stage</span>
+            <span id="life-pct-label">0%</span>
+          </div>
+          <div id="life-bar-track"><div id="life-bar-fill" style="width:0%"></div></div>
+          <div id="life-stage-badge">—</div>
+        </div>
+
+        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px" id="extra-info"></div>
+      </div>
+
+    </div>
+
+    <!-- ══ TAB: COMPARE ══ -->
+    <div id="pane-compare" class="hidden">
+      <div class="section">
+        <div class="section-title"><i data-lucide="users" style="width:16px;height:16px"></i> Character Age Comparison</div>
+        <div class="form-grid-2" style="margin-bottom:16px">
+          <div class="form-group">
+            <div class="form-label">Calendar</div>
+            <select class="form-select" id="cmp-cal-select" onchange="renderComparison()">
+              <option value="real">🌍 Real World (Gregorian)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Current Year</div>
+            <input class="form-input" type="number" id="cmp-year" value="2026" oninput="renderComparison()">
+          </div>
+        </div>
+        <div id="compare-list"><div class="empty">Load characters to compare ages. Make sure characters have a birth year set in their profile.</div></div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: WORLD CALENDARS ══ -->
+    <div id="pane-calendars" class="hidden">
+      <div class="section">
+        <div class="section-title"><i data-lucide="globe" style="width:16px;height:16px"></i> Custom World Calendars</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Create calendars for your fictional worlds. Custom calendars appear in the Calculator and Compare tabs.</p>
+        <button class="btn btn-primary btn-sm" onclick="addCalendar()">
+          <i data-lucide="plus" style="width:12px;height:12px"></i> New Calendar
+        </button>
+      </div>
+      <div id="calendars-list"></div>
+    </div>
+
+  </div>
+</div>
+<div id="toast-wrap"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+const STORAGE_KEY = 'charactry_world_calendars_v2';
+let characters  = [];
+let calendars   = [];   // [{ id, name, monthNames[], daysPerMonth[], daysPerYear }]
+let activeTab   = 'calc';
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+  calendars = (await localforage.getItem(STORAGE_KEY).catch(() => null)) || [];
+  await loadCharacters();
+  populateCalendarSelects();
+  setTodayDefaults();
+  lucide.createIcons();
+});
+
+function setTodayDefaults() {
+  const now = new Date();
+  document.getElementById('current-year').value  = now.getFullYear();
+  document.getElementById('current-month').value = now.getMonth() + 1;
+  document.getElementById('current-day').value   = now.getDate();
+  document.getElementById('cmp-year').value      = now.getFullYear();
+}
+
+async function loadCharacters() {
+  try {
+    // Always load from localforage first — it has avatars intact
+    const lf = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+    if (window.electronAPI?.listAllChars && window.electronAPI?.readCharJSON) {
+      // Merge disk data (fresher fields) with localforage avatars
+      const ids    = await window.electronAPI.listAllChars();
+      const loaded = await Promise.all(ids.map(id => window.electronAPI.readCharJSON(id).catch(() => null)));
+      const disk   = loaded.filter(Boolean);
+      // For each disk char, re-attach avatar/banner from localforage version
+      characters = disk.map(dc => {
+        const lfc = lf.find(x => x.id === dc.id);
+        return lfc ? { ...dc, avatar: lfc.avatar, banner: lfc.banner, images: lfc.images } : dc;
+      });
+      // Include any localforage chars not yet on disk
+      lf.forEach(lfc => { if (!characters.find(x => x.id === lfc.id)) characters.push(lfc); });
+    } else {
+      characters = lf;
+    }
+  } catch {
+    characters = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+  }
+  populateCharSelect();
+  if (activeTab === 'compare') renderComparison();
+}
+
+/* ══════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════ */
+function switchTab(tab) {
+  activeTab = tab;
+  ['calc','compare','calendars'].forEach(t => {
+    document.getElementById('pane-' + t).classList.toggle('hidden', t !== tab);
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'compare') renderComparison();
+  if (tab === 'calendars') renderCalendarsList();
+  lucide.createIcons();
+}
+
+/* ══════════════════════════════════════════════
+   CALENDAR SELECT POPULATE
+══════════════════════════════════════════════ */
+function populateCalendarSelects() {
+  const opts = `<option value="real">🌍 Real World (Gregorian)</option>`
+    + calendars.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  document.getElementById('cal-select').innerHTML = opts;
+  document.getElementById('cmp-cal-select').innerHTML = opts;
+}
+
+function onCalendarChange() {
+  const val = document.getElementById('cal-select').value;
+  document.getElementById('days-per-year-group').style.display = val !== 'real' ? '' : 'none';
+  calculate();
+}
+
+/* ══════════════════════════════════════════════
+   CHARACTER SELECT
+══════════════════════════════════════════════ */
+function populateCharSelect() {
+  const sel = document.getElementById('char-select');
+  sel.innerHTML = '<option value="">— Pick a character —</option>'
+    + characters.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+}
+
+function loadFromCharacter() {
+  const id = document.getElementById('char-select').value;
+  if (!id) return;
+  const c = characters.find(x => x.id === id);
+  if (!c) return;
+
+  // Try to parse age field — support "25", "25 years", birth year formats
+  const age = c.age ? String(c.age).trim() : '';
+  const birthYear = c.birthYear || c.birth_year || '';
+
+  if (birthYear) {
+    document.getElementById('birth-year').value = birthYear;
+  } else if (age && /^\d+$/.test(age)) {
+    // If age is just a number, back-calculate birth year
+    const curYear = parseInt(document.getElementById('current-year').value) || 2026;
+    document.getElementById('birth-year').value = curYear - parseInt(age);
+  }
+
+  if (c.birthMonth || c.birth_month) document.getElementById('birth-month').value = c.birthMonth || c.birth_month;
+  if (c.birthDay   || c.birth_day)   document.getElementById('birth-day').value   = c.birthDay   || c.birth_day;
+
+  calculate();
+  toast(`Loaded ${c.name}`, 'success');
+}
+
+/* ══════════════════════════════════════════════
+   CALCULATOR
+══════════════════════════════════════════════ */
+function calculate() {
+  const calId   = document.getElementById('cal-select').value;
+  const curY    = parseInt(document.getElementById('current-year').value);
+  const curM    = parseInt(document.getElementById('current-month').value) || 1;
+  const curD    = parseInt(document.getElementById('current-day').value)   || 1;
+  const birthY  = parseInt(document.getElementById('birth-year').value);
+  const birthM  = parseInt(document.getElementById('birth-month').value)   || 1;
+  const birthD  = parseInt(document.getElementById('birth-day').value)     || 1;
+  const lifespan= parseInt(document.getElementById('lifespan').value)      || 80;
+
+  if (!birthY || !curY || isNaN(birthY) || isNaN(curY)) {
+    document.getElementById('results-section').classList.add('hidden');
+    return;
+  }
+
+  const section = document.getElementById('results-section');
+  section.classList.remove('hidden');
+
+  // ── Age calculation ──
+  let ageYears = curY - birthY;
+  let ageMonths, ageDays;
+
+  if (calId === 'real') {
+    // Gregorian — precise
+    const born    = new Date(birthY, birthM - 1, birthD);
+    const now     = new Date(curY,   curM   - 1, curD);
+    ageYears      = now.getFullYear() - born.getFullYear();
+    const m       = now.getMonth()    - born.getMonth();
+    const d       = now.getDate()     - born.getDate();
+    if (m < 0 || (m === 0 && d < 0)) ageYears--;
+    // Months into current year of life
+    let totalM = (curY - birthY) * 12 + (curM - birthM);
+    if (curD < birthD) totalM--;
+    ageMonths = ((totalM % 12) + 12) % 12;
+    ageDays   = d < 0 ? new Date(curY, curM - 1, 0).getDate() + d : d;
+  } else {
+    // Custom calendar
+    const cal      = calendars.find(c => c.id === calId);
+    const dpy      = cal ? cal.daysPerYear : (parseInt(document.getElementById('days-per-year').value) || 365);
+    const mCount   = cal ? cal.monthNames.length : 12;
+    const dpyMonth = dpy / mCount;
+
+    const birthTotalDays = birthY * dpy + (birthM - 1) * dpyMonth + birthD;
+    const curTotalDays   = curY   * dpy + (curM   - 1) * dpyMonth + curD;
+    const diffDays       = curTotalDays - birthTotalDays;
+
+    ageYears  = Math.floor(diffDays / dpy);
+    ageMonths = Math.floor((diffDays % dpy) / dpyMonth);
+    ageDays   = Math.floor(diffDays % dpyMonth);
+  }
+
+  if (ageYears < 0) {
+    document.getElementById('result-cards').innerHTML =
+      `<div class="result-card" style="grid-column:1/-1"><div class="result-sub" style="color:var(--danger)">Birth date is in the future!</div></div>`;
+    return;
+  }
+
+  // ── Life stage ──
+  const pct = Math.min(100, Math.round((ageYears / lifespan) * 100));
+  const stage = lifeStage(ageYears, lifespan);
+
+  // ── Render stat cards ──
+  document.getElementById('result-cards').innerHTML = `
+    <div class="result-card accent">
+      <div class="result-big">${ageYears}</div>
+      <div class="result-sub">Years Old</div>
+    </div>
+    <div class="result-card">
+      <div class="result-big">${ageMonths ?? '—'}</div>
+      <div class="result-sub">Months</div>
+    </div>
+    <div class="result-card">
+      <div class="result-big">${ageDays ?? '—'}</div>
+      <div class="result-sub">Days</div>
+    </div>
+    <div class="result-card">
+      <div class="result-big">${ageYears * 12 + (ageMonths || 0)}</div>
+      <div class="result-sub">Total Months</div>
+    </div>
+    <div class="result-card">
+      <div class="result-big">${Math.floor(ageYears * 52.18)}</div>
+      <div class="result-sub">Total Weeks</div>
+    </div>
+    <div class="result-card">
+      <div class="result-big">${pct}%</div>
+      <div class="result-sub">of Lifespan</div>
+    </div>
+  `;
+
+  // ── Life bar ──
+  document.getElementById('life-bar-fill').style.width = pct + '%';
+  document.getElementById('life-pct-label').textContent = pct + '%';
+  document.getElementById('life-stage-badge').textContent = stage.emoji + ' ' + stage.label;
+  document.getElementById('life-stage-label').textContent = 'Life Stage';
+
+  // ── Extra info (zodiac, birthday countdown etc.) ──
+  const extras = [];
+
+  if (calId === 'real') {
+    const zodiac = getZodiac(birthM, birthD);
+    const chinese = getChineseZodiac(birthY);
+    const nextBday = nextBirthday(birthM, birthD, curY, curM, curD);
+    extras.push(
+      `<div class="info-row"><div class="info-icon">${zodiac.emoji}</div><div><div class="info-label">Western Zodiac</div><div class="info-value">${zodiac.sign}</div></div></div>`,
+      `<div class="info-row"><div class="info-icon">${chinese.emoji}</div><div><div class="info-label">Chinese Zodiac</div><div class="info-value">${chinese.sign}</div></div></div>`,
+      `<div class="info-row"><div class="info-icon">🎂</div><div><div class="info-label">Next Birthday</div><div class="info-value">${nextBday}</div></div></div>`,
+      `<div class="info-row"><div class="info-icon">💫</div><div><div class="info-label">Birth Season</div><div class="info-value">${getSeason(birthM)}</div></div></div>`
+    );
+  } else {
+    extras.push(
+      `<div class="info-row"><div class="info-icon">📅</div><div><div class="info-label">Born in World Year</div><div class="info-value">${birthY}</div></div></div>`,
+      `<div class="info-row"><div class="info-icon">🌍</div><div><div class="info-label">Current World Year</div><div class="info-value">${curY}</div></div></div>`
+    );
+  }
+
+  document.getElementById('extra-info').innerHTML = extras.join('');
+  lucide.createIcons();
+}
+
+/* ══════════════════════════════════════════════
+   LIFE STAGE
+══════════════════════════════════════════════ */
+function lifeStage(age, lifespan) {
+  const pct = age / lifespan;
+  if (age <= 2)        return { label: 'Infant',       emoji: '👶' };
+  if (age <= 12)       return { label: 'Child',        emoji: '🧒' };
+  if (age <= 17)       return { label: 'Teenager',     emoji: '🧑' };
+  if (pct <= 0.35)     return { label: 'Young Adult',  emoji: '🧑' };
+  if (pct <= 0.55)     return { label: 'Adult',        emoji: '🧑' };
+  if (pct <= 0.70)     return { label: 'Middle-Aged',  emoji: '🧔' };
+  if (pct <= 0.85)     return { label: 'Senior',       emoji: '🧓' };
+  return               { label: 'Elder',               emoji: '👴' };
+}
+
+/* ══════════════════════════════════════════════
+   ZODIAC
+══════════════════════════════════════════════ */
+function getZodiac(month, day) {
+  const signs = [
+    { sign: 'Capricorn', emoji: '♑', end: [1,19] },
+    { sign: 'Aquarius',  emoji: '♒', end: [2,18] },
+    { sign: 'Pisces',    emoji: '♓', end: [3,20] },
+    { sign: 'Aries',     emoji: '♈', end: [4,19] },
+    { sign: 'Taurus',    emoji: '♉', end: [5,20] },
+    { sign: 'Gemini',    emoji: '♊', end: [6,20] },
+    { sign: 'Cancer',    emoji: '♋', end: [7,22] },
+    { sign: 'Leo',       emoji: '♌', end: [8,22] },
+    { sign: 'Virgo',     emoji: '♍', end: [9,22] },
+    { sign: 'Libra',     emoji: '♎', end: [10,22] },
+    { sign: 'Scorpio',   emoji: '♏', end: [11,21] },
+    { sign: 'Sagittarius',emoji:'♐', end: [12,21] },
+    { sign: 'Capricorn', emoji: '♑', end: [12,31] },
+  ];
+  return signs.find(s => month < s.end[0] || (month === s.end[0] && day <= s.end[1])) || signs[0];
+}
+
+function getChineseZodiac(year) {
+  const animals = [
+    { sign: 'Rat',     emoji: '🐀' }, { sign: 'Ox',      emoji: '🐂' },
+    { sign: 'Tiger',   emoji: '🐅' }, { sign: 'Rabbit',  emoji: '🐇' },
+    { sign: 'Dragon',  emoji: '🐉' }, { sign: 'Snake',   emoji: '🐍' },
+    { sign: 'Horse',   emoji: '🐎' }, { sign: 'Goat',    emoji: '🐐' },
+    { sign: 'Monkey',  emoji: '🐒' }, { sign: 'Rooster', emoji: '🐓' },
+    { sign: 'Dog',     emoji: '🐕' }, { sign: 'Pig',     emoji: '🐖' },
+  ];
+  return animals[((year - 1900) % 12 + 12) % 12];
+}
+
+function getSeason(month) {
+  if (month >= 3 && month <= 5)  return '🌸 Spring';
+  if (month >= 6 && month <= 8)  return '☀️ Summer';
+  if (month >= 9 && month <= 11) return '🍂 Autumn';
+  return '❄️ Winter';
+}
+
+function nextBirthday(bMonth, bDay, curY, curM, curD) {
+  let nextY = curY;
+  if (bMonth < curM || (bMonth === curM && bDay <= curD)) nextY++;
+  const diff = new Date(nextY, bMonth - 1, bDay) - new Date(curY, curM - 1, curD);
+  const days = Math.ceil(diff / 86400000);
+  if (days === 0) return '🎉 Today!';
+  return `In ${days} day${days !== 1 ? 's' : ''}`;
+}
+
+/* ══════════════════════════════════════════════
+   COMPARE TAB
+══════════════════════════════════════════════ */
+function renderComparison() {
+  const calId  = document.getElementById('cmp-cal-select').value;
+  const curY   = parseInt(document.getElementById('cmp-year').value) || 2026;
+  const list   = document.getElementById('compare-list');
+
+  const withAge = characters
+    .map(c => {
+      let age = null;
+      const by = parseInt(c.birthYear || c.birth_year || '');
+      if (!isNaN(by)) {
+        age = curY - by;
+      } else if (c.age && /^\d+$/.test(String(c.age).trim())) {
+        age = parseInt(c.age);
+      }
+      return { ...c, _calcAge: age };
+    })
+    .filter(c => c._calcAge !== null && c._calcAge >= 0)
+    .sort((a, b) => a._calcAge - b._calcAge);
+
+  if (!withAge.length) {
+    list.innerHTML = '<div class="empty">No characters with a birth year or numeric age found. Add a birth year to character profiles for best results.</div>';
+    return;
+  }
+
+  const maxAge = withAge[withAge.length - 1]._calcAge || 1;
+
+  list.innerHTML = withAge.map(c => {
+    const pct   = Math.round((c._calcAge / maxAge) * 100);
+    const stage = lifeStage(c._calcAge, 80);
+    return `<div class="char-age-row">
+      <div class="char-avatar">
+        ${c.avatar ? `<img src="${c.avatar}" alt="">` : esc((c.name||'?')[0].toUpperCase())}
+      </div>
+      <div class="char-info">
+        <div class="char-name">${esc(c.name)}</div>
+        <div class="char-meta">${stage.emoji} ${stage.label} · ${[c.species, c.pronouns].filter(Boolean).map(esc).join(' · ') || 'No details'}</div>
+        <div style="margin-top:5px;height:3px;background:var(--bg3);border-radius:3px;overflow:hidden;width:100%">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px"></div>
+        </div>
+      </div>
+      <div class="char-age-badge">${c._calcAge}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   WORLD CALENDARS TAB
+══════════════════════════════════════════════ */
+function renderCalendarsList() {
+  const wrap = document.getElementById('calendars-list');
+  if (!calendars.length) {
+    wrap.innerHTML = '<div class="empty">No custom calendars yet. Create one above!</div>';
+    return;
+  }
+  wrap.innerHTML = calendars.map(cal => calendarCard(cal)).join('');
+  lucide.createIcons();
+}
+
+function calendarCard(cal) {
+  const monthInputs = cal.monthNames.map((name, i) =>
+    `<div class="month-input-row">
+      <span class="month-num">${i+1}.</span>
+      <input class="form-input" style="flex:1;font-size:12px;padding:5px 8px" value="${escAttr(name)}"
+        oninput="updateCalendarMonth('${cal.id}',${i},'name',this.value)" placeholder="Month name">
+      <input class="form-input" style="width:56px;font-size:12px;padding:5px 8px" type="number"
+        value="${cal.daysPerMonth[i] || 30}" min="1"
+        oninput="updateCalendarMonth('${cal.id}',${i},'days',this.value)" title="Days in month">
+    </div>`
+  ).join('');
+
+  return `<div class="calendar-card" id="calcard-${cal.id}">
+    <div class="calendar-card-header">
+      <input class="form-input" style="font-size:15px;font-weight:700;background:transparent;border-color:transparent;padding:4px 8px;width:200px"
+        value="${escAttr(cal.name)}" oninput="updateCalendarName('${cal.id}',this.value)" placeholder="Calendar name">
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-size:11px;color:var(--text3)">${cal.monthNames.length} months · ${cal.daysPerYear} days/yr</span>
+        <button class="btn btn-ghost btn-sm" onclick="addMonth('${cal.id}')">+ Month</button>
+        <button class="btn btn-ghost btn-sm" onclick="removeMonth('${cal.id}')" ${cal.monthNames.length <= 1 ? 'disabled' : ''}>− Month</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCalendar('${cal.id}')">✕</button>
+      </div>
+    </div>
+    <div class="month-grid">${monthInputs}</div>
+  </div>`;
+}
+
+async function addCalendar() {
+  const id  = 'cal_' + Date.now();
+  const cal = {
+    id,
+    name: 'New World Calendar',
+    monthNames:   ['Month 1','Month 2','Month 3','Month 4','Month 5','Month 6','Month 7','Month 8','Month 9','Month 10','Month 11','Month 12'],
+    daysPerMonth: Array(12).fill(30),
+    daysPerYear:  360,
+  };
+  calendars.push(cal);
+  await saveCalendars();
+  renderCalendarsList();
+  populateCalendarSelects();
+  toast('Calendar created!', 'success');
+}
+
+async function deleteCalendar(id) {
+  calendars = calendars.filter(c => c.id !== id);
+  await saveCalendars();
+  renderCalendarsList();
+  populateCalendarSelects();
+  toast('Calendar deleted', 'success');
+}
+
+async function updateCalendarName(id, name) {
+  const cal = calendars.find(c => c.id === id);
+  if (!cal) return;
+  cal.name = name;
+  await saveCalendars();
+  populateCalendarSelects();
+}
+
+async function updateCalendarMonth(id, idx, field, val) {
+  const cal = calendars.find(c => c.id === id);
+  if (!cal) return;
+  if (field === 'name') {
+    cal.monthNames[idx] = val;
+  } else {
+    cal.daysPerMonth[idx] = parseInt(val) || 30;
+    cal.daysPerYear = cal.daysPerMonth.reduce((a, b) => a + b, 0);
+  }
+  await saveCalendars();
+  // Update the days/yr label without full re-render
+  const card = document.getElementById('calcard-' + id);
+  if (card) {
+    const label = card.querySelector('span');
+    if (label) label.textContent = `${cal.monthNames.length} months · ${cal.daysPerYear} days/yr`;
+  }
+}
+
+async function addMonth(id) {
+  const cal = calendars.find(c => c.id === id);
+  if (!cal) return;
+  cal.monthNames.push('New Month');
+  cal.daysPerMonth.push(30);
+  cal.daysPerYear = cal.daysPerMonth.reduce((a,b) => a+b, 0);
+  await saveCalendars();
+  renderCalendarsList();
+  populateCalendarSelects();
+}
+
+async function removeMonth(id) {
+  const cal = calendars.find(c => c.id === id);
+  if (!cal || cal.monthNames.length <= 1) return;
+  cal.monthNames.pop();
+  cal.daysPerMonth.pop();
+  cal.daysPerYear = cal.daysPerMonth.reduce((a,b) => a+b, 0);
+  await saveCalendars();
+  renderCalendarsList();
+  populateCalendarSelects();
+}
+
+async function saveCalendars() {
+  await localforage.setItem(STORAGE_KEY, calendars).catch(() => {});
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function esc(s) { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { if(!s)return''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg, type='success') {
+  const c=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>el.remove(),2200);
+}
+</script>
+</body>
+</html>

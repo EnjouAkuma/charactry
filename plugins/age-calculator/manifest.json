@@ -1,0 +1,19 @@
+{
+  "id": "age-calculator",
+  "name": "Age Calculator",
+  "version": "2.0.0",
+  "description": "Calculate character ages using real-world or custom world calendars. Set birthdate, current date, and get exact age breakdowns, zodiac signs, life stage, and more.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "free",
+  "plusOnly": false,
+  "windowWidth": 1000,
+  "windowHeight": 700,
+  "tags": ["tools", "characters", "worldbuilding"],
+  "sidebar": {
+    "section": "Worldbuilding",
+    "label": "Age Calculator",
+    "icon": "calendar-days",
+    "iconSvg": "age-calculator.svg"
+  }
+}

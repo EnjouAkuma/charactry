@@ -1,0 +1,19 @@
+{
+  "id": "story-bible",
+  "name": "Story Bible Export",
+  "version": "1.0.0",
+  "description": "One-click export of your universe — characters, worlds, locations, factions, species, magic systems, timeline and lore notes — into a beautifully formatted PDF or DOCX story bible.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "plus",
+  "plusOnly": true,
+  "windowWidth": 1000,
+  "windowHeight": 720,
+  "tags": ["export", "writing", "universe", "worldbuilding"],
+  "sidebar": {
+    "section": "Extras",
+    "label": "Story Bible Export",
+    "icon": "book-text",
+    "iconSvg": "story-bible.svg"
+  }
+}

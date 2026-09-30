@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Memory Expansion — Charactry PLUS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  /* ── PLUS Theme ── */
+  :root {
+    --bg:#07080f; --bg2:#0d0f1c; --bg3:#131629; --card:#0f1120;
+    --border:#1e2240; --border2:#2a2f5a;
+    --accent:#f0c040; --accent2:#d4960a;
+    --purple:#7c6aee; --purple2:#a78bfa;
+    --gold-glow:rgba(240,192,64,0.10);
+    --purple-glow:rgba(124,106,238,0.12);
+    --text:#f0edff; --text2:#9d9bbf; --text3:#4a4870;
+    --danger:#f87171; --success:#4ade80; --radius:12px;
+    --plus-gradient:linear-gradient(135deg,#f0c040,#d4960a);
+    --purple-gradient:linear-gradient(135deg,#7c6aee,#a78bfa);
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;overflow:hidden}
+  ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:10px}
+
+  #root{display:flex;flex-direction:column;height:100vh}
+
+  /* ── Titlebar ── */
+  #titlebar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:11px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+    background:linear-gradient(180deg,#0a0b18 0%,var(--bg) 100%);
+    -webkit-app-region:drag;
+  }
+  #titlebar-left{display:flex;align-items:center;gap:12px}
+  .app-name{font-family:'Cinzel',serif;font-size:16px;font-weight:700;background:var(--plus-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .plus-badge{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;background:var(--plus-gradient);color:#000;padding:2px 7px;border-radius:20px;-webkit-text-fill-color:#000}
+  .subtitle{font-size:11px;color:var(--text3);margin-top:1px}
+
+  /* ── Body ── */
+  #body{display:flex;flex:1;overflow:hidden}
+
+  /* ── Character sidebar ── */
+  #char-sidebar{
+    width:220px;flex-shrink:0;border-right:1px solid var(--border);
+    display:flex;flex-direction:column;background:var(--bg2);overflow:hidden;
+  }
+  #char-sidebar-header{padding:12px 14px 8px;border-bottom:1px solid var(--border);font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;flex-shrink:0}
+  #char-search{margin:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:12px;outline:none}
+  #char-search:focus{border-color:var(--accent)}
+  #char-list{flex:1;overflow-y:auto;padding:4px 8px 8px}
+  .char-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:3px}
+  .char-item:hover{background:var(--bg3);border-color:var(--border)}
+  .char-item.active{background:var(--gold-glow);border-color:var(--accent)}
+  .char-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text3);overflow:hidden}
+  .char-avatar img{width:100%;height:100%;object-fit:cover}
+  .char-item-name{font-size:12px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .char-item.active .char-item-name{color:var(--accent)}
+  .char-has-profile{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+  /* ── Main panel ── */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+  /* ── Tabs ── */
+  #tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;-webkit-app-region:no-drag;background:var(--bg2)}
+  .tab{padding:10px 18px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+  .tab:hover{color:var(--text2)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* ── Content ── */
+  #content{flex:1;overflow-y:auto;padding:20px;-webkit-app-region:no-drag}
+
+  /* ── Cards ── */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px}
+  .card-title{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card-title i{color:var(--accent)}
+  .card-desc{font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.5}
+
+  /* ── Form ── */
+  .form-group{margin-bottom:14px}
+  .form-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:block}
+  .form-hint{font-size:10px;color:var(--text3);margin-top:4px;font-style:italic}
+  .form-input,.form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+  .form-input:focus,.form-select:focus{border-color:var(--accent)}
+  .form-select option{background:var(--bg2)}
+  .form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:12px;outline:none;resize:vertical;min-height:80px;line-height:1.6;transition:border-color .15s}
+  .form-textarea:focus{border-color:var(--accent)}
+  .form-textarea.mono{font-family:var(--mono);font-size:12px}
+  .range-row{display:flex;align-items:center;gap:12px}
+  .form-range{flex:1;accent-color:var(--accent)}
+  .range-val{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;min-width:32px;text-align:right}
+
+  /* ── Toggle ── */
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+  .toggle-row:last-child{border-bottom:none}
+  .toggle-info{flex:1}
+  .toggle-label{font-size:13px;font-weight:600;color:var(--text)}
+  .toggle-desc{font-size:11px;color:var(--text3);margin-top:2px}
+  .toggle-switch-wrap{flex-shrink:0;margin-left:16px}
+  .toggle-check{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+
+  /* ── Memory entries ── */
+  .memory-entry{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;position:relative}
+  .memory-entry:last-child{margin-bottom:0}
+  .memory-entry-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .memory-entry-label{font-size:11px;font-weight:700;color:var(--purple2);text-transform:uppercase;letter-spacing:.6px}
+  .memory-entry-date{font-size:10px;color:var(--text3)}
+  .memory-entry-text{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+  .memory-entry-delete{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px;transition:all .15s}
+  .memory-entry-delete:hover{color:var(--danger);background:rgba(248,113,113,.1)}
+
+  /* ── Voice preview ── */
+  #voice-preview-box{background:var(--bg3);border:1px solid var(--accent);border-radius:10px;padding:14px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8;min-height:80px;white-space:pre-wrap;margin-top:10px}
+
+  /* ── Status ── */
+  .status-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+  .status-active{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--success)}
+  .status-inactive{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+
+  /* ── Inject preview ── */
+  #inject-preview{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:var(--mono);font-size:11px;color:var(--text3);line-height:1.7;max-height:200px;overflow-y:auto;white-space:pre-wrap;margin-top:10px}
+
+  /* ── Empty ── */
+  .empty{text-align:center;padding:40px;color:var(--text3);font-size:13px}
+  .empty-icon{font-size:40px;opacity:.2;margin-bottom:12px}
+
+  /* ── Buttons ── */
+  .btn{padding:7px 16px;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-gold{background:var(--plus-gradient);color:#000}
+  .btn-gold:hover{opacity:.88}
+  .btn-purple{background:var(--purple-gradient);color:#fff}
+  .btn-purple:hover{opacity:.88}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-danger{background:transparent;border:1px solid rgba(248,113,113,.3);color:var(--danger)}
+  .btn-danger:hover{background:rgba(248,113,113,.1)}
+  .btn-sm{padding:4px 10px;font-size:11px}
+
+  /* ── Toast ── */
+  #toast-wrap{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+  .toast{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.7);animation:tIn .18s ease}
+  .toast.success{border-color:var(--accent)}.toast.error{border-color:var(--danger)}
+  @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div style="color:var(--accent);display:flex">
+        <img src="memory-expansion.svg" style="width:22px;height:22px;filter:brightness(0) saturate(100%) invert(82%) sepia(60%) saturate(400%) hue-rotate(5deg)" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="app-name">AI Memory Expansion</span>
+          <span class="plus-badge">PLUS</span>
+        </div>
+        <div class="subtitle">Extended Brain context · Persistent voices · Long-term memory</div>
+      </div>
+    </div>
+    <div style="-webkit-app-region:no-drag;display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="loadAll()">
+        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div id="body">
+
+    <!-- Character sidebar -->
+    <div id="char-sidebar">
+      <div id="char-sidebar-header">Characters</div>
+      <input id="char-search" placeholder="Search…" oninput="renderCharList()">
+      <div id="char-list"></div>
+    </div>
+
+    <!-- Main -->
+    <div id="main">
+      <div id="tabs">
+        <div class="tab active" id="tab-voice"   onclick="switchTab('voice')">🎭 Voice Profile</div>
+        <div class="tab"        id="tab-memory"  onclick="switchTab('memory')">🧠 Long-Term Memory</div>
+        <div class="tab"        id="tab-context" onclick="switchTab('context')">⚙ Context Settings</div>
+        <div class="tab"        id="tab-preview" onclick="switchTab('preview')">👁 Prompt Preview</div>
+      </div>
+      <div id="content">
+        <div id="no-char" class="empty">
+          <div class="empty-icon">🧠</div>
+          <div>Select a character to configure their AI Memory settings.</div>
+        </div>
+        <div id="char-content" style="display:none"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast-wrap"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   STORAGE KEYS & STATE
+══════════════════════════════════════════════ */
+const STORE_KEY = 'charactry_memory_expansion'; // { charId: profileData }
+
+let characters   = [];
+let profiles     = {}; // { charId: { voice, memory, context } }
+let activeCharId = null;
+let activeTab    = 'voice';
+
+/* ── Default profile for a character ── */
+function defaultProfile() {
+  return {
+    voice: {
+      enabled:         true,
+      speakingStyle:   '',        // e.g. "Speaks in short, clipped sentences. Never uses contractions."
+      vocabulary:      '',        // e.g. "Uses 'indeed', 'precisely', avoids slang"
+      emotionalTone:   '',        // e.g. "Dry wit, rarely shows warmth unless pushed"
+      quirks:          '',        // e.g. "Deflects personal questions with jokes"
+      exampleLines:    '',        // user-written example dialogue lines
+    },
+    memory: {
+      enabled:         true,
+      summaries:       [],        // [{ id, text, date, sessionId }]
+      persistentFacts: '',        // things the char "always remembers" across sessions
+    },
+    context: {
+      contextWindow:   24,        // messages to keep (base = 24, expanded = up to 80)
+      backstoryLimit:  1000,      // chars of backstory (base = 1000, expanded = 4000)
+      lorebookEntries: 8,         // lorebook entries injected (base = 8, expanded = 20)
+      lorebookChars:   600,       // chars per lorebook entry (base = 600, expanded = 2000)
+      customRules:     '',        // extra persona rules injected into system prompt
+      injectPosition:  'append',  // 'append' | 'prepend'
+    }
+  };
+}
+
+/* ══════════════════════════════════════════════
+   INIT / LOAD
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+  profiles = (await localforage.getItem(STORE_KEY).catch(() => null)) || {};
+  await loadAll();
+  lucide.createIcons();
+});
+
+async function loadAll() {
+  try {
+    const lf = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+    if (window.electronAPI?.listAllChars && window.electronAPI?.readCharJSON) {
+      const ids    = await window.electronAPI.listAllChars();
+      const loaded = await Promise.all(ids.map(id => window.electronAPI.readCharJSON(id).catch(() => null)));
+      const disk   = loaded.filter(Boolean);
+      characters   = disk.map(dc => {
+        const lfc = lf.find(x => x.id === dc.id);
+        return lfc ? { ...dc, avatar: lfc.avatar } : dc;
+      });
+      lf.forEach(lfc => { if (!characters.find(x => x.id === lfc.id)) characters.push(lfc); });
+    } else {
+      characters = lf;
+    }
+  } catch { characters = (await localforage.getItem('charactry_chars').catch(() => null)) || []; }
+
+  renderCharList();
+  if (activeCharId) renderContent();
+  lucide.createIcons();
+}
+
+async function saveProfiles() {
+  await localforage.setItem(STORE_KEY, profiles).catch(() => {});
+  // Write to window global so the main app's ai.js can read synchronously
+  // (ai.js calls getMemoryExpansionProfile which checks window._memExpCache)
+  if (window.opener) {
+    try { window.opener._memExpCache = profiles; } catch {}
+  }
+}
+
+function getProfile(charId) {
+  if (!profiles[charId]) profiles[charId] = defaultProfile();
+  return profiles[charId];
+}
+
+/* ══════════════════════════════════════════════
+   CHAR LIST
+══════════════════════════════════════════════ */
+function renderCharList() {
+  const q    = document.getElementById('char-search').value.trim().toLowerCase();
+  const list = document.getElementById('char-list');
+  const filtered = q ? characters.filter(c => c.name?.toLowerCase().includes(q)) : characters;
+
+  list.innerHTML = filtered.map(c => {
+    const hasProfile = !!profiles[c.id];
+    return `<div class="char-item ${c.id === activeCharId ? 'active' : ''}" onclick="selectChar('${escAttr(c.id)}')">
+      <div class="char-avatar">
+        ${c.avatar ? `<img src="${escAttr(c.avatar)}" alt="">` : esc((c.name||'?')[0].toUpperCase())}
+      </div>
+      <span class="char-item-name">${esc(c.name)}</span>
+      ${hasProfile ? '<div class="char-has-profile" title="Has memory profile"></div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectChar(id) {
+  activeCharId = id;
+  renderCharList();
+  document.getElementById('no-char').style.display = 'none';
+  document.getElementById('char-content').style.display = 'block';
+  renderContent();
+}
+
+/* ══════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════ */
+function switchTab(tab) {
+  activeTab = tab;
+  ['voice','memory','context','preview'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  renderContent();
+}
+
+function renderContent() {
+  if (!activeCharId) return;
+  const c = characters.find(x => x.id === activeCharId);
+  if (!c) return;
+  const p = getProfile(activeCharId);
+  const wrap = document.getElementById('char-content');
+
+  switch(activeTab) {
+    case 'voice':   wrap.innerHTML = renderVoiceTab(c, p);   break;
+    case 'memory':  wrap.innerHTML = renderMemoryTab(c, p);  break;
+    case 'context': wrap.innerHTML = renderContextTab(c, p); break;
+    case 'preview': wrap.innerHTML = renderPreviewTab(c, p); break;
+  }
+  lucide.createIcons();
+}
+
+/* ══════════════════════════════════════════════
+   VOICE PROFILE TAB
+══════════════════════════════════════════════ */
+function renderVoiceTab(c, p) {
+  const v = p.voice;
+  return `
+  <div class="card">
+    <div class="card-title"><i data-lucide="mic" style="width:15px;height:15px"></i> Voice Profile — ${esc(c.name)}</div>
+    <div class="card-desc">Define exactly how ${esc(c.name)} speaks. This gets injected into every Brain session as a persistent voice guide, ensuring consistent characterisation across all conversations.</div>
+
+    <div class="toggle-row" style="margin-bottom:14px">
+      <div class="toggle-info">
+        <div class="toggle-label">Enable Voice Profile</div>
+        <div class="toggle-desc">Injects voice rules into the system prompt on every Brain session</div>
+      </div>
+      <div class="toggle-switch-wrap">
+        <input type="checkbox" class="toggle-check" id="vp-enabled" ${v.enabled ? 'checked' : ''} onchange="saveVoiceField('enabled', this.checked)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Speaking Style</label>
+      <textarea class="form-textarea" id="vp-style" placeholder="e.g. Speaks in short clipped sentences. Rarely uses more than 10 words at a time. Never uses contractions." oninput="saveVoiceField('speakingStyle',this.value)">${esc(v.speakingStyle)}</textarea>
+      <div class="form-hint">How they structure sentences and their general cadence.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Vocabulary & Word Choices</label>
+      <textarea class="form-textarea" id="vp-vocab" placeholder="e.g. Uses 'indeed', 'precisely', 'curious'. Avoids modern slang. Occasionally slips into formal Old English phrasings." oninput="saveVoiceField('vocabulary',this.value)">${esc(v.vocabulary)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Emotional Tone & Subtext</label>
+      <textarea class="form-textarea" id="vp-tone" placeholder="e.g. Dry wit underlies everything. Warmth is buried under sarcasm. Shows genuine care only through actions, not words." oninput="saveVoiceField('emotionalTone',this.value)">${esc(v.emotionalTone)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Speech Quirks & Habits</label>
+      <textarea class="form-textarea" id="vp-quirks" placeholder="e.g. Deflects personal questions with a redirect. Always refers to enemies by full name, never nicknames. Pauses mid-sentence when uncomfortable." oninput="saveVoiceField('quirks',this.value)">${esc(v.quirks)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Example Lines (one per line)</label>
+      <textarea class="form-textarea mono" rows="5" id="vp-examples" placeholder="Write 3-5 example lines in their voice. These teach the AI their exact register.\n\nExample:\n— You want answers? Ask better questions.\n— I don't do speeches. I do results." oninput="saveVoiceField('exampleLines',this.value)">${esc(v.exampleLines)}</textarea>
+      <div class="form-hint">These are shown to the AI as direct voice samples — the more specific, the better.</div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="previewVoicePrompt()">
+        <i data-lucide="eye" style="width:11px;height:11px"></i> Preview Injection
+      </button>
+      <button class="btn btn-gold btn-sm" onclick="saveVoiceAll()">
+        <i data-lucide="save" style="width:11px;height:11px"></i> Save Voice Profile
+      </button>
+    </div>
+    <div id="voice-preview-box" style="display:none"></div>
+  </div>`;
+}
+
+async function saveVoiceField(field, value) {
+  const p = getProfile(activeCharId);
+  p.voice[field] = value;
+  await saveProfiles();
+  renderCharList(); // refresh dot indicator
+}
+
+async function saveVoiceAll() {
+  const p = getProfile(activeCharId);
+  p.voice.enabled       = document.getElementById('vp-enabled')?.checked ?? true;
+  p.voice.speakingStyle = document.getElementById('vp-style')?.value || '';
+  p.voice.vocabulary    = document.getElementById('vp-vocab')?.value || '';
+  p.voice.emotionalTone = document.getElementById('vp-tone')?.value || '';
+  p.voice.quirks        = document.getElementById('vp-quirks')?.value || '';
+  p.voice.exampleLines  = document.getElementById('vp-examples')?.value || '';
+  await saveProfiles();
+  renderCharList();
+  toast('Voice profile saved! ✦', 'success');
+}
+
+function previewVoicePrompt() {
+  const box = document.getElementById('voice-preview-box');
+  const p   = getProfile(activeCharId);
+  const v   = p.voice;
+  if (!v.enabled) { box.style.display = 'none'; return; }
+  const text = buildVoiceInjection(v);
+  box.textContent = text || '(Nothing to inject — fill in some fields above)';
+  box.style.display = 'block';
+}
+
+function buildVoiceInjection(v) {
+  if (!v.enabled) return '';
+  const parts = [];
+  if (v.speakingStyle)  parts.push(`SPEAKING STYLE: ${v.speakingStyle}`);
+  if (v.vocabulary)     parts.push(`VOCABULARY: ${v.vocabulary}`);
+  if (v.emotionalTone)  parts.push(`EMOTIONAL TONE: ${v.emotionalTone}`);
+  if (v.quirks)         parts.push(`SPEECH QUIRKS: ${v.quirks}`);
+  if (v.exampleLines)   parts.push(`VOICE SAMPLES (match this register exactly):\n${v.exampleLines}`);
+  if (!parts.length) return '';
+  return `PERSISTENT VOICE PROFILE (always speak this way — never deviate):\n${parts.join('\n')}`;
+}
+
+/* ══════════════════════════════════════════════
+   LONG-TERM MEMORY TAB
+══════════════════════════════════════════════ */
+function renderMemoryTab(c, p) {
+  const m = p.memory;
+  const summaries = m.summaries || [];
+
+  return `
+  <div class="card">
+    <div class="card-title"><i data-lucide="brain" style="width:15px;height:15px"></i> Long-Term Memory — ${esc(c.name)}</div>
+    <div class="card-desc">Memory summaries condense past conversations into key facts that get injected into every new Brain session. ${esc(c.name)} will "remember" things discussed across sessions without re-reading the full history.</div>
+
+    <div class="toggle-row" style="margin-bottom:14px">
+      <div class="toggle-info">
+        <div class="toggle-label">Enable Long-Term Memory</div>
+        <div class="toggle-desc">Injects memory summaries into every Brain session</div>
+      </div>
+      <div class="toggle-switch-wrap">
+        <input type="checkbox" class="toggle-check" id="mem-enabled" ${m.enabled ? 'checked' : ''} onchange="saveMemField('enabled',this.checked)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Persistent Facts (always remembered)</label>
+      <textarea class="form-textarea mono" rows="4" id="mem-facts" placeholder="Things this character always knows regardless of session, e.g:\n- Knows the user's name is Alex\n- Remembers the pact made in Session 3\n- Always calls the user by their nickname 'Sparrow'" oninput="saveMemField('persistentFacts',this.value)">${esc(m.persistentFacts)}</textarea>
+      <div class="form-hint">These are injected verbatim — write them as statements, one per line.</div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Session Summaries (${summaries.length})</div>
+      <button class="btn btn-gold btn-sm" onclick="openAddSummary()">
+        <i data-lucide="plus" style="width:11px;height:11px"></i> Add Summary
+      </button>
+    </div>
+
+    <div id="summaries-list">
+      ${summaries.length === 0
+        ? '<div class="empty" style="padding:20px"><div class="empty-icon" style="font-size:28px">📝</div>No summaries yet. Add one above to give ' + esc(c.name) + ' persistent memory.</div>'
+        : summaries.map((s,i) => `
+          <div class="memory-entry">
+            <div class="memory-entry-header">
+              <span class="memory-entry-label">${esc(s.label || 'Memory ' + (i+1))}</span>
+              <span class="memory-entry-date">${s.date ? new Date(s.date).toLocaleDateString() : ''}</span>
+            </div>
+            <div class="memory-entry-text">${esc(s.text)}</div>
+            <button class="memory-entry-delete" onclick="deleteMemory(${i})">✕</button>
+          </div>`).join('')}
+    </div>
+
+    <!-- Add summary inline form -->
+    <div id="add-summary-form" style="display:none;margin-top:12px;background:var(--bg3);border:1px solid var(--accent);border-radius:10px;padding:14px">
+      <div class="form-group">
+        <label class="form-label">Label (optional)</label>
+        <input class="form-input" id="new-summary-label" placeholder="e.g. Session 1 — The Meeting">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Summary Text</label>
+        <textarea class="form-textarea mono" rows="4" id="new-summary-text" placeholder="Write a concise summary of what happened / was established in this session. This will be injected into future sessions as memory."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="cancelAddSummary()">Cancel</button>
+        <button class="btn btn-gold btn-sm" onclick="saveSummary()">
+          <i data-lucide="save" style="width:11px;height:11px"></i> Save Memory
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function saveMemField(field, value) {
+  const p = getProfile(activeCharId);
+  p.memory[field] = value;
+  await saveProfiles();
+}
+
+function openAddSummary() {
+  document.getElementById('add-summary-form').style.display = 'block';
+  document.getElementById('new-summary-label').value = '';
+  document.getElementById('new-summary-text').value = '';
+  document.getElementById('new-summary-text').focus();
+}
+
+function cancelAddSummary() {
+  document.getElementById('add-summary-form').style.display = 'none';
+}
+
+async function saveSummary() {
+  const text  = document.getElementById('new-summary-text')?.value.trim();
+  const label = document.getElementById('new-summary-label')?.value.trim();
+  if (!text) { toast('Enter summary text!', 'error'); return; }
+  const p = getProfile(activeCharId);
+  if (!p.memory.summaries) p.memory.summaries = [];
+  p.memory.summaries.unshift({ id: Date.now(), label, text, date: Date.now() });
+  await saveProfiles();
+  renderContent();
+  toast('Memory saved!', 'success');
+}
+
+async function deleteMemory(idx) {
+  const p = getProfile(activeCharId);
+  p.memory.summaries.splice(idx, 1);
+  await saveProfiles();
+  renderContent();
+  toast('Memory deleted', 'success');
+}
+
+/* ══════════════════════════════════════════════
+   CONTEXT SETTINGS TAB
+══════════════════════════════════════════════ */
+function renderContextTab(c, p) {
+  const ctx = p.context;
+  return `
+  <div class="card">
+    <div class="card-title"><i data-lucide="settings-2" style="width:15px;height:15px"></i> Context Settings — ${esc(c.name)}</div>
+    <div class="card-desc">Expand the Brain's context window and injection limits for this character. Higher values give richer, more consistent responses at the cost of slower generation.</div>
+
+    <div class="form-group">
+      <label class="form-label">Context Window — Messages to Keep</label>
+      <div class="range-row">
+        <input type="range" class="form-range" id="ctx-window" min="12" max="80" step="4" value="${ctx.contextWindow}" oninput="document.getElementById('ctx-window-val').textContent=this.value;saveContextField('contextWindow',parseInt(this.value))">
+        <span class="range-val" id="ctx-window-val">${ctx.contextWindow}</span>
+      </div>
+      <div class="form-hint">Base: 24 messages. Expanded max: 80. Higher = better memory of the current conversation but slower responses.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Backstory Injection Limit (characters)</label>
+      <div class="range-row">
+        <input type="range" class="form-range" id="ctx-backstory" min="500" max="4000" step="100" value="${ctx.backstoryLimit}" oninput="document.getElementById('ctx-backstory-val').textContent=this.value;saveContextField('backstoryLimit',parseInt(this.value))">
+        <span class="range-val" id="ctx-backstory-val">${ctx.backstoryLimit}</span>
+      </div>
+      <div class="form-hint">Base: 1,000 chars. Expanded max: 4,000. For characters with deep backstories.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Lorebook Entries Injected</label>
+      <div class="range-row">
+        <input type="range" class="form-range" id="ctx-lbentries" min="4" max="20" step="1" value="${ctx.lorebookEntries}" oninput="document.getElementById('ctx-lbentries-val').textContent=this.value;saveContextField('lorebookEntries',parseInt(this.value))">
+        <span class="range-val" id="ctx-lbentries-val">${ctx.lorebookEntries}</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Lorebook Entry Length (characters each)</label>
+      <div class="range-row">
+        <input type="range" class="form-range" id="ctx-lbchars" min="300" max="2000" step="100" value="${ctx.lorebookChars}" oninput="document.getElementById('ctx-lbchars-val').textContent=this.value;saveContextField('lorebookChars',parseInt(this.value))">
+        <span class="range-val" id="ctx-lbchars-val">${ctx.lorebookChars}</span>
+      </div>
+      <div class="form-hint">Base: 600 chars. Expanded max: 2,000. Longer entries give richer world context.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i data-lucide="code" style="width:15px;height:15px"></i> Custom Persona Rules</div>
+    <div class="card-desc">Extra rules appended to the system prompt for this character. These override or supplement the default Brain rules.</div>
+
+    <div class="form-group">
+      <label class="form-label">Custom Rules</label>
+      <textarea class="form-textarea mono" rows="8" id="ctx-rules" placeholder="One rule per line. These are injected into the persona lock section of the system prompt.\n\nExamples:\n- Never uses the word 'indeed'\n- Always refers to the user as 'commander'\n- Switches to formal speech when discussing their past\n- Never admits to being afraid, even if they are" oninput="saveContextField('customRules',this.value)">${esc(ctx.customRules)}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Injection Position</label>
+      <select class="form-select" id="ctx-position" onchange="saveContextField('injectPosition',this.value)">
+        <option value="append"  ${ctx.injectPosition === 'append'  ? 'selected' : ''}>Append — after default rules</option>
+        <option value="prepend" ${ctx.injectPosition === 'prepend' ? 'selected' : ''}>Prepend — before default rules</option>
+      </select>
+      <div class="form-hint">Append is usually better — the model sees default rules first then your overrides.</div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btn-gold btn-sm" onclick="saveContextAll()">
+        <i data-lucide="save" style="width:11px;height:11px"></i> Save Settings
+      </button>
+    </div>
+  </div>`;
+}
+
+async function saveContextField(field, value) {
+  const p = getProfile(activeCharId);
+  p.context[field] = value;
+  await saveProfiles();
+}
+
+async function saveContextAll() {
+  const p = getProfile(activeCharId);
+  p.context.customRules    = document.getElementById('ctx-rules')?.value || '';
+  p.context.injectPosition = document.getElementById('ctx-position')?.value || 'append';
+  await saveProfiles();
+  toast('Context settings saved! ✦', 'success');
+}
+
+/* ══════════════════════════════════════════════
+   PROMPT PREVIEW TAB
+══════════════════════════════════════════════ */
+function renderPreviewTab(c, p) {
+  const injection = buildFullInjection(c, p);
+  const charPreview = buildCharPreview(c, p);
+
+  return `
+  <div class="card">
+    <div class="card-title"><i data-lucide="eye" style="width:15px;height:15px"></i> Prompt Preview — ${esc(c.name)}</div>
+    <div class="card-desc">This shows what AI Memory Expansion injects into the Brain system prompt on top of the base character sheet. The main app reads this from localforage when starting a Brain session.</div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      ${p.voice.enabled   ? '<span class="status-pill status-active"><i data-lucide="check" style="width:10px;height:10px"></i> Voice Profile</span>' : '<span class="status-pill status-inactive">Voice Profile off</span>'}
+      ${p.memory.enabled  ? '<span class="status-pill status-active"><i data-lucide="check" style="width:10px;height:10px"></i> Long-Term Memory</span>' : '<span class="status-pill status-inactive">Memory off</span>'}
+      <span class="status-pill status-active"><i data-lucide="check" style="width:10px;height:10px"></i> Context ×${Math.round(p.context.contextWindow/24 * 10)/10}</span>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Memory Expansion Injection</div>
+    <div id="inject-preview">${esc(injection) || '(Nothing to inject — configure Voice Profile or Memory above)'}</div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px">Context Limits Applied</div>
+    <div id="inject-preview" style="font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:var(--mono);line-height:1.8">
+Context window:    ${p.context.contextWindow} messages (base: 24)
+Backstory limit:   ${p.context.backstoryLimit.toLocaleString()} chars (base: 1,000)
+Lorebook entries:  ${p.context.lorebookEntries} entries (base: 8)
+Lorebook length:   ${p.context.lorebookChars.toLocaleString()} chars each (base: 600)
+Custom rules:      ${p.context.customRules ? p.context.customRules.split('\n').filter(Boolean).length + ' rule(s)' : 'none'}
+Inject position:   ${p.context.injectPosition}</div>
+
+    <div style="margin-top:14px;padding:10px 14px;background:var(--purple-glow);border:1px solid var(--purple);border-radius:10px;font-size:11px;color:var(--purple2);line-height:1.6">
+      <strong>How it works:</strong> The main app's Brain system reads this profile from localforage key <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">${STORE_KEY}</code> before building the system prompt. Context limits override the defaults in <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">brainBuildMessages()</code>. No changes to <code style="background:var(--bg3);padding:1px 5px;border-radius:4px">ai.js</code> needed — the Brain checks for this key automatically if the plugin is installed.
+    </div>
+  </div>`;
+}
+
+function buildFullInjection(c, p) {
+  const parts = [];
+  const voice = buildVoiceInjection(p.voice);
+  if (voice) parts.push(voice);
+
+  if (p.memory.enabled) {
+    const summaries = p.memory.summaries || [];
+    const facts = p.memory.persistentFacts;
+    if (facts) {
+      parts.push(`PERSISTENT MEMORY (${c.name} always knows these facts):\n${facts}`);
+    }
+    if (summaries.length) {
+      const summaryText = summaries
+        .slice(0, 10)
+        .map(s => `[${s.label || 'Memory'}] ${s.text}`)
+        .join('\n\n');
+      parts.push(`LONG-TERM MEMORY SUMMARIES:\n${summaryText}`);
+    }
+  }
+
+  if (p.context.customRules) {
+    parts.push(`ADDITIONAL PERSONA RULES:\n${p.context.customRules}`);
+  }
+
+  return parts.join('\n\n---\n\n');
+}
+
+function buildCharPreview(c, p) {
+  return `Character: ${c.name}\nContext window: ${p.context.contextWindow} messages\nBackstory limit: ${p.context.backstoryLimit} chars`;
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function esc(s)     { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { if(!s)return''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg, type='success') {
+  const c=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>el.remove(),2500);
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') {
+    e.preventDefault();
+    if (activeTab === 'voice')   saveVoiceAll();
+    if (activeTab === 'context') saveContextAll();
+  }
+});
+</script>
+</body>
+</html>

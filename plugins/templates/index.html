@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Templates — Charactry</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg:          #0e0e14;
+    --bg2:         #13131c;
+    --bg3:         #1a1a28;
+    --card:        #16161f;
+    --border:      #2a2a3d;
+    --accent:      #a78bfa;
+    --accent2:     #7c3aed;
+    --accent-glow: rgba(167,139,250,0.18);
+    --text:        #e8e6f0;
+    --text2:       #9b98b0;
+    --text3:       #5a5870;
+    --danger:      #f87171;
+    --success:     #4ade80;
+    --radius:      12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 14px; overflow: hidden; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 10px; }
+
+  /* ── Layout ── */
+  #root { display: flex; flex-direction: column; height: 100vh; }
+
+  #titlebar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 10px; border-bottom: 1px solid var(--border);
+    flex-shrink: 0; -webkit-app-region: drag;
+  }
+  #titlebar-left { display: flex; align-items: center; gap: 10px; }
+  .title-icon { color: var(--accent); display: flex; }
+  h1 { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  #titlebar-right { display: flex; gap: 8px; -webkit-app-region: no-drag; }
+
+  /* ── Two-pane layout ── */
+  #body { display: flex; flex: 1; overflow: hidden; }
+
+  /* Back button — shown when detail pane is active on narrow windows */
+  #back-btn {
+    display: none; align-items: center; gap: 6px;
+    padding: 6px 10px; margin-bottom: 14px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; font-size: 12px;
+    font-weight: 700; color: var(--text2); font-family: 'Nunito', sans-serif;
+    transition: all .15s; width: fit-content;
+  }
+  #back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #back-btn.visible { display: inline-flex; }
+
+  /* ── Left: template list ── */
+  #template-list-pane {
+    width: 260px; flex-shrink: 0; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  #list-header { padding: 12px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  #list-search { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 12px; outline: none; }
+  #list-search:focus { border-color: var(--accent); }
+  #template-list { flex: 1; overflow-y: auto; padding: 8px; }
+  .template-item {
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    border: 1px solid transparent; margin-bottom: 4px; transition: all .15s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .template-item:hover { background: var(--bg3); border-color: var(--border); }
+  .template-item.active { background: var(--accent-glow); border-color: var(--accent); }
+  .template-item-icon {
+    width: 32px; height: 32px; border-radius: 8px; background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0; border: 1px solid var(--border);
+  }
+  .template-item.active .template-item-icon { background: var(--accent-glow); border-color: var(--accent); }
+  .template-item-info { flex: 1; min-width: 0; }
+  .template-item-name { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .template-item-meta { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  #list-footer { padding: 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+  /* ── Right: editor / detail ── */
+  #detail-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #detail-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+
+  /* ── Empty / welcome state ── */
+  #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text3); text-align: center; gap: 12px; padding: 40px; }
+  #empty-state .empty-icon { font-size: 48px; opacity: .3; }
+  #empty-state h2 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--text2); }
+  #empty-state p { font-size: 13px; line-height: 1.6; max-width: 280px; }
+
+  /* ── Editor ── */
+  .section-title { font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .section-title:first-child { margin-top: 0; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .form-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; color: var(--text);
+    font-family: 'Nunito', sans-serif; font-size: 13px; outline: none; transition: border-color .15s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-select option { background: var(--bg2); }
+  .form-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .field-hint { font-size: 10px; color: var(--text3); font-style: italic; }
+
+  /* ── Checkbox fields ── */
+  .field-toggle { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; user-select: none; }
+  .field-toggle input { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .field-toggle span { font-size: 12px; color: var(--text2); }
+
+  /* ── Detail header ── */
+  #detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  #detail-name-wrap { display: flex; align-items: center; gap: 10px; }
+  #detail-icon-btn { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); border: 1px solid var(--border); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
+  #detail-icon-btn:hover { border-color: var(--accent); }
+  #detail-name { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--text); background: none; border: none; outline: none; border-bottom: 2px solid var(--border); padding: 2px 0; width: 220px; font-family: 'Cinzel', serif; transition: border-color .15s; }
+  #detail-name:focus { border-color: var(--accent); }
+  #detail-actions { display: flex; gap: 8px; -webkit-app-region: no-drag; }
+
+  /* ── Buttons ── */
+  .btn { padding: 7px 16px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 12px; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+  .btn-primary:hover { opacity: .88; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: transparent; border: 1px solid rgba(248,113,113,.3); color: var(--danger); }
+  .btn-danger:hover { background: rgba(248,113,113,.1); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  /* ── Apply to character modal ── */
+  #apply-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999;
+    display: none; align-items: center; justify-content: center;
+  }
+  #apply-modal.open { display: flex; }
+  #apply-modal-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 420px; max-height: 80vh; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.7); }
+  #apply-modal-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--text); }
+  #apply-search { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none; }
+  #apply-search:focus { border-color: var(--accent); }
+  #apply-char-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .apply-char-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+  .apply-char-item:hover { background: var(--bg3); border-color: var(--border); }
+  .apply-char-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text3); flex-shrink: 0; }
+  .apply-char-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .apply-char-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .apply-char-sub { font-size: 11px; color: var(--text3); }
+  #apply-modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
+
+  /* ── Emoji picker ── */
+  #emoji-picker { position: fixed; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; z-index: 99999; display: none; flex-wrap: wrap; gap: 4px; width: 200px; box-shadow: 0 12px 40px rgba(0,0,0,.6); }
+  #emoji-picker.open { display: flex; }
+  .emoji-opt { font-size: 20px; cursor: pointer; padding: 3px; border-radius: 6px; transition: background .1s; }
+  .emoji-opt:hover { background: var(--bg3); }
+
+  /* ── Toast ── */
+  #toast-container { position: fixed; bottom: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.5); animation: toastIn .2s ease; pointer-events: auto; }
+  .toast.success { border-color: var(--success); }
+  .toast.error   { border-color: var(--danger); }
+  @keyframes toastIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div class="title-icon"><img src="templates.svg" style="width:20px;height:20px;filter:brightness(0) saturate(100%) invert(72%) sepia(50%) saturate(500%) hue-rotate(210deg) brightness(100%)"></div>
+      <div>
+        <h1>Templates</h1>
+        <div class="subtitle">Save & reuse character field presets</div>
+      </div>
+    </div>
+    <div id="titlebar-right">
+      <button class="btn btn-primary btn-sm" onclick="newTemplate()">
+        <i data-lucide="plus" style="width:12px;height:12px"></i> New Template
+      </button>
+    </div>
+  </div>
+
+  <div id="body">
+
+    <!-- Template list -->
+    <div id="template-list-pane">
+      <div id="list-header">
+        <input id="list-search" placeholder="Search templates…" oninput="renderList()">
+      </div>
+      <div id="template-list"></div>
+      <div id="list-footer">
+        <div id="list-count" style="font-size:11px;color:var(--text3);text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- Detail / editor -->
+    <div id="detail-pane">
+      <div id="detail-scroll">
+        <button id="back-btn" onclick="goBackToList()">
+          <i data-lucide="arrow-left" style="width:12px;height:12px"></i> Back to Templates
+        </button>
+        <div id="empty-state">
+          <div class="empty-icon">📋</div>
+          <h2>No template selected</h2>
+          <p>Create a template to save character field presets you can reuse across characters.</p>
+          <button class="btn btn-primary" onclick="newTemplate()">+ New Template</button>
+        </div>
+        <div id="editor" style="display:none"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Apply modal -->
+<div id="apply-modal">
+  <div id="apply-modal-box">
+    <div id="apply-modal-title">Apply template to character</div>
+    <input id="apply-search" placeholder="Search characters…" oninput="renderApplyList()">
+    <div id="apply-char-list"></div>
+    <div id="apply-modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeApplyModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import from character modal -->
+<div id="import-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;width:420px;max-height:80vh;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 60px rgba(0,0,0,.7)">
+    <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--text)">Import fields from character</div>
+    <div style="font-size:12px;color:var(--text3)">Copies filled fields from a character into this template. Only non-empty fields are imported.</div>
+    <input id="import-search" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none" placeholder="Search characters…" oninput="renderImportList()">
+    <div id="import-char-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;max-height:320px"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="closeImportModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Emoji picker -->
+<div id="emoji-picker">
+  <span class="emoji-opt" onclick="setEmoji('📋')">📋</span>
+  <span class="emoji-opt" onclick="setEmoji('⚔️')">⚔️</span>
+  <span class="emoji-opt" onclick="setEmoji('🧙')">🧙</span>
+  <span class="emoji-opt" onclick="setEmoji('🏹')">🏹</span>
+  <span class="emoji-opt" onclick="setEmoji('🌙')">🌙</span>
+  <span class="emoji-opt" onclick="setEmoji('🔥')">🔥</span>
+  <span class="emoji-opt" onclick="setEmoji('💀')">💀</span>
+  <span class="emoji-opt" onclick="setEmoji('🌿')">🌿</span>
+  <span class="emoji-opt" onclick="setEmoji('⚡')">⚡</span>
+  <span class="emoji-opt" onclick="setEmoji('🦋')">🦋</span>
+  <span class="emoji-opt" onclick="setEmoji('🐺')">🐺</span>
+  <span class="emoji-opt" onclick="setEmoji('🌊')">🌊</span>
+  <span class="emoji-opt" onclick="setEmoji('✨')">✨</span>
+  <span class="emoji-opt" onclick="setEmoji('🎭')">🎭</span>
+  <span class="emoji-opt" onclick="setEmoji('👑')">👑</span>
+  <span class="emoji-opt" onclick="setEmoji('🗡️')">🗡️</span>
+  <span class="emoji-opt" onclick="setEmoji('🧬')">🧬</span>
+  <span class="emoji-opt" onclick="setEmoji('🎪')">🎪</span>
+  <span class="emoji-opt" onclick="setEmoji('🏔️')">🏔️</span>
+  <span class="emoji-opt" onclick="setEmoji('🌸')">🌸</span>
+</div>
+
+<!-- Toasts -->
+<div id="toast-container"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let templates   = [];   // [{ id, name, icon, fields:{} }]
+let characters  = [];
+let activeId    = null;
+let dirty       = false;
+
+const STORAGE_KEY = 'charactry_templates';
+
+/* ── All character fields available in a template ── */
+const FIELD_DEFS = [
+  // Profile
+  { key: 'pronouns',   label: 'Pronouns',   type: 'text',     section: 'Profile' },
+  { key: 'gender',     label: 'Gender',     type: 'text',     section: 'Profile' },
+  { key: 'species',    label: 'Species',    type: 'text',     section: 'Profile' },
+  { key: 'occupation', label: 'Occupation', type: 'text',     section: 'Profile' },
+  { key: 'alignment',  label: 'Alignment',  type: 'text',     section: 'Profile' },
+  { key: 'orientation',label: 'Orientation',type: 'text',     section: 'Profile' },
+  // Appearance
+  { key: 'hair',       label: 'Hair',       type: 'text',     section: 'Appearance' },
+  { key: 'eyes',       label: 'Eyes',       type: 'text',     section: 'Appearance' },
+  { key: 'bodytype',   label: 'Body Type',  type: 'text',     section: 'Appearance' },
+  { key: 'skin',       label: 'Complexion', type: 'text',     section: 'Appearance' },
+  { key: 'outfit',     label: 'Outfit / Style', type: 'textarea', section: 'Appearance' },
+  // Personality
+  { key: 'traits',     label: 'Traits',     type: 'textarea', section: 'Personality' },
+  { key: 'likes',      label: 'Likes',      type: 'textarea', section: 'Personality' },
+  { key: 'dislikes',   label: 'Dislikes',   type: 'textarea', section: 'Personality' },
+  { key: 'strengths',  label: 'Strengths',  type: 'textarea', section: 'Personality' },
+  { key: 'weaknesses', label: 'Weaknesses', type: 'textarea', section: 'Personality' },
+  { key: 'habits',     label: 'Habits',     type: 'textarea', section: 'Personality' },
+  // Lore
+  { key: 'backstory',  label: 'Backstory',  type: 'textarea', section: 'Lore' },
+  { key: 'abilities',  label: 'Abilities / Powers', type: 'textarea', section: 'Lore' },
+  { key: 'trivia',     label: 'Trivia',     type: 'textarea', section: 'Lore' },
+  { key: 'quotes',     label: 'Quotes',     type: 'textarea', section: 'Lore' },
+  // Meta
+  { key: 'tags',       label: 'Tags',       type: 'text',     section: 'Meta', hint: 'Comma separated' },
+  { key: 'rarity',     label: 'Card Rarity', type: 'select',  section: 'Meta',
+    options: ['none','common','rare','epic','legendary','mythic'] },
+];
+
+/* ══════════════════════════════════════════════
+   LOAD / SAVE
+══════════════════════════════════════════════ */
+async function loadAll() {
+  templates  = (await localforage.getItem(STORAGE_KEY).catch(() => null)) || [];
+  characters = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+  renderList();
+  if (activeId) selectTemplate(activeId);
+  lucide.createIcons();
+}
+
+async function saveTemplates() {
+  await localforage.setItem(STORAGE_KEY, templates).catch(() => {});
+}
+
+/* ══════════════════════════════════════════════
+   LIST
+══════════════════════════════════════════════ */
+function renderList() {
+  const q    = document.getElementById('list-search').value.trim().toLowerCase();
+  const list = document.getElementById('template-list');
+  const filtered = q ? templates.filter(t => t.name.toLowerCase().includes(q)) : templates;
+
+  document.getElementById('list-count').textContent =
+    `${templates.length} template${templates.length !== 1 ? 's' : ''}`;
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px">${
+      templates.length ? 'No results.' : 'No templates yet.'
+    }</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => {
+    const fieldCount = Object.values(t.fields || {}).filter(v => v !== '' && v !== undefined).length;
+    return `<div class="template-item ${t.id === activeId ? 'active' : ''}" onclick="selectTemplate('${t.id}')">
+      <div class="template-item-icon">${t.icon || '📋'}</div>
+      <div class="template-item-info">
+        <div class="template-item-name">${esc(t.name)}</div>
+        <div class="template-item-meta">${fieldCount} field${fieldCount !== 1 ? 's' : ''} set</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   EDITOR
+══════════════════════════════════════════════ */
+function selectTemplate(id) {
+  if (dirty && activeId) {
+    collectAndSave(activeId);
+  }
+  activeId = id;
+  dirty    = false;
+  renderEditor();
+  renderList(); // update active highlight
+}
+
+function renderEditor() {
+  const t = templates.find(x => x.id === activeId);
+  document.getElementById('empty-state').style.display = 'none';
+  const ed = document.getElementById('editor');
+  ed.style.display = 'block';
+
+  // Show back button always when a template is selected
+  document.getElementById('back-btn').classList.add('visible');
+
+  if (!t) { ed.innerHTML = ''; return; }
+
+  // Group fields by section
+  const sections = {};
+  FIELD_DEFS.forEach(f => {
+    if (!sections[f.section]) sections[f.section] = [];
+    sections[f.section].push(f);
+  });
+
+  const sectionsHtml = Object.entries(sections).map(([sec, fields]) => {
+    const fieldsHtml = fields.map(f => {
+      const val = (t.fields && t.fields[f.key]) || '';
+      if (f.type === 'textarea') {
+        return `<div class="form-group">
+          <label class="form-label">${f.label}${f.hint ? ` <span class="field-hint">(${f.hint})</span>` : ''}</label>
+          <textarea class="form-textarea" data-key="${f.key}" oninput="markDirty()" rows="3">${esc(val)}</textarea>
+        </div>`;
+      }
+      if (f.type === 'select') {
+        return `<div class="form-group">
+          <label class="form-label">${f.label}</label>
+          <select class="form-select" data-key="${f.key}" onchange="markDirty()">
+            <option value="">— Leave blank —</option>
+            ${f.options.map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o.charAt(0).toUpperCase() + o.slice(1)}</option>`).join('')}
+          </select>
+        </div>`;
+      }
+      return `<div class="form-group">
+        <label class="form-label">${f.label}${f.hint ? ` <span class="field-hint">(${f.hint})</span>` : ''}</label>
+        <input class="form-input" type="text" data-key="${f.key}" value="${escAttr(val)}" oninput="markDirty()" placeholder="Leave blank to skip">
+      </div>`;
+    }).join('');
+
+    return `<div class="section-title">${sec}</div><div class="form-grid">${fieldsHtml}</div>`;
+  }).join('');
+
+  ed.innerHTML = `
+    <div id="detail-header">
+      <div id="detail-name-wrap">
+        <button id="detail-icon-btn" onclick="toggleEmojiPicker(event)" title="Change icon">${t.icon || '📋'}</button>
+        <input id="detail-name" value="${escAttr(t.name)}" placeholder="Template name…" oninput="markDirty()">
+      </div>
+      <div id="detail-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openImportModal()" title="Copy fields from an existing character">
+          <i data-lucide="download" style="width:12px;height:12px"></i> Import from Character
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="openApplyModal()">
+          <i data-lucide="send" style="width:12px;height:12px"></i> Apply to Character
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="collectAndSave('${t.id}')">
+          <i data-lucide="save" style="width:12px;height:12px"></i> Save
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTemplate('${t.id}')">
+          <i data-lucide="trash-2" style="width:12px;height:12px"></i>
+        </button>
+      </div>
+    </div>
+    <p class="field-hint" style="margin-bottom:16px">Fill in only the fields you want this template to set. Leave anything blank to skip it when applying.</p>
+    ${sectionsHtml}
+  `;
+
+  lucide.createIcons();
+}
+
+function markDirty() {
+  dirty = true;
+}
+
+function collectFields() {
+  const fields = {};
+  document.querySelectorAll('[data-key]').forEach(el => {
+    const val = el.value.trim();
+    if (val) fields[el.dataset.key] = val;
+  });
+  return fields;
+}
+
+async function collectAndSave(id) {
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  const nameEl = document.getElementById('detail-name');
+  if (nameEl) t.name = nameEl.value.trim() || t.name;
+  t.fields = collectFields();
+  dirty = false;
+  await saveTemplates();
+  renderList();
+  toast('Template saved!', 'success');
+}
+
+/* ══════════════════════════════════════════════
+   CRUD
+══════════════════════════════════════════════ */
+async function newTemplate() {
+  if (dirty && activeId) collectAndSave(activeId);
+  const id = 'tpl_' + Date.now();
+  templates.push({ id, name: 'New Template', icon: '📋', fields: {} });
+  await saveTemplates();
+  renderList();
+  selectTemplate(id);
+  // Focus name field
+  setTimeout(() => document.getElementById('detail-name')?.focus(), 50);
+}
+
+async function deleteTemplate(id) {
+  templates = templates.filter(t => t.id !== id);
+  await saveTemplates();
+  if (activeId === id) {
+    activeId = templates.length ? templates[0].id : null;
+    if (activeId) {
+      renderEditor();
+    } else {
+      document.getElementById('back-btn').classList.remove('visible');
+      document.getElementById('empty-state').style.display = '';
+      document.getElementById('editor').style.display = 'none';
+    }
+  }
+  renderList();
+  toast('Template deleted', 'success');
+}
+
+/* ══════════════════════════════════════════════
+   EMOJI PICKER
+══════════════════════════════════════════════ */
+function toggleEmojiPicker(e) {
+  e.stopPropagation();
+  const picker = document.getElementById('emoji-picker');
+  const btn    = document.getElementById('detail-icon-btn');
+  const rect   = btn.getBoundingClientRect();
+  picker.style.top  = (rect.bottom + 6) + 'px';
+  picker.style.left = rect.left + 'px';
+  picker.classList.toggle('open');
+}
+
+async function setEmoji(emoji) {
+  const t = templates.find(x => x.id === activeId);
+  if (!t) return;
+  t.icon = emoji;
+  document.getElementById('detail-icon-btn').textContent = emoji;
+  document.getElementById('emoji-picker').classList.remove('open');
+  await saveTemplates();
+  renderList();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#emoji-picker') && !e.target.closest('#detail-icon-btn')) {
+    document.getElementById('emoji-picker').classList.remove('open');
+  }
+});
+
+/* ══════════════════════════════════════════════
+   BACK BUTTON
+══════════════════════════════════════════════ */
+function goBackToList() {
+  if (dirty && activeId) collectAndSave(activeId);
+  activeId = null;
+  dirty    = false;
+  document.getElementById('back-btn').classList.remove('visible');
+  document.getElementById('editor').style.display = 'none';
+  document.getElementById('empty-state').style.display = '';
+  renderList();
+}
+
+/* ══════════════════════════════════════════════
+   IMPORT FROM CHARACTER
+══════════════════════════════════════════════ */
+async function openImportModal() {
+  // Try to load fresh from disk via IPC if available, else fall back to localforage
+  if (window.electronAPI?.listAllChars && window.electronAPI?.readCharJSON) {
+    try {
+      const ids = await window.electronAPI.listAllChars();
+      const loaded = await Promise.all(ids.map(id => window.electronAPI.readCharJSON(id).catch(() => null)));
+      characters = loaded.filter(Boolean);
+    } catch(e) {
+      characters = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+    }
+  } else {
+    characters = (await localforage.getItem('charactry_chars').catch(() => null)) || [];
+  }
+  document.getElementById('import-search').value = '';
+  renderImportList();
+  document.getElementById('import-modal').style.display = 'flex';
+}
+
+function closeImportModal() {
+  document.getElementById('import-modal').style.display = 'none';
+}
+
+function renderImportList() {
+  const q        = document.getElementById('import-search').value.trim().toLowerCase();
+  const filtered = q ? characters.filter(c => c.name?.toLowerCase().includes(q)) : characters;
+  const list     = document.getElementById('import-char-list');
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">${
+      characters.length ? 'No results.' : 'No characters found.'
+    }</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => `
+    <div class="apply-char-item" onclick="importFromCharacter('${escAttr(c.id)}')">
+      <div class="apply-char-avatar">
+        ${c.avatar ? `<img src="${c.avatar}" alt="">` : esc((c.name || '?')[0].toUpperCase())}
+      </div>
+      <div>
+        <div class="apply-char-name">${esc(c.name)}</div>
+        <div class="apply-char-sub">${[c.species, c.pronouns].filter(Boolean).map(esc).join(' · ') || 'No details'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function importFromCharacter(charId) {
+  const t = templates.find(x => x.id === activeId);
+  const c = characters.find(x => x.id === charId);
+  if (!t || !c) return;
+
+  // Copy every field that's defined in FIELD_DEFS and non-empty on the character
+  let count = 0;
+  if (!t.fields) t.fields = {};
+  FIELD_DEFS.forEach(f => {
+    const val = c[f.key];
+    if (val !== undefined && val !== null && val !== '') {
+      // Normalize arrays to comma-separated strings
+      t.fields[f.key] = Array.isArray(val) ? val.join(', ') : String(val);
+      count++;
+    }
+  });
+
+  await saveTemplates();
+  closeImportModal();
+  renderEditor(); // re-render so fields show the imported values
+  toast(`Imported ${count} field${count !== 1 ? 's' : ''} from ${c.name}!`, 'success');
+}
+function openApplyModal() {
+  if (dirty && activeId) collectAndSave(activeId);
+  document.getElementById('apply-search').value = '';
+  renderApplyList();
+  document.getElementById('apply-modal').classList.add('open');
+}
+
+function closeApplyModal() {
+  document.getElementById('apply-modal').classList.remove('open');
+}
+
+function renderApplyList() {
+  const q        = document.getElementById('apply-search').value.trim().toLowerCase();
+  const filtered = q ? characters.filter(c => c.name?.toLowerCase().includes(q)) : characters;
+  const list     = document.getElementById('apply-char-list');
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">${
+      characters.length ? 'No results.' : 'No characters found.'
+    }</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => `
+    <div class="apply-char-item" onclick="applyToCharacter('${escAttr(c.id)}')">
+      <div class="apply-char-avatar">
+        ${c.avatar ? `<img src="${c.avatar}" alt="">` : esc((c.name || '?')[0].toUpperCase())}
+      </div>
+      <div>
+        <div class="apply-char-name">${esc(c.name)}</div>
+        <div class="apply-char-sub">${[c.species, c.pronouns].filter(Boolean).map(esc).join(' · ') || 'No details'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function applyToCharacter(charId) {
+  const t = templates.find(x => x.id === activeId);
+  const c = characters.find(x => x.id === charId);
+  if (!t || !c) return;
+
+  // Only overwrite fields that the template has set — blank fields are skipped
+  const fields = t.fields || {};
+  let count = 0;
+  Object.entries(fields).forEach(([key, val]) => {
+    if (val !== '' && val !== undefined) {
+      c[key] = val;
+      count++;
+    }
+  });
+
+  // Save back to shared localforage so main app sees the update
+  await localforage.setItem('charactry_chars', characters).catch(() => {});
+  closeApplyModal();
+  toast(`Applied ${count} field${count !== 1 ? 's' : ''} to ${c.name}!`, 'success');
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function toast(msg, type = 'success') {
+  const c  = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeApplyModal();
+    closeImportModal();
+    document.getElementById('emoji-picker').classList.remove('open');
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    if (activeId) collectAndSave(activeId);
+  }
+});
+
+/* ── Boot ── */
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAll();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>

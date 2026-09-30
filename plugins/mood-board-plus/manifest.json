@@ -1,0 +1,19 @@
+{
+  "id": "mood-board",
+  "name": "Mood Board",
+  "version": "1.0.0",
+  "description": "Pinterest-style visual mood board per character. Pin images, colour swatches, quotes, notes and aesthetic tags to build the vibe of your OC.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "plus",
+  "plusOnly": true,
+  "windowWidth": 1100,
+  "windowHeight": 740,
+  "tags": ["visual", "characters", "aesthetic"],
+  "sidebar": {
+    "section": "Tools",
+    "label": "Mood Board",
+    "icon": "layout-grid",
+    "iconSvg": "mood-board.svg"
+  }
+}

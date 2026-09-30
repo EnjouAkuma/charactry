@@ -1,0 +1,19 @@
+{
+  "id": "name-gen",
+  "name": "Name Generator",
+  "version": "2.0.0",
+  "description": "Expanded name generator with 20+ cultural styles, genre filters, surname toggle, compound names, and name history.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "free",
+  "plusOnly": false,
+  "windowWidth": 980,
+  "windowHeight": 700,
+  "tags": ["tools", "generator", "names"],
+  "sidebar": {
+    "section": "Extras",
+    "label": "Name Generator",
+    "icon": "sparkles",
+    "iconSvg": "name-gen.svg"
+  }
+}

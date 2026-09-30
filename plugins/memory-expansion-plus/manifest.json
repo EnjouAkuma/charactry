@@ -1,0 +1,19 @@
+{
+  "id": "memory-expansion",
+  "name": "AI Memory Expansion",
+  "version": "1.0.0",
+  "description": "Extends Character Brain with persistent voice profiles, long-term memory summaries, expanded context windows, and custom persona rules that survive across sessions.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "plus",
+  "plusOnly": true,
+  "windowWidth": 1000,
+  "windowHeight": 720,
+  "tags": ["ai", "brain", "memory", "characters"],
+  "sidebar": {
+    "section": "AI Studio",
+    "label": "AI Memory Expansion",
+    "icon": "brain",
+    "iconSvg": "memory-expansion.svg"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "templates",
+  "name": "Templates",
+  "version": "2.0.0",
+  "description": "Save and reuse character field presets. Create a template once, apply it to any new or existing character instantly.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "free",
+  "plusOnly": false,
+  "windowWidth": 920,
+  "windowHeight": 680,
+  "tags": ["tools", "characters", "workflow"],
+  "sidebar": {
+    "section": "Tools",
+    "label": "Templates",
+    "icon": "layout-template",
+    "iconSvg": "templates.svg"
+  }
+}

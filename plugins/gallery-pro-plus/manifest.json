@@ -1,0 +1,19 @@
+{
+  "id": "gallery-pro",
+  "name": "Gallery Pro",
+  "version": "1.0.0",
+  "description": "Lightbox viewer, image tagging, fullscreen slideshow, and reference sheet builder for your OC art and references. Pulls avatar, banner and gallery images from all characters.",
+  "author": "Yuuma Akira",
+  "enabled": true,
+  "tier": "plus",
+  "plusOnly": true,
+  "windowWidth": 1400,
+  "windowHeight": 900,
+  "tags": ["visual", "gallery", "art", "characters"],
+  "sidebar": {
+    "section": "Tools",
+    "label": "Gallery Pro",
+    "icon": "images",
+    "iconSvg": "gallery-pro.svg"
+  }
+}

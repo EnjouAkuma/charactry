@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Bible Export — Charactry PLUS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<!-- jsPDF for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- FileSaver for download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<style>
+  /* ── PLUS Theme ── */
+  :root {
+    --bg:#07080f; --bg2:#0d0f1c; --bg3:#131629; --card:#0f1120;
+    --border:#1e2240; --border2:#2a2f5a;
+    --accent:#f0c040; --accent2:#d4960a;
+    --purple:#7c6aee; --purple2:#a78bfa;
+    --gold-glow:rgba(240,192,64,0.10);
+    --text:#f0edff; --text2:#9d9bbf; --text3:#4a4870;
+    --danger:#f87171; --success:#4ade80; --radius:12px;
+    --plus-gradient:linear-gradient(135deg,#f0c040,#d4960a);
+    --purple-gradient:linear-gradient(135deg,#7c6aee,#a78bfa);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;overflow:hidden}
+  ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:10px}
+  #root{display:flex;flex-direction:column;height:100vh}
+
+  /* Titlebar */
+  #titlebar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+    background:linear-gradient(180deg,#0a0b18 0%,var(--bg) 100%);
+    -webkit-app-region:drag;
+  }
+  #titlebar-left{display:flex;align-items:center;gap:12px}
+  .app-name{font-family:'Cinzel',serif;font-size:17px;font-weight:700;background:var(--plus-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .plus-badge{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;background:var(--plus-gradient);color:#000;padding:2px 7px;border-radius:20px;-webkit-text-fill-color:#000}
+  .subtitle{font-size:11px;color:var(--text3);margin-top:1px}
+
+  /* Body */
+  #body{display:flex;flex:1;overflow:hidden}
+
+  /* Left panel — config */
+  #config-panel{
+    width:300px;flex-shrink:0;border-right:1px solid var(--border);
+    display:flex;flex-direction:column;overflow:hidden;background:var(--bg2);
+    -webkit-app-region:no-drag;
+  }
+  #config-scroll{flex:1;overflow-y:auto;padding:16px}
+
+  .panel-section{margin-bottom:20px}
+  .panel-section-title{
+    font-family:'Cinzel',serif;font-size:11px;font-weight:700;
+    color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;
+    margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);
+  }
+
+  /* Universe picker */
+  .uni-option{
+    display:flex;align-items:center;gap:10px;padding:8px 10px;
+    border-radius:9px;cursor:pointer;border:1px solid transparent;
+    transition:all .15s;margin-bottom:4px;
+  }
+  .uni-option:hover{background:var(--bg3);border-color:var(--border)}
+  .uni-option.selected{background:var(--gold-glow);border-color:var(--accent)}
+  .uni-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .uni-name{font-size:13px;font-weight:700;color:var(--text)}
+  .uni-count{font-size:10px;color:var(--text3);margin-left:auto}
+  .uni-option.selected .uni-name{color:var(--accent)}
+
+  /* Section toggles */
+  .section-toggle{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:7px 10px;border-radius:8px;cursor:pointer;
+    border:1px solid var(--border);background:var(--bg3);
+    margin-bottom:5px;transition:all .15s;
+  }
+  .section-toggle:hover{border-color:var(--border2)}
+  .section-toggle.on{border-color:var(--accent);background:var(--gold-glow)}
+  .toggle-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text2)}
+  .toggle-left .icon{font-size:14px}
+  .section-toggle.on .toggle-left{color:var(--accent)}
+  .toggle-count{font-size:10px;color:var(--text3)}
+  .toggle-switch{
+    width:30px;height:16px;border-radius:20px;background:var(--bg2);
+    border:1px solid var(--border);position:relative;transition:background .2s;flex-shrink:0;
+  }
+  .section-toggle.on .toggle-switch{background:var(--accent);border-color:var(--accent)}
+  .toggle-knob{
+    width:10px;height:10px;border-radius:50%;background:#fff;
+    position:absolute;top:2px;left:2px;transition:left .2s;
+  }
+  .section-toggle.on .toggle-knob{left:16px}
+
+  /* Options */
+  .option-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+  .option-row:last-child{border-bottom:none}
+  .option-label{font-size:12px;color:var(--text2)}
+  .option-row select,.option-row input[type=text]{
+    background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+    padding:4px 8px;color:var(--text);font-family:'Nunito',sans-serif;font-size:12px;
+    outline:none;max-width:140px;
+  }
+  .option-row input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+
+  /* Config footer */
+  #config-footer{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+
+  /* Right panel — preview */
+  #preview-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;-webkit-app-region:no-drag}
+  #preview-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 18px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg2);
+  }
+  #preview-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+  #preview-scroll{flex:1;overflow-y:auto;padding:24px}
+
+  /* Preview document styles */
+  #preview-doc{
+    max-width:700px;margin:0 auto;background:var(--card);
+    border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .doc-cover{
+    padding:48px 40px;background:linear-gradient(135deg,#0a0b18 0%,#131629 100%);
+    border-bottom:3px solid var(--accent);text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .doc-cover::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at center,rgba(240,192,64,.06) 0%,transparent 70%);
+  }
+  .doc-cover-badge{
+    display:inline-block;font-size:9px;font-weight:800;letter-spacing:2px;
+    text-transform:uppercase;background:var(--plus-gradient);color:#000;
+    padding:3px 10px;border-radius:20px;margin-bottom:20px;
+  }
+  .doc-cover-title{
+    font-family:'Cinzel',serif;font-size:28px;font-weight:700;
+    background:var(--plus-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .doc-cover-sub{font-size:13px;color:var(--text3);margin-bottom:6px}
+  .doc-cover-meta{font-size:11px;color:var(--text3)}
+
+  .doc-toc{padding:24px 32px;border-bottom:1px solid var(--border)}
+  .doc-toc-title{font-family:'Cinzel',serif;font-size:14px;color:var(--accent);margin-bottom:12px;font-weight:700}
+  .doc-toc-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:4px 0;font-size:12px;color:var(--text2);
+    border-bottom:1px dotted var(--border);
+  }
+  .doc-toc-item:last-child{border:none}
+  .doc-toc-num{color:var(--accent);font-weight:700;font-family:'Cinzel',serif;font-size:11px}
+
+  .doc-section{padding:24px 32px;border-bottom:1px solid var(--border)}
+  .doc-section:last-child{border-bottom:none}
+  .doc-section-header{
+    display:flex;align-items:center;gap:10px;margin-bottom:16px;
+    padding-bottom:10px;border-bottom:2px solid var(--border2);
+  }
+  .doc-section-icon{font-size:18px}
+  .doc-section-title{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--accent)}
+  .doc-section-count{font-size:10px;color:var(--text3);margin-left:auto;background:var(--bg3);padding:2px 8px;border-radius:20px}
+
+  .doc-entry{
+    background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;margin-bottom:10px;
+  }
+  .doc-entry:last-child{margin-bottom:0}
+  .doc-entry-name{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+  .doc-entry-type{font-size:10px;color:var(--purple2);background:rgba(124,106,238,.1);border:1px solid rgba(124,106,238,.2);border-radius:10px;padding:1px 8px;display:inline-block;margin-bottom:8px}
+  .doc-field{display:flex;gap:8px;margin-bottom:5px;font-size:12px}
+  .doc-field-label{color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:10px;flex-shrink:0;min-width:80px;padding-top:1px}
+  .doc-field-value{color:var(--text2);line-height:1.5;flex:1}
+
+  .doc-char-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .doc-char-initial{
+    width:40px;height:40px;border-radius:50%;background:var(--bg2);
+    border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;
+    font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0;font-family:'Cinzel',serif;
+  }
+
+  .doc-timeline-event{
+    display:flex;gap:12px;margin-bottom:10px;
+  }
+  .doc-timeline-year{
+    font-family:'Cinzel',serif;font-size:11px;font-weight:700;
+    color:var(--accent);flex-shrink:0;min-width:60px;padding-top:2px;
+  }
+  .doc-timeline-content{flex:1;border-left:2px solid var(--border2);padding-left:12px}
+  .doc-timeline-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+  .doc-timeline-desc{font-size:11px;color:var(--text2);line-height:1.5}
+
+  /* Buttons */
+  .btn{padding:8px 18px;border:none;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;transition:all .15s;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+  .btn-gold{background:var(--plus-gradient);color:#000}
+  .btn-gold:hover{opacity:.88}
+  .btn-purple{background:var(--purple-gradient);color:#fff}
+  .btn-purple:hover{opacity:.88}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-block{width:100%}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  /* Progress */
+  #progress-wrap{display:none;flex-direction:column;gap:6px}
+  #progress-bar-track{height:6px;background:var(--bg3);border-radius:20px;overflow:hidden;border:1px solid var(--border)}
+  #progress-bar-fill{height:100%;background:var(--plus-gradient);border-radius:20px;transition:width .3s ease;width:0%}
+  #progress-label{font-size:11px;color:var(--text3);text-align:center}
+
+  /* Empty */
+  .empty{text-align:center;padding:40px;color:var(--text3);font-size:13px}
+
+  /* Toast */
+  #toast-wrap{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+  .toast{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.7);animation:tIn .18s ease}
+  .toast.success{border-color:var(--accent)}.toast.error{border-color:var(--danger)}
+  @keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="root">
+
+  <div id="titlebar">
+    <div id="titlebar-left">
+      <div style="color:var(--accent);display:flex">
+        <img src="story-bible.svg" style="width:22px;height:22px;filter:brightness(0) saturate(100%) invert(82%) sepia(60%) saturate(400%) hue-rotate(5deg)" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="app-name">Story Bible Export</span>
+          <span class="plus-badge">PLUS</span>
+        </div>
+        <div class="subtitle">Export your universe as a formatted PDF or DOCX</div>
+      </div>
+    </div>
+    <div style="-webkit-app-region:no-drag">
+      <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="loadAll()">
+        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh Data
+      </button>
+    </div>
+  </div>
+
+  <div id="body">
+
+    <!-- Config panel -->
+    <div id="config-panel">
+      <div id="config-scroll">
+
+        <!-- Universe select -->
+        <div class="panel-section">
+          <div class="panel-section-title">Universe</div>
+          <div id="universe-list"><div class="empty" style="padding:16px">Loading…</div></div>
+        </div>
+
+        <!-- Sections to include -->
+        <div class="panel-section">
+          <div class="panel-section-title">Sections to Include</div>
+          <div id="section-toggles"></div>
+        </div>
+
+        <!-- Options -->
+        <div class="panel-section">
+          <div class="panel-section-title">Options</div>
+          <div class="option-row">
+            <span class="option-label">Document title</span>
+            <input type="text" id="opt-title" value="Story Bible" style="width:130px">
+          </div>
+          <div class="option-row">
+            <span class="option-label">Author name</span>
+            <input type="text" id="opt-author" placeholder="Your name…" style="width:130px">
+          </div>
+          <div class="option-row">
+            <span class="option-label">Include character images</span>
+            <input type="checkbox" id="opt-images" checked>
+          </div>
+          <div class="option-row">
+            <span class="option-label">Include empty fields</span>
+            <input type="checkbox" id="opt-empty">
+          </div>
+          <div class="option-row">
+            <span class="option-label">Table of contents</span>
+            <input type="checkbox" id="opt-toc" checked>
+          </div>
+          <div class="option-row">
+            <span class="option-label">Sort characters by</span>
+            <select id="opt-char-sort">
+              <option value="name">Name A–Z</option>
+              <option value="age">Age</option>
+              <option value="species">Species</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="config-footer">
+        <div id="progress-wrap">
+          <div id="progress-bar-track"><div id="progress-bar-fill"></div></div>
+          <div id="progress-label">Preparing export…</div>
+        </div>
+        <button class="btn btn-gold btn-block" id="export-pdf-btn" onclick="exportPDF()">
+          <i data-lucide="file-text" style="width:14px;height:14px"></i> Export as PDF
+        </button>
+        <button class="btn btn-purple btn-block" id="export-docx-btn" onclick="exportDOCX()">
+          <i data-lucide="file" style="width:14px;height:14px"></i> Export as DOC (Word/LibreOffice)
+        </button>
+        <button class="btn btn-ghost btn-block" onclick="refreshPreview()">
+          <i data-lucide="eye" style="width:13px;height:13px"></i> Refresh Preview
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview panel -->
+    <div id="preview-panel">
+      <div id="preview-header">
+        <span id="preview-label">Preview</span>
+        <span id="preview-stats" style="font-size:11px;color:var(--text3)"></span>
+      </div>
+      <div id="preview-scroll">
+        <div id="preview-doc">
+          <div class="empty" style="padding:60px">Select a universe to preview your Story Bible</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toast-wrap"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let characters  = [];
+let universes   = [];
+let wb_worlds   = [], wb_locs = [], wb_factions = [];
+let wb_species  = [], wb_magic = [], wb_timeline = [];
+let loreNotes   = [];
+let selectedUni = null;
+
+const SECTIONS = [
+  { id:'characters', label:'Characters',    icon:'👤', pdfIcon:'[CHARS]',    key:'characters'  },
+  { id:'worlds',     label:'Worlds',        icon:'🌍', pdfIcon:'[WORLDS]',   key:'wb_worlds'   },
+  { id:'locations',  label:'Locations',     icon:'📍', pdfIcon:'[LOCS]',     key:'wb_locs'     },
+  { id:'factions',   label:'Factions',      icon:'⚔',  pdfIcon:'[FACTIONS]', key:'wb_factions' },
+  { id:'species',    label:'Species',       icon:'🧬', pdfIcon:'[SPECIES]',  key:'wb_species'  },
+  { id:'magic',      label:'Magic Systems', icon:'✦',  pdfIcon:'[MAGIC]',    key:'wb_magic'    },
+  { id:'timeline',   label:'Timeline',      icon:'📅', pdfIcon:'[TIMELINE]', key:'wb_timeline' },
+  { id:'lore',       label:'Lore Notes',    icon:'📖', pdfIcon:'[LORE]',     key:'loreNotes'   },
+];
+
+let sectionOn = Object.fromEntries(SECTIONS.map(s => [s.id, true]));
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAll();
+  buildSectionToggles();
+  lucide.createIcons();
+});
+
+async function loadAll() {
+  const lf = async key => (await localforage.getItem(key).catch(() => null)) || [];
+
+  // Load everything except chars — those need special avatar merging
+  [universes, wb_worlds, wb_locs, wb_factions,
+   wb_species, wb_magic, wb_timeline, loreNotes] = await Promise.all([
+    lf('charactry_universes'),
+    lf('charactry_wb_worlds'),
+    lf('charactry_wb_locs'),
+    lf('charactry_wb_factions'),
+    lf('charactry_wb_species'),
+    lf('charactry_wb_magic'),
+    lf('charactry_wb_timeline'),
+    lf('charactry_lore'),
+  ]);
+
+  // Chars: merge disk data (fresher fields) with localforage (has avatars)
+  // readCharJSON strips avatar/banner from disk saves to keep file sizes small
+  const lfChars = await lf('charactry_chars');
+  try {
+    if (window.electronAPI?.listAllChars && window.electronAPI?.readCharJSON) {
+      const ids    = await window.electronAPI.listAllChars();
+      const loaded = await Promise.all(ids.map(id => window.electronAPI.readCharJSON(id).catch(() => null)));
+      const disk   = loaded.filter(Boolean);
+      characters   = disk.map(dc => {
+        const lfc = lfChars.find(x => x.id === dc.id);
+        return lfc ? { ...dc, avatar: lfc.avatar, banner: lfc.banner, images: lfc.images } : dc;
+      });
+      lfChars.forEach(lfc => { if (!characters.find(x => x.id === lfc.id)) characters.push(lfc); });
+    } else {
+      characters = lfChars;
+    }
+  } catch { characters = lfChars; }
+
+  renderUniverseList();
+  buildSectionToggles();
+  if (selectedUni) refreshPreview();
+  lucide.createIcons();
+  toast('Data loaded!', 'success');
+}
+
+/* ══════════════════════════════════════════════
+   UNIVERSE LIST
+══════════════════════════════════════════════ */
+function renderUniverseList() {
+  const list = document.getElementById('universe-list');
+
+  // "All" option
+  const allCount = characters.length;
+  const uniItems = [
+    { id: '__all__', name: 'All Characters', color: '#f0c040', count: allCount },
+    ...universes.map(u => ({
+      id: u.id, name: u.name, color: u.color || '#a78bfa',
+      count: characters.filter(c => c.universeId === u.id).length
+    }))
+  ];
+
+  if (!uniItems.length) {
+    list.innerHTML = '<div class="empty" style="padding:12px">No universes found.</div>';
+    return;
+  }
+
+  list.innerHTML = uniItems.map(u =>
+    `<div class="uni-option ${selectedUni === u.id ? 'selected' : ''}" onclick="selectUniverse('${escAttr(u.id)}')">
+      <div class="uni-dot" style="background:${escAttr(u.color)}"></div>
+      <span class="uni-name">${esc(u.name)}</span>
+      <span class="uni-count">${u.count} char${u.count !== 1 ? 's' : ''}</span>
+    </div>`
+  ).join('');
+}
+
+function selectUniverse(id) {
+  selectedUni = id;
+  renderUniverseList();
+  buildSectionToggles();
+  refreshPreview();
+}
+
+/* ══════════════════════════════════════════════
+   SECTION TOGGLES
+══════════════════════════════════════════════ */
+function getDataForSection(secId) {
+  const uniChars = selectedUni === '__all__'
+    ? characters
+    : characters.filter(c => c.universeId === selectedUni);
+
+  switch(secId) {
+    case 'characters': return uniChars;
+    case 'worlds':     return wb_worlds;
+    case 'locations':  return wb_locs;
+    case 'factions':   return wb_factions;
+    case 'species':    return wb_species;
+    case 'magic':      return wb_magic;
+    case 'timeline':   return wb_timeline;
+    case 'lore':       return loreNotes;
+    default:           return [];
+  }
+}
+
+function buildSectionToggles() {
+  const wrap = document.getElementById('section-toggles');
+  wrap.innerHTML = SECTIONS.map(s => {
+    const count = getDataForSection(s.id).length;
+    const on    = sectionOn[s.id];
+    return `<div class="section-toggle ${on ? 'on' : ''}" onclick="toggleSection('${s.id}')">
+      <div class="toggle-left">
+        <span class="icon">${s.icon}</span>
+        <span>${s.label}</span>
+        <span class="toggle-count">(${count})</span>
+      </div>
+      <div class="toggle-switch"><div class="toggle-knob"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSection(id) {
+  sectionOn[id] = !sectionOn[id];
+  buildSectionToggles();
+  refreshPreview();
+}
+
+/* ══════════════════════════════════════════════
+   PREVIEW
+══════════════════════════════════════════════ */
+function refreshPreview() {
+  if (!selectedUni) return;
+  const doc   = document.getElementById('preview-doc');
+  const title = document.getElementById('opt-title').value || 'Story Bible';
+  const author= document.getElementById('opt-author').value;
+  const showEmpty = document.getElementById('opt-empty').checked;
+  const showToc   = document.getElementById('opt-toc').checked;
+
+  const uni     = selectedUni === '__all__' ? null : universes.find(u => u.id === selectedUni);
+  const uniName = uni ? uni.name : 'All Universes';
+  const uniColor= uni ? uni.color : '#f0c040';
+
+  const uniChars = selectedUni === '__all__'
+    ? [...characters]
+    : characters.filter(c => c.universeId === selectedUni);
+
+  const sortBy = document.getElementById('opt-char-sort').value;
+  uniChars.sort((a,b) => {
+    if (sortBy === 'name')    return (a.name||'').localeCompare(b.name||'');
+    if (sortBy === 'age')     return parseInt(a.age||999) - parseInt(b.age||999);
+    if (sortBy === 'species') return (a.species||'').localeCompare(b.species||'');
+    return 0;
+  });
+
+  // Count enabled sections
+  const enabledSections = SECTIONS.filter(s => sectionOn[s.id] && getDataForSection(s.id).length > 0);
+  let totalEntries = enabledSections.reduce((a,s) => a + getDataForSection(s.id).length, 0);
+
+  document.getElementById('preview-stats').textContent =
+    `${enabledSections.length} sections · ${totalEntries} entries`;
+
+  let html = '';
+
+  // Cover
+  html += `<div class="doc-cover">
+    <div class="doc-cover-badge">Charactry PLUS · Story Bible</div>
+    <div class="doc-cover-title">${esc(title)}</div>
+    <div class="doc-cover-sub" style="color:${escAttr(uniColor)}">${esc(uniName)}</div>
+    ${author ? `<div class="doc-cover-meta">by ${esc(author)}</div>` : ''}
+    <div class="doc-cover-meta" style="margin-top:8px">${new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}</div>
+  </div>`;
+
+  // TOC
+  if (showToc && enabledSections.length) {
+    html += `<div class="doc-toc">
+      <div class="doc-toc-title">Contents</div>
+      ${enabledSections.map((s,i) => `
+        <div class="doc-toc-item">
+          <span>${s.icon} ${s.label} <span style="color:var(--text3)">(${getDataForSection(s.id).length})</span></span>
+          <span class="doc-toc-num">${String(i+1).padStart(2,'0')}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // Sections
+  enabledSections.forEach(s => {
+    const data = getDataForSection(s.id);
+    html += buildSectionHTML(s, data, uniChars, showEmpty);
+  });
+
+  doc.innerHTML = html || '<div class="empty" style="padding:40px">Nothing to preview. Enable some sections!</div>';
+}
+
+function buildSectionHTML(s, data, uniChars, showEmpty) {
+  let html = `<div class="doc-section">
+    <div class="doc-section-header">
+      <span class="doc-section-icon">${s.icon}</span>
+      <span class="doc-section-title">${s.label}</span>
+      <span class="doc-section-count">${data.length} entr${data.length !== 1 ? 'ies' : 'y'}</span>
+    </div>`;
+
+  switch(s.id) {
+    case 'characters':
+      html += uniChars.map(c => charEntryHTML(c, showEmpty)).join('');
+      break;
+    case 'timeline':
+      const sorted = [...data].sort((a,b) => {
+        const ay = parseInt(a.date||a.year||'9999');
+        const by = parseInt(b.date||b.year||'9999');
+        return ay - by;
+      });
+      html += sorted.map(e => `
+        <div class="doc-timeline-event">
+          <div class="doc-timeline-year">${esc(e.date||e.year||'?')}</div>
+          <div class="doc-timeline-content">
+            <div class="doc-timeline-name">${esc(e.name||e.title||'Untitled')}</div>
+            ${e.type ? `<div class="doc-entry-type">${esc(e.type)}</div>` : ''}
+            ${(e.description||e.content) ? `<div class="doc-timeline-desc">${esc(e.description||e.content)}</div>` : ''}
+            ${e.impact ? `<div class="doc-field"><span class="doc-field-label">Impact</span><span class="doc-field-value">${esc(e.impact)}</span></div>` : ''}
+          </div>
+        </div>`).join('');
+      break;
+    case 'lore':
+      html += data.map(n => `
+        <div class="doc-entry">
+          <div class="doc-entry-name">${esc(n.title||'Untitled')}</div>
+          ${n.category ? `<div class="doc-entry-type">${esc(n.category)}</div>` : ''}
+          ${n.content ? `<div class="doc-field-value" style="font-size:12px;line-height:1.6;color:var(--text2)">${esc(n.content)}</div>` : ''}
+        </div>`).join('');
+      break;
+    default:
+      html += data.map(e => wbEntryHTML(e, s.id, showEmpty)).join('');
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function charEntryHTML(c, showEmpty) {
+  const initial = (c.name||'?')[0].toUpperCase();
+  const fields = [
+    ['Pronouns', c.pronouns], ['Gender', c.gender], ['Age', c.age],
+    ['Species', c.species], ['Occupation', c.occupation], ['Alignment', c.alignment],
+    ['Height', c.height], ['Orientation', c.orientation],
+    ['Hair', c.hair], ['Eyes', c.eyes], ['Body Type', c.bodytype],
+    ['Complexion', c.skin], ['Outfit / Style', c.outfit],
+    ['Traits', c.traits], ['Likes', c.likes], ['Dislikes', c.dislikes],
+    ['Strengths', c.strengths], ['Weaknesses', c.weaknesses], ['Habits', c.habits],
+    ['Backstory', c.backstory], ['Abilities / Powers', c.abilities],
+    ['Trivia', c.trivia], ['Quotes', c.quotes],
+  ].filter(([,v]) => showEmpty || (v && String(v).trim()));
+
+  return `<div class="doc-entry">
+    <div class="doc-char-header">
+      <div class="doc-char-initial" style="${c.avatar ? 'padding:0;overflow:hidden;border:2px solid var(--accent)' : ''}">
+        ${c.avatar
+          ? `<img src="${escAttr(c.avatar)}" style="width:100%;height:100%;object-fit:cover;display:block">`
+          : esc(initial)}
+      </div>
+      <div>
+        <div class="doc-entry-name" style="margin-bottom:2px">${esc(c.name||'Unnamed')}</div>
+        <div style="font-size:11px;color:var(--text3)">${[c.species,c.pronouns].filter(Boolean).map(esc).join(' · ')||'No details'}</div>
+      </div>
+    </div>
+    ${fields.map(([l,v]) => `
+      <div class="doc-field">
+        <span class="doc-field-label">${l}</span>
+        <span class="doc-field-value">${esc(String(v))}</span>
+      </div>`).join('')}
+  </div>`;
+}
+
+function wbEntryHTML(e, secId, showEmpty) {
+  const fieldMap = {
+    worlds:    [['Type','type'],['Era','era'],['Climate','climate'],['Ruler','ruler'],['Description','description'],['Lore','lore']],
+    locations: [['Type','type'],['Climate / Feel','climate'],['Population','population'],['Description','description'],['Secrets','secrets']],
+    factions:  [['Type','type'],['Alignment','alignment'],['Goal','goal'],['Description','description'],['True Agenda','secrets']],
+    species:   [['Type','type'],['Lifespan','lifespan'],['Natural Traits','traits'],['Description','description'],['Lore','lore']],
+    magic:     [['Type','type'],['Power Source','source'],['Cost / Limits','cost'],['Who Can Use It','users'],['How It Works','description'],['Lore & Taboos','lore']],
+  };
+  const fields = (fieldMap[secId] || [])
+    .map(([l,k]) => [l, e[k]])
+    .filter(([,v]) => showEmpty || (v && String(v).trim()));
+
+  return `<div class="doc-entry">
+    <div class="doc-entry-name">${esc(e.name||'Unnamed')}</div>
+    ${e.type ? `<div class="doc-entry-type">${esc(e.type)}</div>` : ''}
+    ${fields.map(([l,v]) => `
+      <div class="doc-field">
+        <span class="doc-field-label">${l}</span>
+        <span class="doc-field-value">${esc(String(v))}</span>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   PDF EXPORT
+══════════════════════════════════════════════ */
+async function exportPDF() {
+  if (!selectedUni) { toast('Select a universe first!', 'error'); return; }
+  if (typeof window.jspdf === 'undefined') { toast('PDF library not loaded — check your internet connection!', 'error'); return; }
+
+  setExporting(true, 'Building PDF…');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const W = 210, H = 297, margin = 20;
+    const contentW = W - margin * 2;
+    let y = margin;
+    let pageNum = 1;
+
+    const title  = document.getElementById('opt-title').value || 'Story Bible';
+    const author = document.getElementById('opt-author').value;
+    const uni    = selectedUni === '__all__' ? null : universes.find(u => u.id === selectedUni);
+    const uniName = uni ? uni.name : 'All Universes';
+    const showEmpty = document.getElementById('opt-empty').checked;
+    const sortBy    = document.getElementById('opt-char-sort').value;
+    const showToc   = document.getElementById('opt-toc').checked;
+
+    const uniChars = (selectedUni === '__all__'
+      ? [...characters]
+      : characters.filter(c => c.universeId === selectedUni)
+    ).sort((a,b) => {
+      if (sortBy === 'name') return (a.name||'').localeCompare(b.name||'');
+      if (sortBy === 'age')  return parseInt(a.age||999) - parseInt(b.age||999);
+      return (a.species||'').localeCompare(b.species||'');
+    });
+
+    // ── Helpers ──
+    function checkPage(needed = 20) {
+      if (y + needed > H - margin) {
+        pdf.addPage();
+        pageNum++;
+        y = margin;
+        drawPageHeader();
+      }
+    }
+
+    function drawPageHeader() {
+      pdf.setFontSize(7); pdf.setTextColor(120, 110, 160);
+      pdf.text(title, margin, 10);
+      pdf.text(`Page ${pageNum}`, W - margin, 10, { align:'right' });
+      pdf.setDrawColor(42, 47, 90);
+      pdf.line(margin, 12, W - margin, 12);
+    }
+
+    function addText(text, size, color, bold=false, align='left') {
+      pdf.setFontSize(size);
+      pdf.setTextColor(...color);
+      pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+      const lines = pdf.splitTextToSize(String(text||''), contentW);
+      pdf.text(lines, margin, y, { align });
+      y += lines.length * (size * 0.4) + 2;
+    }
+
+    function addField(label, value) {
+      if (!value || !String(value).trim()) return;
+      checkPage(12);
+      pdf.setFontSize(8); pdf.setTextColor(74, 72, 112); pdf.setFont('helvetica','bold');
+      pdf.text(label.toUpperCase() + ':', margin, y);
+      const labelW = pdf.getTextWidth(label.toUpperCase() + ': ');
+      pdf.setFontSize(9); pdf.setTextColor(157, 155, 191); pdf.setFont('helvetica','normal');
+      const valLines = pdf.splitTextToSize(String(value), contentW - labelW - 2);
+      pdf.text(valLines, margin + labelW, y);
+      y += Math.max(valLines.length * 4, 5) + 1;
+    }
+
+    function sectionHeader(icon, label, count) {
+      checkPage(30);
+      pdf.setFillColor(13, 15, 28);
+      pdf.roundedRect(margin, y, contentW, 14, 3, 3, 'F');
+      pdf.setFontSize(11); pdf.setTextColor(240, 192, 64); pdf.setFont('helvetica','bold');
+      pdf.text(`${icon} ${label}`, margin + 4, y + 9);
+      pdf.setFontSize(8); pdf.setTextColor(74, 72, 112);
+      pdf.text(`${count} entr${count !== 1 ? 'ies' : 'y'}`, W - margin - 4, y + 9, { align:'right' });
+      y += 18;
+    }
+
+    function divider() {
+      pdf.setDrawColor(30, 34, 64); pdf.line(margin, y, W - margin, y); y += 4;
+    }
+
+    // ── Cover page ──
+    progress(10, 'Building cover…');
+    pdf.setFillColor(7, 8, 15); pdf.rect(0, 0, W, H, 'F');
+    pdf.setFillColor(13, 15, 28); pdf.rect(0, H/2 - 50, W, 100, 'F');
+    pdf.setFontSize(28); pdf.setTextColor(240, 192, 64); pdf.setFont('helvetica','bold');
+    pdf.text(title, W/2, H/2 - 20, { align:'center' });
+    pdf.setFontSize(14); pdf.setTextColor(124, 106, 238);
+    pdf.text(uniName, W/2, H/2, { align:'center' });
+    if (author) { pdf.setFontSize(10); pdf.setTextColor(157,155,191); pdf.text(`by ${author}`, W/2, H/2+14, { align:'center' }); }
+    pdf.setFontSize(8); pdf.setTextColor(74,72,112);
+    pdf.text(new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'}), W/2, H/2+28, { align:'center' });
+    pdf.text('Generated with Charactry PLUS', W/2, H - 20, { align:'center' });
+
+    // ── TOC page ──
+    if (showToc) {
+      progress(20, 'Building table of contents…');
+      pdf.addPage(); pageNum++; y = margin;
+      pdf.setFontSize(16); pdf.setTextColor(240,192,64); pdf.setFont('helvetica','bold');
+      pdf.text('Contents', margin, y); y += 12;
+      const enabledSections = SECTIONS.filter(s => sectionOn[s.id] && getDataForSection(s.id).length > 0);
+      enabledSections.forEach((s,i) => {
+        pdf.setFontSize(10); pdf.setTextColor(157,155,191); pdf.setFont('helvetica','normal');
+        pdf.text(`${s.pdfIcon} ${s.label}`, margin, y);
+        pdf.setTextColor(74,72,112);
+        pdf.text(`${getDataForSection(s.id).length} entries`, W - margin, y, { align:'right' });
+        y += 8;
+        pdf.setDrawColor(30,34,64); pdf.setLineDashPattern([1,2]); pdf.line(margin, y-2, W-margin, y-2);
+        pdf.setLineDashPattern([]);
+      });
+    }
+
+    // ── Data sections ──
+    const enabledSections = SECTIONS.filter(s => sectionOn[s.id] && getDataForSection(s.id).length > 0);
+    const step = 60 / Math.max(enabledSections.length, 1);
+    let pct = 30;
+
+    for (const s of enabledSections) {
+      progress(pct, `Exporting ${s.label}…`);
+      pct += step;
+
+      pdf.addPage(); pageNum++; y = margin;
+      drawPageHeader();
+      y = margin + 6;
+      sectionHeader(s.pdfIcon, s.label, getDataForSection(s.id).length);
+
+      const data = s.id === 'characters' ? uniChars : getDataForSection(s.id);
+
+      for (const entry of data) {
+        checkPage(25);
+        const name = entry.name || entry.title || 'Unnamed';
+
+        // Entry title bar
+        pdf.setFillColor(19, 22, 41);
+        pdf.roundedRect(margin, y, contentW, 10, 2, 2, 'F');
+        pdf.setFontSize(11); pdf.setTextColor(240, 220, 255); pdf.setFont('helvetica','bold');
+        pdf.text(name, margin + 4, y + 7);
+        y += 14;
+
+        if (s.id === 'characters') {
+          // Embed avatar if available and opt-images is checked
+          if (document.getElementById('opt-images').checked && entry.avatar && entry.avatar.startsWith('data:image')) {
+            try {
+              const imgSize = 22;
+              checkPage(imgSize + 6);
+              const fmt = entry.avatar.includes('image/png') ? 'PNG' : 'JPEG';
+              pdf.addImage(entry.avatar, fmt, margin, y, imgSize, imgSize);
+              // Name + meta beside avatar
+              pdf.setFontSize(10); pdf.setTextColor(240,220,255); pdf.setFont('helvetica','bold');
+              pdf.text(name, margin + imgSize + 4, y + 6);
+              const meta = [entry.species, entry.pronouns].filter(Boolean).join(' · ');
+              if (meta) { pdf.setFontSize(8); pdf.setTextColor(157,155,191); pdf.setFont('helvetica','normal'); pdf.text(meta, margin + imgSize + 4, y + 12); }
+              y += imgSize + 4;
+            } catch(imgErr) {
+              // Image embed failed — skip silently
+            }
+          }
+          const fields = [
+            ['Pronouns',c=>c.pronouns],['Age',c=>c.age],['Species',c=>c.species],
+            ['Occupation',c=>c.occupation],['Alignment',c=>c.alignment],
+            ['Traits',c=>c.traits],['Backstory',c=>c.backstory],
+            ['Abilities',c=>c.abilities],['Likes',c=>c.likes],['Dislikes',c=>c.dislikes],
+            ['Strengths',c=>c.strengths],['Weaknesses',c=>c.weaknesses],
+            ['Habits',c=>c.habits],['Trivia',c=>c.trivia],['Quotes',c=>c.quotes],
+          ];
+          for (const [l, fn] of fields) { const v = fn(entry); if (v || showEmpty) addField(l, v); }
+        } else if (s.id === 'timeline') {
+          addField('Date / Era', entry.date || entry.year);
+          addField('Type', entry.type);
+          addField('What Happened', entry.description || entry.content);
+          addField('Lasting Impact', entry.impact);
+        } else if (s.id === 'lore') {
+          addField('Category', entry.category);
+          if (entry.content) {
+            pdf.setFontSize(9); pdf.setTextColor(157,155,191); pdf.setFont('helvetica','normal');
+            const lines = pdf.splitTextToSize(entry.content, contentW);
+            checkPage(lines.length * 4 + 4);
+            pdf.text(lines, margin, y); y += lines.length * 4 + 4;
+          }
+        } else {
+          for (const [l,k] of [['Type','type'],['Description','description'],['Lore','lore'],['Secrets','secrets'],['Goal','goal'],['Source','source'],['Cost','cost'],['Impact','impact']]) {
+            if (entry[k] || showEmpty) addField(l, entry[k]);
+          }
+        }
+
+        divider();
+        checkPage(5);
+      }
+    }
+
+    progress(95, 'Saving PDF…');
+    const filename = `${(title||'story-bible').replace(/[^a-zA-Z0-9]/g,'_')}.pdf`;
+    pdf.save(filename);
+    progress(100, 'Done!');
+    toast('PDF exported! ✦', 'success');
+
+  } catch(e) {
+    console.error(e);
+    toast('Export failed: ' + e.message, 'error');
+  } finally {
+    setTimeout(() => setExporting(false), 1500);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   DOCX EXPORT
+══════════════════════════════════════════════ */
+async function exportDOCX() {
+  if (!selectedUni) { toast('Select a universe first!', 'error'); return; }
+
+  setExporting(true, 'Building DOCX...');
+
+  try {
+    const title     = document.getElementById('opt-title').value || 'Story Bible';
+    const author    = document.getElementById('opt-author').value;
+    const uni       = selectedUni === '__all__' ? null : universes.find(u => u.id === selectedUni);
+    const uniName   = uni ? uni.name : 'All Universes';
+    const showEmpty = document.getElementById('opt-empty').checked;
+    const showToc   = document.getElementById('opt-toc').checked;
+    const sortBy    = document.getElementById('opt-char-sort').value;
+
+    const uniChars = (selectedUni === '__all__'
+      ? [...characters]
+      : characters.filter(c => c.universeId === selectedUni)
+    ).sort((a,b) => {
+      if (sortBy === 'name') return (a.name||'').localeCompare(b.name||'');
+      if (sortBy === 'age')  return parseInt(a.age||999) - parseInt(b.age||999);
+      return (a.species||'').localeCompare(b.species||'');
+    });
+
+    const enabledSections = SECTIONS.filter(s => sectionOn[s.id] && getDataForSection(s.id).length > 0);
+
+    // Word-compatible HTML — .doc files are just HTML with Word namespace headers.
+    // Opens natively in Word, LibreOffice, Google Docs. No CDN library needed.
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<title>${escHtml(title)}</title>
+<style>
+  body { font-family: Cambria, Georgia, serif; font-size: 11pt; color: #1a1a2e; margin: 2cm; }
+  h1 { font-family: Cambria, serif; font-size: 20pt; color: #7c3aed; border-bottom: 2px solid #7c3aed; padding-bottom: 6pt; margin-top: 24pt; page-break-before: always; }
+  h1.cover-title { font-size: 32pt; color: #d4960a; border: none; text-align: center; page-break-before: avoid; margin-top: 100pt; }
+  h2 { font-family: Cambria, serif; font-size: 14pt; color: #1a1a2e; border-bottom: 1px solid #ccc; padding-bottom: 3pt; margin-top: 16pt; }
+  p.cover-sub  { font-size: 16pt; color: #7c3aed; text-align: center; margin-top: 10pt; }
+  p.cover-meta { font-size: 11pt; color: #888; text-align: center; margin-top: 6pt; }
+  p.cover-badge { font-size: 9pt; color: #d4960a; text-align: center; margin-top: 6pt; letter-spacing: 2pt; text-transform: uppercase; }
+  table.toc { width: 100%; border-collapse: collapse; margin-top: 12pt; }
+  table.toc td { padding: 5pt 4pt; border-bottom: 1px dotted #ccc; font-size: 11pt; }
+  table.toc td.num { color: #d4960a; font-weight: bold; width: 30pt; }
+  .entry { border: 1px solid #ddd; padding: 10pt 14pt; margin-bottom: 10pt; background: #fafafe; }
+  .entry-name { font-family: Cambria, serif; font-size: 13pt; font-weight: bold; color: #1a1a2e; margin-bottom: 6pt; }
+  .entry-type { font-size: 9pt; color: #7c3aed; padding: 1pt 6pt; display: inline-block; margin-bottom: 6pt; }
+  table.fields { width: 100%; border-collapse: collapse; font-size: 10pt; }
+  table.fields td.label { color: #888; font-weight: bold; text-transform: uppercase; font-size: 8pt; width: 90pt; vertical-align: top; padding: 3pt 6pt 3pt 0; }
+  table.fields td.value { color: #333; vertical-align: top; padding: 3pt 0; line-height: 1.5; }
+  .timeline-date { color: #d4960a; font-weight: bold; }
+  .section-badge { font-size: 9pt; color: #888; font-style: italic; }
+  @page { margin: 2cm; }
+</style></head><body>`;
+
+    progress(10, 'Building cover...');
+    html += `<h1 class="cover-title">${escHtml(title)}</h1>
+<p class="cover-sub">${escHtml(uniName)}</p>
+${author ? `<p class="cover-meta">by ${escHtml(author)}</p>` : ''}
+<p class="cover-meta">${new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})}</p>
+<p class="cover-badge">Charactry PLUS &mdash; Story Bible</p>`;
+
+    if (showToc && enabledSections.length) {
+      progress(18, 'Building table of contents...');
+      html += `<h1 style="page-break-before:always">Contents</h1><table class="toc">`;
+      enabledSections.forEach((s,i) => {
+        const cnt = getDataForSection(s.id).length;
+        html += `<tr><td class="num">${String(i+1).padStart(2,'0')}</td>
+          <td>${escHtml(s.label)} <span class="section-badge">(${cnt} entr${cnt!==1?'ies':'y'})</span></td></tr>`;
+      });
+      html += '</table>';
+    }
+
+    const step = 65 / Math.max(enabledSections.length, 1);
+    let pct = 25;
+
+    for (const s of enabledSections) {
+      progress(pct, `Exporting ${s.label}...`);
+      pct += step;
+      const data = s.id === 'characters' ? uniChars : getDataForSection(s.id);
+      html += `<h1>${escHtml(s.pdfIcon)} ${escHtml(s.label)} <span class="section-badge">(${data.length})</span></h1>`;
+
+      for (const entry of data) {
+        const name = entry.name || entry.title || 'Unnamed';
+        html += `<div class="entry"><div class="entry-name">${escHtml(name)}</div>`;
+        if (entry.type) html += `<div class="entry-type">${escHtml(entry.type)}</div>`;
+        html += `<table class="fields">`;
+
+        const addDocField = (label, value) => {
+          if ((!value || !String(value).trim()) && !showEmpty) return;
+          html += `<tr><td class="label">${escHtml(label)}</td>
+            <td class="value">${escHtml(String(value||'---')).replace(/\n/g,'<br>')}</td></tr>`;
+        };
+
+        if (s.id === 'characters') {
+          if (document.getElementById('opt-images').checked && entry.avatar && entry.avatar.startsWith('data:image')) {
+            html += `<tr><td colspan="2" style="padding-bottom:8pt">
+              <img src="${entry.avatar}" style="width:60pt;height:60pt;object-fit:cover;border:1pt solid #ddd">
+            </td></tr>`;
+          }
+          [['Pronouns',entry.pronouns],['Age',entry.age],['Gender',entry.gender],
+           ['Species',entry.species],['Occupation',entry.occupation],['Alignment',entry.alignment],
+           ['Height',entry.height],['Orientation',entry.orientation],
+           ['Hair',entry.hair],['Eyes',entry.eyes],['Body Type',entry.bodytype],
+           ['Complexion',entry.skin],['Outfit / Style',entry.outfit],
+           ['Traits',entry.traits],['Likes',entry.likes],['Dislikes',entry.dislikes],
+           ['Strengths',entry.strengths],['Weaknesses',entry.weaknesses],
+           ['Habits',entry.habits],['Backstory',entry.backstory],
+           ['Abilities / Powers',entry.abilities],['Trivia',entry.trivia],['Quotes',entry.quotes],
+          ].forEach(([l,v]) => addDocField(l,v));
+        } else if (s.id === 'timeline') {
+          html += `<tr><td class="label">Date / Era</td>
+            <td class="value"><span class="timeline-date">${escHtml(entry.date||entry.year||'?')}</span></td></tr>`;
+          addDocField('What Happened', entry.description || entry.content);
+          addDocField('Lasting Impact', entry.impact);
+        } else if (s.id === 'lore') {
+          addDocField('Category', entry.category);
+          if (entry.content) html += `<tr><td colspan="2" class="value">${escHtml(entry.content).replace(/\n/g,'<br>')}</td></tr>`;
+        } else {
+          [['Description','description'],['Lore','lore'],['Secrets','secrets'],
+           ['Goal','goal'],['Source','source'],['Cost / Limits','cost'],
+           ['Who Can Use It','users'],['Population','population'],
+           ['Climate','climate'],['Alignment','alignment'],['Lasting Impact','impact'],
+          ].forEach(([l,k]) => addDocField(l, entry[k]));
+        }
+
+        html += `</table></div>`;
+      }
+    }
+
+    html += '</body></html>';
+
+    progress(95, 'Saving...');
+    const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
+    const filename = `${(title||'story-bible').replace(/[^a-zA-Z0-9]/g,'_')}.doc`;
+
+    if (typeof saveAs !== 'undefined') {
+      saveAs(blob, filename);
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    progress(100, 'Done!');
+    toast('Exported! Opens in Word, LibreOffice, or Google Docs. ✦', 'success');
+
+  } catch(e) {
+    console.error('[DOCX Export]', e);
+    toast('Export failed: ' + e.message, 'error');
+  } finally {
+    setTimeout(() => setExporting(false), 1500);
+  }
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+/* ══════════════════════════════════════════════
+   PROGRESS / STATE
+══════════════════════════════════════════════ */
+function setExporting(on, label = '') {
+  const btns = ['export-pdf-btn','export-docx-btn'];
+  btns.forEach(id => document.getElementById(id).disabled = on);
+  const wrap = document.getElementById('progress-wrap');
+  wrap.style.display = on ? 'flex' : 'none';
+  if (label) document.getElementById('progress-label').textContent = label;
+  if (!on) progress(0, '');
+}
+
+function progress(pct, label) {
+  document.getElementById('progress-bar-fill').style.width = pct + '%';
+  if (label) document.getElementById('progress-label').textContent = label;
+}
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function esc(s)     { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { if(!s)return''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg, type='success') {
+  const c=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// Debounce preview refresh on input changes
+document.querySelectorAll('#opt-title,#opt-author,#opt-char-sort').forEach(el => {
+  el.addEventListener('input', () => { if (selectedUni) refreshPreview(); });
+});
+document.querySelectorAll('#opt-images,#opt-empty,#opt-toc').forEach(el => {
+  el.addEventListener('change', () => { if (selectedUni) refreshPreview(); });
+});
+</script>
+</body>
+</html>
