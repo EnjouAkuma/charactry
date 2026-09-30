@@ -52,7 +52,7 @@
     let lang = "en";
     try { lang = (typeof settings !== "undefined" && settings.language) || "en"; } catch {}
     let s = (I18N[lang] && I18N[lang][key]) || (I18N.en && I18N.en[key]) || key;
-    if (vars) s = s.replace(/{(w+)}/g, (m, n) => (vars[n] != null ? vars[n] : m));
+    if (vars) s = s.replace(/\{(\w+)\}/g, (m, n) => (vars[n] != null ? vars[n] : m));
     return s;
   };
   const T = WEB.T;

@@ -185,7 +185,7 @@
       await WEB.ai.set({ model: id });
       settings.ollamaModel = id;                       // keeps the app's own labels in sync
       localforage.setItem('charactry_settings', settings);
-      $('#web-model-now').textContent = id;
+      const now = $('#web-model-now'); if (now) now.textContent = id;
       const lbl = $('#ai-active-model-label'); if (lbl) lbl.textContent = id;
       document.querySelectorAll('#web-model-list .ai-model-chip').forEach(b => b.classList.toggle('selected', b.dataset.id === id));
       say(T('toastModelSet', { model: id }));
@@ -282,13 +282,56 @@
     document.head.appendChild(s);
   }));
 
+  /* .rar (v4 and v5) is read by libarchive.js — WebAssembly served from
+     web/vendor/libarchive/, so extraction happens in the browser. */
+  let rarLib = null;
+  async function loadRarLib() {
+    if (rarLib) return rarLib;
+    try {
+      const base = WEB.ROOT + 'web/vendor/libarchive/';
+      const mod = await import(base + 'libarchive.js');
+      mod.Archive.init({ workerUrl: base + 'worker-bundle.js' });
+      rarLib = mod.Archive;
+    } catch (e) { console.warn('[web] rar library', e); throw new Error(T('zipLibFail')); }
+    return rarLib;
+  }
+  const bytesToB64 = async (blob) => {
+    const u8 = new Uint8Array(await blob.arrayBuffer()); let bin = '';
+    for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    return btoa(bin);
+  };
+  /* Format is detected from the first bytes, not the file name.
+     → [{ name, string(), base64() }] for every file in the archive */
+  async function openArchive(file) {
+    const h = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+    if (h[0] === 0x50 && h[1] === 0x4b) {                                   // "PK"   → zip
+      const zip = await (await loadJSZip()).loadAsync(file);
+      return Object.values(zip.files).filter(f => !f.dir).map(f => ({ name: f.name, string: () => f.async('string'), base64: () => f.async('base64') }));
+    }
+    if (h[0] === 0x52 && h[1] === 0x61 && h[2] === 0x72 && h[3] === 0x21) { // "Rar!" → rar 4 / 5
+      const Archive = await loadRarLib();
+      const ar = await Archive.open(file);
+      let encrypted = false;
+      try { encrypted = await ar.hasEncryptedData(); } catch {}
+      if (encrypted) throw new Error(T('errEncrypted'));
+      const cache = new Map();
+      const get = (cf) => { if (!cache.has(cf)) cache.set(cf, cf.extract()); return cache.get(cf); };
+      return (await ar.getFilesArray()).map(({ file: cf, path }) => ({
+        name: String(path || '').replace(/\\/g, '/') + cf.name,
+        string: async () => (await get(cf)).text(),
+        base64: async () => bytesToB64(await get(cf)),
+      }));
+    }
+    throw new Error(T('errArchiveType'));
+  }
+
   const TEXT_EXT = /\.(html?|css|js|json|svg|md|txt)$/i;
   const BIN_EXT  = /\.(png|jpe?g|gif|webp|ico|woff2?|ttf|otf)$/i;
   const LIMITS = { files: 300, total: 30 * 1024 * 1024 };
 
   WEB.pickPluginZip = function () {
     const inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = '.zip,application/zip';
+    inp.type = 'file'; inp.accept = '.zip,.rar,application/zip,application/vnd.rar,application/x-rar-compressed';
     inp.onchange = () => { if (inp.files[0]) WebPlugins.install(inp.files[0]); };
     inp.click();
   };
@@ -296,15 +339,13 @@
   window.WebPlugins = {
     async install(file) {
       try {
-        const JSZip = await loadJSZip();
-        const zip = await JSZip.loadAsync(file);
-        const entries = Object.values(zip.files).filter(f => !f.dir && !/(^|\/)(__MACOSX|\.DS_Store|Thumbs\.db)/.test(f.name));
+        const entries = (await openArchive(file)).filter(f => !/(^|\/)(__MACOSX|\.DS_Store|Thumbs\.db)/.test(f.name));
         // Locate manifest.json at the shallowest depth → that folder is the plugin root
         const mf = entries.filter(f => /(^|\/)manifest\.json$/.test(f.name)).sort((a, b) => a.name.split('/').length - b.name.split('/').length)[0];
         if (!mf) throw new Error(T('errNoManifest'));
         const root = mf.name.slice(0, mf.name.length - 'manifest.json'.length);
         let manifest;
-        try { manifest = JSON.parse(await mf.async('string')); } catch { throw new Error(T('errBadJson')); }
+        try { manifest = JSON.parse(await mf.string()); } catch { throw new Error(T('errBadJson')); }
         if (!manifest.name) throw new Error(T('errNeedName'));
 
         let id = String(manifest.id || root.replace(/\/$/, '').split('/').pop() || manifest.name)
@@ -319,8 +360,8 @@
         for (const f of inRoot) {
           const rel = f.name.slice(root.length);
           if (!rel || rel.includes('..') || rel.startsWith('/')) { skipped++; continue; }
-          if (TEXT_EXT.test(rel)) { const v = await f.async('string'); total += v.length; files[rel] = { t: 'text', v }; }
-          else if (BIN_EXT.test(rel)) { const v = await f.async('base64'); total += v.length; files[rel] = { t: 'b64', v }; }
+          if (TEXT_EXT.test(rel)) { const v = await f.string(); total += v.length; files[rel] = { t: 'text', v }; }
+          else if (BIN_EXT.test(rel)) { const v = await f.base64(); total += v.length; files[rel] = { t: 'b64', v }; }
           else { skipped++; continue; }
           if (total > LIMITS.total) throw new Error(T('errTooBig'));
         }
