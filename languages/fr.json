@@ -14,7 +14,8 @@
     "builtWith": "Construit avec ♡ pour les créateurs du monde entier.",
     "donate": "☕ Don",
     "footer": "© 2026 Yuuma Akira. Tous droits réservés.",
-    "taglineShort": "Archive personnelle d'OC"
+    "taglineShort": "Archive personnelle d'OC",
+    "author": "Yuuma Akira (明優真)"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -477,16 +478,23 @@
     "aiStudio": "Studio IA"
   },
   "languageOptions": {
-    "en": "🇺🇸 Anglais (EN)",
-    "ja": "🇯🇵 Japonais (JA)",
-    "es": "🇪🇸 Espagnol (ES)",
+    "en": "🇺🇸 English (EN)",
+    "ja": "🇯🇵 日本語 (JA)",
+    "es-es": "🇪🇸 Español – España (ES-ES)",
+    "es-mx": "🇲🇽 Español – México (ES-MX)",
     "fr": "🇫🇷 Français (FR)",
-    "pt-br": "🇧🇷 Portugais BR (PT-BR)",
-    "de": "🇩🇪 Allemand (DE)",
-    "ko": "🇰🇷 Coréen (KO)",
-    "zh": "🇨🇳 Chinois (ZH)",
-    "ru": "🇷🇺 Russe (RU)",
-    "yue": "🇭🇰 粵語 (YUE)"
+    "pt-br": "🇧🇷 Português BR (PT-BR)",
+    "pt": "🇵🇹 Português – Portugal (PT)",
+    "de": "🇩🇪 Deutsch (DE)",
+    "it": "🇮🇹 Italiano (IT)",
+    "ko": "🇰🇷 한국어 (KO)",
+    "zh": "🇨🇳 中文简体 (ZH)",
+    "zh-tw": "🇹🇼 中文繁體 (ZH-TW)",
+    "yue": "🇭🇰 粵語 (YUE)",
+    "ru": "🇷🇺 Русский (RU)",
+    "tl": "🇵🇭 Filipino (TL)",
+    "vi": "🇻🇳 Tiếng Việt (VI)",
+    "es": "🇪🇸 Español (ES)"
   },
   "gallery": {
     "avatars": "Avatars",

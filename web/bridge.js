@@ -51,11 +51,15 @@
   WEB.T = function (key, vars) {
     let lang = "en";
     try { lang = (typeof settings !== "undefined" && settings.language) || "en"; } catch {}
+    if (lang === "es") lang = "es-es";
     let s = (I18N[lang] && I18N[lang][key]) || (I18N.en && I18N.en[key]) || key;
     if (vars) s = s.replace(/\{(\w+)\}/g, (m, n) => (vars[n] != null ? vars[n] : m));
     return s;
   };
   const T = WEB.T;
+  /* App version, written by tools/sync-from-desktop.js from the desktop package.json */
+  WEB.version = '';
+  WEB.versionReady = fetch(ROOT + 'web/version.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { WEB.version = j.version || ''; }).catch(() => {});
 
   /* ═══════════════════════════════════════════════════════════════
      AI PROVIDER CONFIG
@@ -616,6 +620,7 @@
     },
     readPresetsFile: async (f) => /^[a-zA-Z0-9_\-]+\.json$/i.test(f) ? fetchText(ROOT + 'presets/' + f) : null,
     readLangFile: async (code) => {
+      if (code === "es") code = "es-es";
       if (!SAFE_ID.test(code)) return null;
       await WEB.i18nReady;
       const txt = await fetchText(ROOT + "languages/" + code + ".json");

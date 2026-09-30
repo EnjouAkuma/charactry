@@ -8,9 +8,9 @@
 
 [**Web 版を開く**](https://enjouakuma.github.io/charactry/) · [**Charactry PLUS を入手**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Discord に参加](https://discord.gg/geCKXeYpsY) · [Ko-fi で応援](https://ko-fi.com/enjouakuma)
 
-`v3.2.0` · Windows アプリ + Web 版（どのデバイスでも）· 10 言語対応
+`v3.2.0` · Windows アプリ + Web 版（どのデバイスでも）· 16 言語対応
 
-🌐 [English](../README.md) · [粵語](README.yue.md) · [中文](README.zh.md) · **日本語** · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Português (BR)](README.pt-br.md) · [Русский](README.ru.md) · [Deutsch](README.de.md)
+🌐 [English](../README.md) · **日本語** · [Español (España)](README.es-es.md) · [Español (México)](README.es-mx.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Italiano](README.it.md) · [한국어](README.ko.md) · [Português (BR)](README.pt-br.md) · [Português (PT)](README.pt.md) · [Русский](README.ru.md) · [中文（简体）](README.zh.md) · [中文（繁體）](README.zh-tw.md) · [粵語](README.yue.md) · [Filipino](README.tl.md) · [Tiếng Việt](README.vi.md)
 
 </div>
 
@@ -67,7 +67,7 @@ Charactry は、オリジナルキャラクター（OC）を作る人のため�
 
 ### 自分好みに
 - 複数のベーステーマ、カスタムアクセントカラーとグラデーション、細かな UI カラーの上書き。
-- **10 言語対応**：English、日本語、한국어、中文、粵語、Español、Français、Português (BR)、Русский、Deutsch。
+- **16 言語対応**：English、日本語、Español (España)、Español (México)、Français、Deutsch、Italiano、한국어、Português (BR)、Português (PT)、Русский、中文（简体）、中文（繁體）、粵語、Filipino、Tiếng Việt。
 
 ### 無料プラグイン（同梱）
 | プラグイン | できること |
@@ -147,7 +147,7 @@ HTML と JavaScript が書ければ、Charactry のサイドバーに組み込�
 
 ## クレジット
 
-制作：**EnjouAkuma / Yuuma Akira（明優真）**。開発パートナーとして Claude（Anthropic）と協力しています。
+制作：**炎上悪魔 (EnjouAkuma) / 明優真 (Yuuma Akira)**。開発パートナーとして Claude（Anthropic）と協力しています。
 このプログラムの一部、そして大部分は Claude と一緒に開発しました。AI が関わったコードを避けたい方のために、あらかじめお知らせしています。それでもここまで来るのには何か月もかかりました。ぜひ試してみてください。
 
 新しい言語や機能のご要望は [Discord](https://discord.gg/geCKXeYpsY) までどうぞ。
@@ -156,4 +156,4 @@ HTML と JavaScript が書ければ、Charactry のサイドバーに組み込�
 
 Charactry は**オープンソースではありません**。無料で使えますが、すべての権利は留保されています。アプリや改変版の再配布、再パッケージ、ミラーリング、販売、ライセンスなしでの PLUS 機能の解放はご遠慮ください。詳細は利用規約（[日本語訳](LICENSE.ja.txt)、[英語原文](../LICENSE.txt)が優先）をご覧ください。また、再ホストせず、公式の配布元へのリンクをご利用ください。
 
-© 2026–2027 EnjouAkuma / Yuuma Akira. All rights reserved. Charactry は独立したプロジェクトであり、他のいかなるサービスとも提携していません。
+© 2026–2027 炎上悪魔 (EnjouAkuma) / 明優真 (Yuuma Akira). All rights reserved. Charactry は独立したプロジェクトであり、他のいかなるサービスとも提携していません。

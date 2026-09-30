@@ -8,9 +8,9 @@
 
 [**打开网页版**](https://enjouakuma.github.io/charactry/) · [**获取 Charactry PLUS**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [加入 Discord](https://discord.gg/geCKXeYpsY) · [在 Ko-fi 上支持](https://ko-fi.com/enjouakuma)
 
-`v3.2.0` · Windows 应用 + 网页版（任何设备）· 10 种语言
+`v3.2.0` · Windows 应用 + 网页版（任何设备）· 16 种语言
 
-🌐 [English](../README.md) · [粵語](README.yue.md) · **中文** · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Português (BR)](README.pt-br.md) · [Русский](README.ru.md) · [Deutsch](README.de.md)
+🌐 [English](../README.md) · [日本語](README.ja.md) · [Español (España)](README.es-es.md) · [Español (México)](README.es-mx.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Italiano](README.it.md) · [한국어](README.ko.md) · [Português (BR)](README.pt-br.md) · [Português (PT)](README.pt.md) · [Русский](README.ru.md) · **中文（简体）** · [中文（繁體）](README.zh-tw.md) · [粵語](README.yue.md) · [Filipino](README.tl.md) · [Tiếng Việt](README.vi.md)
 
 </div>
 
@@ -67,7 +67,7 @@ Charactry 是专为原创角色（OC）创作者打造的空间。无需再把�
 
 ### 由你定制
 - 多种基础主题、自定义强调色和渐变，以及精细的界面颜色覆盖。
-- **10 种语言**：English、日本語、한국어、中文、粵語、Español、Français、Português (BR)、Русский、Deutsch。
+- **16 种语言**：English、日本語、Español (España)、Español (México)、Français、Deutsch、Italiano、한국어、Português (BR)、Português (PT)、Русский、中文（简体）、中文（繁體）、粵語、Filipino、Tiếng Việt。
 
 ### 免费插件（已包含）
 | 插件 | 功能 |
@@ -147,7 +147,7 @@ PLUS 是**一次性购买**，没有订阅，没有持续收费。它为认真�
 
 ## 致谢
 
-由 **EnjouAkuma / Yuuma Akira（明優真）** 制作，并以 Claude（Anthropic）作为开发协作伙伴。
+由 **炎上恶魔 (EnjouAkuma) / 明優真 (Yuuma Akira)** 制作，并以 Claude（Anthropic）作为开发协作伙伴。
 本程序的部分及大量内容是与 Claude 共同开发的。特此提前说明，方便希望避开 AI 辅助代码的朋友。尽管如此，这依然耗费了数月的时间，希望你能试一试。
 
 想要新语言或新功能？欢迎到 [Discord](https://discord.gg/geCKXeYpsY) 联系我。
@@ -156,4 +156,4 @@ PLUS 是**一次性购买**，没有订阅，没有持续收费。它为认真�
 
 Charactry **不是开源软件**。它可以免费使用，但保留所有权利：请勿转发、重新打包、镜像或出售本应用及其修改版本，也请勿在没有许可证的情况下解锁 PLUS 功能。详情请参阅服务条款——[中文翻译版](LICENSE.zh.txt)（以[英文原版](../LICENSE.txt)为准），并请链接到官方来源，而不是自行重新托管。
 
-© 2026–2027 EnjouAkuma / Yuuma Akira. 保留所有权利。Charactry 是一个独立项目，与任何其他服务无关。
+© 2026–2027 炎上恶魔 (EnjouAkuma) / 明優真 (Yuuma Akira). 保留所有权利。Charactry 是一个独立项目，与任何其他服务无关。

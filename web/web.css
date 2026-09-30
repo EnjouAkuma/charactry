@@ -76,3 +76,8 @@ body.web-plugin-open{overflow:hidden}
   .uni-card-acts{opacity:1!important}
   .uni-tl-del{opacity:.7!important}
 }
+
+/* Version badge (top bar) */
+#web-version{font-size:10.5px;font-weight:700;letter-spacing:.4px;color:var(--text3);border:1px solid var(--border);
+  border-radius:20px;padding:3px 9px;white-space:nowrap;user-select:none;-webkit-app-region:no-drag}
+@media (max-width:480px){#web-version{display:none}}

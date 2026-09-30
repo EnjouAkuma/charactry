@@ -14,7 +14,8 @@
     "builtWith": "Feito com ♡ para criadores do mundo inteiro.",
     "donate": "☕ Donate",
     "footer": "© 2026 Yuuma Akira. All Rights Reserved.",
-    "taglineShort": "Arquivo pessoal de OCs"
+    "taglineShort": "Arquivo pessoal de OCs",
+    "author": "Yuuma Akira (明優真)"
   },
   "nav": {
     "dashboard": "Início",
@@ -442,14 +443,21 @@
   "languageOptions": {
     "en": "🇺🇸 English (EN)",
     "ja": "🇯🇵 日本語 (JA)",
-    "es": "🇪🇸 Español (ES)",
+    "es-es": "🇪🇸 Español – España (ES-ES)",
+    "es-mx": "🇲🇽 Español – México (ES-MX)",
     "fr": "🇫🇷 Français (FR)",
     "pt-br": "🇧🇷 Português BR (PT-BR)",
+    "pt": "🇵🇹 Português – Portugal (PT)",
     "de": "🇩🇪 Deutsch (DE)",
+    "it": "🇮🇹 Italiano (IT)",
     "ko": "🇰🇷 한국어 (KO)",
-    "zh": "🇨🇳 中文 (ZH)",
+    "zh": "🇨🇳 中文简体 (ZH)",
+    "zh-tw": "🇹🇼 中文繁體 (ZH-TW)",
+    "yue": "🇭🇰 粵語 (YUE)",
     "ru": "🇷🇺 Русский (RU)",
-    "yue": "🇭🇰 粵語 (YUE)"
+    "tl": "🇵🇭 Filipino (TL)",
+    "vi": "🇻🇳 Tiếng Việt (VI)",
+    "es": "🇪🇸 Español (ES)"
   },
   "empty": {
     "noCharacters": "Nenhum personagem ainda. Crie o primeiro!",

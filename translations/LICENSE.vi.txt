@@ -1,0 +1,189 @@
+Điều khoản dịch vụ của Charactry (bản dịch tiếng Việt)
+
+Lưu ý: bản dịch này chỉ được cung cấp để thuận tiện. Nếu có bất kỳ khác biệt nào giữa bản dịch này và bản gốc tiếng Anh (LICENSE.txt), bản tiếng Anh sẽ được ưu tiên áp dụng.
+
+Phiên bản 3.2.0 — Có hiệu lực 2026-2027
+
+1. Tổng quan
+
+Charactry là một ứng dụng cá nhân để quản lý nhân vật và xây dựng thế giới, do Yuuma Akira tạo ra và duy trì.
+
+Bằng việc cài đặt hoặc sử dụng Charactry, bạn đồng ý với các Điều khoản dịch vụ sau đây. Nếu bạn không đồng ý, vui lòng không cài đặt hoặc sử dụng phần mềm.
+
+Các điều khoản này áp dụng cho:
+
+Charactry (Phiên bản Tiêu chuẩn)
+
+Charactry PLUS
+
+2. Giấy phép sử dụng phần mềm
+
+Charactry được cấp phép, không phải bán.
+
+Bạn được cấp một giấy phép cá nhân, không thể chuyển nhượng và không độc quyền để sử dụng Charactry cho công việc sáng tạo cá nhân hoặc chuyên nghiệp.
+
+Bạn được phép:
+
+• Sử dụng phần mềm cho các dự án cá nhân
+• Sử dụng phần mềm cho các dự án sáng tạo thương mại (sách, trò chơi, v.v.)
+• Tạo plugin hoặc tiện ích mở rộng cho Charactry
+• Chia sẻ các plugin bạn tạo
+
+Bạn KHÔNG được phép:
+
+• Phân phối lại trình cài đặt Charactry hoặc các phiên bản đã chỉnh sửa của nó
+• Đóng gói lại hoặc tạo bản sao phần mềm để tải xuống ở nơi khác
+• Dịch ngược hoặc trích xuất mã nguồn để phân phối lại
+• Nhận Charactry là phần mềm của mình
+
+Các bản tải xuống chính thức phải đến từ các nguồn phân phối chính thức do nhà phát triển cung cấp.
+
+3. Hạn chế về phân phối lại
+
+Nghiêm cấm những hành vi sau:
+
+• Phân phối lại các tệp ứng dụng Charactry
+• Phân phối lại trình cài đặt
+• Tải phần mềm lên các trang sao chép tải xuống của bên thứ ba
+• Bán các bản sao của Charactry
+
+Nếu muốn chia sẻ phần mềm với người khác, bạn phải liên kết đến nguồn tải xuống chính thức thay vì phân phối trực tiếp.
+
+4. Charactry PLUS
+
+Charactry PLUS là phiên bản cao cấp của phần mềm.
+
+Charactry PLUS có thể bao gồm:
+
+• các tính năng bổ sung
+• các công cụ nâng cao
+• các hệ thống thử nghiệm
+• các khả năng AI mở rộng
+
+Nghiêm cấm việc mở khóa trái phép, bẻ khóa hoặc vượt qua các hệ thống cấp phép của Charactry PLUS.
+
+Nghiêm cấm phân phối các bản dựng đã chỉnh sửa nhằm mở khóa các tính năng PLUS.
+
+5. Plugin và tiện ích mở rộng
+
+Charactry hỗ trợ các plugin do người dùng tạo.
+
+Người dùng có thể:
+
+• Tạo plugin
+• Chia sẻ plugin một cách tự do
+• Phân phối plugin một cách độc lập
+
+Tuy nhiên:
+
+• Plugin không được bao gồm mã nguồn hoặc tệp ứng dụng của Charactry
+• Plugin không được mạo danh phần mềm chính thức của Charactry
+• Plugin không được sửa đổi các hệ thống cấp phép
+
+6. Hạn chế đối với plugin thương mại
+
+Các plugin được tạo cho Charactry không được bán để thu lợi nhuận trừ khi nhà phát triển cho phép rõ ràng.
+
+Được phép:
+
+• Plugin miễn phí
+• Plugin hoạt động nhờ quyên góp
+• Plugin mã nguồn mở
+
+Không được phép:
+
+• Plugin trả phí
+• Chợ plugin thu phí tải xuống
+• Gói plugin kiếm tiền
+
+Chính sách này tồn tại để giữ cho hệ sinh thái Charactry luôn dễ tiếp cận với mọi người dùng.
+
+7. Các thành phần phụ thuộc và phần mềm của bên thứ ba
+
+Charactry sử dụng một số thư viện và công nghệ mã nguồn mở.
+
+Các thành phần phụ thuộc này vẫn thuộc về các giấy phép tương ứng của chúng.
+
+Ví dụ bao gồm:
+
+Electron
+Node.js
+HuggingFace Transformers
+Chart.js
+Fuse.js
+Sharp
+SortableJS
+UUID
+Vis Network
+Zod
+LangChain.js
+Lucide Icons
+Tippy.js
+Toastify
+tsParticles
+
+Mỗi thành phần phụ thuộc được ghi công cho tác giả gốc và được cấp phép theo các giấy phép mã nguồn mở tương ứng.
+
+Charactry không tuyên bố quyền sở hữu đối với các dự án này.
+
+8. Nội dung của người dùng
+
+Tất cả nhân vật, thế giới, thiết lập và các tác phẩm sáng tạo khác được tạo trong Charactry hoàn toàn thuộc về người dùng.
+
+Nhà phát triển Charactry không tuyên bố quyền sở hữu đối với nội dung do người dùng tạo.
+
+Người dùng hoàn toàn chịu trách nhiệm về nội dung họ tạo và lưu trữ trong phần mềm.
+
+9. Trách nhiệm về dữ liệu
+
+Charactry lưu trữ dữ liệu người dùng cục bộ trên hệ thống của người dùng.
+
+Nhà phát triển không chịu trách nhiệm về việc mất hoặc hỏng dữ liệu do:
+
+• sự cố hệ thống
+• hỏng phần cứng
+• lỗi của người dùng
+• plugin của bên thứ ba
+
+Người dùng được khuyến khích tự duy trì các bản sao lưu.
+
+10. Tuyên bố miễn trừ bảo đảm
+
+Charactry được cung cấp «nguyên trạng» mà không có bất kỳ bảo đảm nào.
+
+Nhà phát triển không đưa ra bảo đảm nào về:
+
+• độ tin cậy
+• tính sẵn có
+• sự phù hợp cho một mục đích cụ thể
+
+Bạn tự chịu rủi ro khi sử dụng phần mềm.
+
+11. Giới hạn trách nhiệm
+
+Trong mọi trường hợp, nhà phát triển sẽ không chịu trách nhiệm về:
+
+• mất dữ liệu
+• mất lợi nhuận
+• sự cố hoạt động của phần mềm
+• thiệt hại do plugin của bên thứ ba gây ra
+
+12. Chấm dứt
+
+Vi phạm các điều khoản này có thể dẫn đến việc chấm dứt giấy phép sử dụng Charactry PLUS của bạn, nếu bạn đã mua.
+
+13. Thay đổi điều khoản
+
+Các Điều khoản dịch vụ này có thể được cập nhật trong các phiên bản Charactry trong tương lai.
+
+Việc tiếp tục sử dụng phần mềm được coi là chấp nhận các điều khoản đã cập nhật.
+
+14. Nhà phát triển
+
+Charactry được phát triển bởi:
+
+Yuuma Akira
+
+15. Thỏa thuận cuối cùng
+
+Bằng việc cài đặt hoặc sử dụng Charactry, bạn xác nhận rằng bạn đã đọc và đồng ý với các Điều khoản dịch vụ này.

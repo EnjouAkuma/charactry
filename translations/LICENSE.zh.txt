@@ -6,7 +6,7 @@ Charactry 服务条款（中文翻译版）
 
 1. 概述
 
-Charactry 是一款个人角色与世界观管理应用程序，由 Yuuma Akira 创作并维护。
+Charactry 是一款个人角色与世界观管理应用程序，由 明優真 (Yuuma Akira) 创作并维护。
 
 安装或使用 Charactry，即表示您同意以下服务条款。如果您不同意，请勿安装或使用本软件。
 
@@ -182,7 +182,7 @@ Charactry 按“现状”提供，不附带任何形式的保证。
 
 Charactry 由以下人员开发：
 
-Yuuma Akira
+明優真 (Yuuma Akira)
 
 15. 最终协议
 

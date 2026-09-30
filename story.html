@@ -326,6 +326,7 @@ function t(key) {
 }
 
 async function _loadLangJSON(code) {
+  if (code === 'es') code = 'es-es';   // legacy setting from before Spanish was split into es-es / es-mx
   // 1. Try Electron IPC (handles packaged app paths correctly)
   try {
     if (window.electronAPI && typeof window.electronAPI.lang === 'object' && window.electronAPI.lang) {

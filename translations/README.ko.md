@@ -8,9 +8,9 @@
 
 [**웹 버전 열기**](https://enjouakuma.github.io/charactry/) · [**Charactry PLUS 구매**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Discord 참여](https://discord.gg/geCKXeYpsY) · [Ko-fi에서 후원](https://ko-fi.com/enjouakuma)
 
-`v3.2.0` · Windows 앱 + 웹(모든 기기) · 10개 언어
+`v3.2.0` · Windows 앱 + 웹(모든 기기) · 16개 언어
 
-🌐 [English](../README.md) · [粵語](README.yue.md) · [中文](README.zh.md) · [日本語](README.ja.md) · **한국어** · [Español](README.es.md) · [Français](README.fr.md) · [Português (BR)](README.pt-br.md) · [Русский](README.ru.md) · [Deutsch](README.de.md)
+🌐 [English](../README.md) · [日本語](README.ja.md) · [Español (España)](README.es-es.md) · [Español (México)](README.es-mx.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Italiano](README.it.md) · **한국어** · [Português (BR)](README.pt-br.md) · [Português (PT)](README.pt.md) · [Русский](README.ru.md) · [中文（简体）](README.zh.md) · [中文（繁體）](README.zh-tw.md) · [粵語](README.yue.md) · [Filipino](README.tl.md) · [Tiếng Việt](README.vi.md)
 
 </div>
 
@@ -67,7 +67,7 @@ Charactry는 오리지널 캐릭터(OC) 제작자를 위한 전용 공간입니�
 
 ### 나만의 스타일로
 - 여러 기본 테마, 사용자 지정 강조색과 그라데이션, 세밀한 UI 색상 재정의.
-- **10개 언어**: English, 日本語, 한국어, 中文, 粵語, Español, Français, Português (BR), Русский, Deutsch.
+- **16개 언어**: English, 日本語, Español (España), Español (México), Français, Deutsch, Italiano, 한국어, Português (BR), Português (PT), Русский, 中文（简体）, 中文（繁體）, 粵語, Filipino, Tiếng Việt.
 
 ### 무료 플러그인(기본 포함)
 | 플러그인 | 기능 |
@@ -147,7 +147,7 @@ HTML과 JavaScript를 조금 아신다면, Charactry 사이드바에 바로 들�
 
 ## 크레딧
 
-제작: **EnjouAkuma / Yuuma Akira(明優真)**. 개발 협력자로 Claude(Anthropic)와 함께했습니다.
+제작: **연소악마 (EnjouAkuma) / 명우진 (Yuuma Akira)**. 개발 협력자로 Claude(Anthropic)와 함께했습니다.
 이 프로그램의 일부와 상당 부분은 Claude와 함께 개발되었습니다. AI가 도운 코드를 피하고 싶은 분들을 위해 미리 알려 드립니다. 그럼에도 여기까지 오는 데 몇 달이 걸렸으니, 한번 써 보시면 좋겠습니다.
 
 새 언어나 기능이 필요하신가요? [Discord](https://discord.gg/geCKXeYpsY)로 연락 주세요.
@@ -156,4 +156,4 @@ HTML과 JavaScript를 조금 아신다면, Charactry 사이드바에 바로 들�
 
 Charactry는 **오픈 소스가 아닙니다**. 무료로 사용할 수 있지만 모든 권리는 보유됩니다. 앱이나 수정본을 재배포, 재패키징, 미러링, 판매하지 말고, 라이선스 없이 PLUS 기능을 해제하지 마세요. 자세한 내용은 이용약관([한국어 번역](LICENSE.ko.txt), [영문 원본](../LICENSE.txt)이 우선)을 참고하시고, 직접 다시 호스팅하지 말고 공식 출처로 연결해 주세요.
 
-© 2026–2027 EnjouAkuma / Yuuma Akira. 모든 권리 보유. Charactry는 독립 프로젝트이며 다른 어떤 서비스와도 제휴하지 않습니다.
+© 2026–2027 연소악마 (EnjouAkuma) / 명우진 (Yuuma Akira). 모든 권리 보유. Charactry는 독립 프로젝트이며 다른 어떤 서비스와도 제휴하지 않습니다.

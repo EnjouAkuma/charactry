@@ -13,8 +13,9 @@
     "tagline": "个人OC档案与管理",
     "builtWith": "用 ♡ 为世界各地的创作者而作。",
     "donate": "☕ 捐赠",
-    "footer": "© 2026 明優真. 保留所有权利。",
-    "taglineShort": "个人OC档案"
+    "footer": "© 2026 炎上恶魔 (EnjouAkuma) / 明優真 (Yuuma Akira). 保留所有权利。",
+    "taglineShort": "个人OC档案",
+    "author": "炎上恶魔 (EnjouAkuma) / 明優真 (Yuuma Akira)"
   },
   "nav": {
     "dashboard": "主页",
@@ -479,14 +480,21 @@
   "languageOptions": {
     "en": "🇺🇸 English (EN)",
     "ja": "🇯🇵 日本語 (JA)",
-    "es": "🇪🇸 Español (ES)",
+    "es-es": "🇪🇸 Español – España (ES-ES)",
+    "es-mx": "🇲🇽 Español – México (ES-MX)",
     "fr": "🇫🇷 Français (FR)",
     "pt-br": "🇧🇷 Português BR (PT-BR)",
+    "pt": "🇵🇹 Português – Portugal (PT)",
     "de": "🇩🇪 Deutsch (DE)",
+    "it": "🇮🇹 Italiano (IT)",
     "ko": "🇰🇷 한국어 (KO)",
-    "zh": "🇨🇳 中文 (ZH)",
+    "zh": "🇨🇳 中文简体 (ZH)",
+    "zh-tw": "🇹🇼 中文繁體 (ZH-TW)",
+    "yue": "🇭🇰 粵語 (YUE)",
     "ru": "🇷🇺 Русский (RU)",
-    "yue": "🇭🇰 粵語 (YUE)"
+    "tl": "🇵🇭 Filipino (TL)",
+    "vi": "🇻🇳 Tiếng Việt (VI)",
+    "es": "🇪🇸 Español (ES)"
   },
   "gallery": {
     "avatars": "头像",

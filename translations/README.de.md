@@ -8,9 +8,9 @@
 
 [**Webversion öffnen**](https://enjouakuma.github.io/charactry/) · [**Charactry PLUS holen**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Discord beitreten](https://discord.gg/geCKXeYpsY) · [Auf Ko-fi unterstützen](https://ko-fi.com/enjouakuma)
 
-`v3.2.0` · Windows-App + Web (jedes Gerät) · 10 Sprachen
+`v3.2.0` · Windows-App + Web (jedes Gerät) · 16 Sprachen
 
-🌐 [English](../README.md) · [粵語](README.yue.md) · [中文](README.zh.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Português (BR)](README.pt-br.md) · [Русский](README.ru.md) · **Deutsch**
+🌐 [English](../README.md) · [日本語](README.ja.md) · [Español (España)](README.es-es.md) · [Español (México)](README.es-mx.md) · [Français](README.fr.md) · **Deutsch** · [Italiano](README.it.md) · [한국어](README.ko.md) · [Português (BR)](README.pt-br.md) · [Português (PT)](README.pt.md) · [Русский](README.ru.md) · [中文（简体）](README.zh.md) · [中文（繁體）](README.zh-tw.md) · [粵語](README.yue.md) · [Filipino](README.tl.md) · [Tiếng Việt](README.vi.md)
 
 </div>
 
@@ -67,7 +67,7 @@ Die Kern-App ist komplett kostenlos. Keine Bezahlschranken bei den Grundlagen.
 
 ### Nach Ihrem Geschmack
 - Mehrere Basis-Designs, eigene Akzentfarben und Verläufe sowie feine Farbanpassungen der Oberfläche.
-- **10 Sprachen**: English, 日本語, 한국어, 中文, 粵語, Español, Français, Português (BR), Русский, Deutsch.
+- **16 Sprachen**: English, 日本語, Español (España), Español (México), Français, Deutsch, Italiano, 한국어, Português (BR), Português (PT), Русский, 中文（简体）, 中文（繁體）, 粵語, Filipino, Tiếng Việt.
 
 ### Kostenlose Plugins (enthalten)
 | Plugin | Was es tut |

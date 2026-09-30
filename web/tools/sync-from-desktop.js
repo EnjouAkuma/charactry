@@ -19,6 +19,7 @@ const SRC = path.resolve(process.argv[2] || 'C:/Documents/Documents/Charactry/Ch
 const DST = path.resolve(__dirname, '..', '..');           // …/charactry
 if (!fs.existsSync(path.join(SRC, 'index.html'))) { console.error('Not a Charactry source folder:', SRC); process.exit(1); }
 
+fs.rmSync(path.join(DST, 'languages'), { recursive: true, force: true });   // drop languages that no longer exist on desktop
 const cp = (rel) => { fs.cpSync(path.join(SRC, rel), path.join(DST, rel), { recursive: true }); };
 ['ai.js', 'au-data.js', 'charactry-data.js', 'interactive-data.js', 'charactry.ico', 'assets', 'languages', 'plugins'].forEach(cp);
 fs.rmSync(path.join(DST, 'languages', 'README.md'), { force: true });
@@ -61,4 +62,8 @@ fs.writeFileSync(path.join(DST, 'plugins', 'index.json'), JSON.stringify({ plugi
 const langs = fs.readdirSync(path.join(DST, 'languages')).filter(f => f.endsWith('.json') && f !== 'index.json').map(f => f.slice(0, -5)).sort();
 fs.writeFileSync(path.join(DST, 'languages', 'index.json'), JSON.stringify(langs));
 
-console.log(`Synced from ${SRC}\n  plugins:   ${plugins.map(p => p.id).join(', ')}\n  languages: ${langs.join(', ')}`);
+/* the web UI shows this version number (top bar + Settings → About) */
+const ver = JSON.parse(fs.readFileSync(path.join(SRC, 'package.json'), 'utf8')).version;
+fs.writeFileSync(path.join(DST, 'web', 'version.json'), JSON.stringify({ version: ver }));
+
+console.log(`Synced from ${SRC}\n  plugins:   ${plugins.map(p => p.id).join(', ')}\n  languages: ${langs.join(', ')}\n  version:   ${ver}`);

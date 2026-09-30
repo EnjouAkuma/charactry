@@ -8,9 +8,9 @@
 
 [**Открыть веб-версию**](https://enjouakuma.github.io/charactry/) · [**Получить Charactry PLUS**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Присоединиться к Discord](https://discord.gg/geCKXeYpsY) · [Поддержать на Ko-fi](https://ko-fi.com/enjouakuma)
 
-`v3.2.0` · Приложение для Windows + веб (любое устройство) · 10 языков
+`v3.2.0` · Приложение для Windows + веб (любое устройство) · 16 языков
 
-🌐 [English](../README.md) · [粵語](README.yue.md) · [中文](README.zh.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Português (BR)](README.pt-br.md) · **Русский** · [Deutsch](README.de.md)
+🌐 [English](../README.md) · [日本語](README.ja.md) · [Español (España)](README.es-es.md) · [Español (México)](README.es-mx.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Italiano](README.it.md) · [한국어](README.ko.md) · [Português (BR)](README.pt-br.md) · [Português (PT)](README.pt.md) · **Русский** · [中文（简体）](README.zh.md) · [中文（繁體）](README.zh-tw.md) · [粵語](README.yue.md) · [Filipino](README.tl.md) · [Tiếng Việt](README.vi.md)
 
 </div>
 
@@ -67,7 +67,7 @@ Charactry — это пространство для создателей ори
 
 ### Настройте под себя
 - Несколько базовых тем, собственные акцентные цвета и градиенты, тонкая настройка цветов интерфейса.
-- **10 языков**: English, 日本語, 한국어, 中文, 粵語, Español, Français, Português (BR), Русский, Deutsch.
+- **16 языков**: English, 日本語, Español (España), Español (México), Français, Deutsch, Italiano, 한국어, Português (BR), Português (PT), Русский, 中文（简体）, 中文（繁體）, 粵語, Filipino, Tiếng Việt.
 
 ### Бесплатные плагины (входят в комплект)
 | Плагин | Что делает |

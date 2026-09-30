@@ -1984,6 +1984,7 @@ let _i18n = {};   // loaded language strings
 let _i18nEn = {}; // english fallback
 
 async function loadI18n(code) {
+  if (code === 'es') code = 'es-es';   // the old generic Spanish setting now maps to Spain's Spanish
   // Always keep English as fallback
   if (!_i18nEn || Object.keys(_i18nEn).length === 0) {
     try {
@@ -3569,14 +3570,20 @@ function renderSettings(pc) {
         <select class="form-select" id="settings-language" style="width:240px" onchange="settingsSetLanguage(this.value)">
           <option value="en" ${(settings.language||'en')==='en'?'selected':''}>🇺🇸 English (EN)</option>
           <option value="ja" ${(settings.language||'en')==='ja'?'selected':''}>🇯🇵 日本語 (JA)</option>
-          <option value="es" ${(settings.language||'en')==='es'?'selected':''}>🇪🇸 Español (ES)</option>
+          <option value="es-es" ${(settings.language||'en')==='es-es'?'selected':''}>🇪🇸 Español – España (ES-ES)</option>
+          <option value="es-mx" ${(settings.language||'en')==='es-mx'?'selected':''}>🇲🇽 Español – México (ES-MX)</option>
           <option value="fr" ${(settings.language||'en')==='fr'?'selected':''}>🇫🇷 Français (FR)</option>
           <option value="pt-br" ${(settings.language||'en')==='pt-br'?'selected':''}>🇧🇷 Português BR (PT-BR)</option>
+          <option value="pt" ${(settings.language||'en')==='pt'?'selected':''}>🇵🇹 Português – Portugal (PT)</option>
           <option value="de" ${(settings.language||'en')==='de'?'selected':''}>🇩🇪 Deutsch (DE)</option>
+          <option value="it" ${(settings.language||'en')==='it'?'selected':''}>🇮🇹 Italiano (IT)</option>
           <option value="ko" ${(settings.language||'en')==='ko'?'selected':''}>🇰🇷 한국어 (KO)</option>
-          <option value="zh" ${(settings.language||'en')==='zh'?'selected':''}>🇨🇳 中文 (ZH)</option>
-          <option value="ru" ${(settings.language||'en')==='ru'?'selected':''}>🇷🇺 Русский (RU)</option>
+          <option value="zh" ${(settings.language||'en')==='zh'?'selected':''}>🇨🇳 中文简体 (ZH)</option>
+          <option value="zh-tw" ${(settings.language||'en')==='zh-tw'?'selected':''}>🇹🇼 中文繁體 (ZH-TW)</option>
           <option value="yue" ${(settings.language||'en')==='yue'?'selected':''}>🇭🇰 粵語 (YUE)</option>
+          <option value="ru" ${(settings.language||'en')==='ru'?'selected':''}>🇷🇺 Русский (RU)</option>
+          <option value="tl" ${(settings.language||'en')==='tl'?'selected':''}>🇵🇭 Filipino (TL)</option>
+          <option value="vi" ${(settings.language||'en')==='vi'?'selected':''}>🇻🇳 Tiếng Việt (VI)</option>
         </select>
         <div style="font-size:11px;color:var(--text3)">${t('settings.languageRestart')}</div>
       </div>
@@ -3670,7 +3677,7 @@ function renderSettings(pc) {
       <div class="settings-section-title">${t('settings.about')}</div>
       <div style="color:var(--text2);font-size:13px;line-height:2">
         <b style="color:var(--text)">Charactry PLUS</b> — ${t('app.tagline')||'Personal OC Archive &amp; Management'}<br>
-        <span style="font-size:11px;color:var(--text3)">${t('settings.aboutCredit')||t('app.builtWith')||'Built with ♡ by'} <b style="color:var(--text2)">Yuuma Akira (明優真)</b></span>
+        <span style="font-size:11px;color:var(--text3)">${t('settings.aboutCredit')||t('app.builtWith')||'Built with ♡ by'} <b style="color:var(--text2)">${t('app.author')==='app.author' ? 'Yuuma Akira (明優真)' : t('app.author')}</b></span>
       </div>
     </div>`;
   requestAnimationFrame(() => updatePluginPathDisplay());
@@ -9763,6 +9770,7 @@ async function initApp() {
 
   REL_COLORS = loadRelColors();
 
+  if (settings.language === 'es') { settings.language = 'es-es'; localforage.setItem('charactry_settings', settings).catch(()=>{}); }
   await loadI18n(settings.language || 'en');
   applyI18nDOM();
 

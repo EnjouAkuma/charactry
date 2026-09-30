@@ -8,9 +8,9 @@
 
 [**Open the web app**](https://enjouakuma.github.io/charactry/) · [**Get Charactry PLUS**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Join the Discord](https://discord.gg/geCKXeYpsY) · [Support on Ko-fi](https://ko-fi.com/enjouakuma)
 
-`v3.2.0` · Windows app + Web (any device) · 10 languages
+`v3.2.0` · Windows app + Web (any device) · 16 languages
 
-🌐 **English** · [粵語](translations/README.yue.md) · [中文](translations/README.zh.md) · [日本語](translations/README.ja.md) · [한국어](translations/README.ko.md) · [Español](translations/README.es.md) · [Français](translations/README.fr.md) · [Português (BR)](translations/README.pt-br.md) · [Русский](translations/README.ru.md) · [Deutsch](translations/README.de.md)
+🌐 **English** · [日本語](translations/README.ja.md) · [Español (España)](translations/README.es-es.md) · [Español (México)](translations/README.es-mx.md) · [Français](translations/README.fr.md) · [Deutsch](translations/README.de.md) · [Italiano](translations/README.it.md) · [한국어](translations/README.ko.md) · [Português (BR)](translations/README.pt-br.md) · [Português (PT)](translations/README.pt.md) · [Русский](translations/README.ru.md) · [中文（简体）](translations/README.zh.md) · [中文（繁體）](translations/README.zh-tw.md) · [粵語](translations/README.yue.md) · [Filipino](translations/README.tl.md) · [Tiếng Việt](translations/README.vi.md)
 
 </div>
 
@@ -67,7 +67,7 @@ The core app is completely free. No paywalled basics.
 
 ### Make it yours
 - Multiple base themes, custom accent colors and gradients, and fine-grained UI color overrides.
-- **10 languages**: English, 日本語, 한국어, 中文, 粵語 (Cantonese), Español, Français, Português (BR), Русский, Deutsch.
+- **16 languages**: English, 日本語, Español (España), Español (México), Français, Deutsch, Italiano, 한국어, Português (BR), Português (PT), Русский, 中文（简体）, 中文（繁體）, 粵語, Filipino, Tiếng Việt.
 
 ### Free plugins (included)
 | Plugin | What it does |
@@ -154,6 +154,6 @@ Want a new language or a feature? Reach out on [Discord](https://discord.gg/geCK
 
 ## License
 
-Charactry is **not open source**. It's free to use, but all rights are reserved: please don't redistribute, repackage, mirror, or sell the app or modified copies, or unlock PLUS features without a license. See the Terms of Service in [`LICENSE.txt`](LICENSE.txt) for the details (translations for convenience: [粵語](translations/LICENSE.yue.txt) · [中文](translations/LICENSE.zh.txt) · [日本語](translations/LICENSE.ja.txt) · [한국어](translations/LICENSE.ko.txt) · [Español](translations/LICENSE.es.txt) · [Français](translations/LICENSE.fr.txt) · [Português (BR)](translations/LICENSE.pt-br.txt) · [Русский](translations/LICENSE.ru.txt) · [Deutsch](translations/LICENSE.de.txt); the English version prevails if they differ), and link people to the official sources instead of re-hosting.
+Charactry is **not open source**. It's free to use, but all rights are reserved: please don't redistribute, repackage, mirror, or sell the app or modified copies, or unlock PLUS features without a license. See the Terms of Service in [`LICENSE.txt`](LICENSE.txt) for the details (translations for convenience: [日本語](translations/LICENSE.ja.txt) · [Español (España)](translations/LICENSE.es-es.txt) · [Español (México)](translations/LICENSE.es-mx.txt) · [Français](translations/LICENSE.fr.txt) · [Deutsch](translations/LICENSE.de.txt) · [Italiano](translations/LICENSE.it.txt) · [한국어](translations/LICENSE.ko.txt) · [Português (BR)](translations/LICENSE.pt-br.txt) · [Português (PT)](translations/LICENSE.pt.txt) · [Русский](translations/LICENSE.ru.txt) · [中文（简体）](translations/LICENSE.zh.txt) · [中文（繁體）](translations/LICENSE.zh-tw.txt) · [粵語](translations/LICENSE.yue.txt) · [Filipino](translations/LICENSE.tl.txt) · [Tiếng Việt](translations/LICENSE.vi.txt); the English version prevails if they differ), and link people to the official sources instead of re-hosting.
 
 © 2026–2027 EnjouAkuma / Yuuma Akira. All rights reserved. Charactry is an independent project and is not affiliated with any other service.

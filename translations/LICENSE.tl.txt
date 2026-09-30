@@ -1,0 +1,189 @@
+Mga Tuntunin ng Serbisyo ng Charactry (salin sa Filipino)
+
+Paalala: ang saling ito ay ibinibigay para lamang sa kaginhawaan. Kung may anumang pagkakaiba ang saling ito at ang orihinal na bersyon sa Ingles (LICENSE.txt), ang bersyon sa Ingles ang mananaig.
+
+Bersyon 3.2.0 — Epektibo 2026-2027
+
+1. Pangkalahatang-ideya
+
+Ang Charactry ay isang personal na aplikasyon para sa pamamahala ng mga karakter at worldbuilding, na nilikha at pinananatili ni Yuuma Akira.
+
+Sa pag-install o paggamit ng Charactry, sumasang-ayon ka sa mga sumusunod na Tuntunin ng Serbisyo. Kung hindi ka sumasang-ayon, huwag i-install o gamitin ang software.
+
+Nalalapat ang mga tuntuning ito sa:
+
+Charactry (Standard Edition)
+
+Charactry PLUS
+
+2. Lisensya sa Paggamit ng Software
+
+Ang Charactry ay nilisensyahan, hindi ibinenta.
+
+Binibigyan ka ng personal, hindi maililipat, at di-eksklusibong lisensya para gamitin ang Charactry sa personal o propesyonal na malikhaing gawain.
+
+Maaari mong:
+
+• Gamitin ang software para sa mga personal na proyekto
+• Gamitin ang software para sa mga komersyal na malikhaing proyekto (mga aklat, laro, atbp.)
+• Gumawa ng mga plugin o extension para sa Charactry
+• Ibahagi ang mga plugin na ginawa mo
+
+HINDI mo maaaring:
+
+• Ipamahagi muli ang installer ng Charactry o mga binagong bersyon nito
+• I-repackage o i-mirror ang software para ma-download sa ibang lugar
+• Mag-reverse engineer o kumuha ng source code para ipamahagi muli
+• Angkinin ang Charactry bilang sarili mong software
+
+Ang mga opisyal na download ay dapat manggaling sa mga opisyal na pinagmumulan ng distribusyon na ibinibigay ng developer.
+
+3. Mga Paghihigpit sa Muling Pamamahagi
+
+Mahigpit na ipinagbabawal ang mga sumusunod:
+
+• Ang muling pamamahagi ng mga file ng aplikasyon ng Charactry
+• Ang muling pamamahagi ng installer
+• Ang pag-upload ng software sa mga mirror ng download ng ibang tao
+• Ang pagbebenta ng mga kopya ng Charactry
+
+Kung nais mong ibahagi ang software sa iba, dapat mong i-link ang opisyal na pinagmumulan ng download sa halip.
+
+4. Charactry PLUS
+
+Ang Charactry PLUS ay isang premium na edisyon ng software.
+
+Maaaring kasama sa Charactry PLUS ang:
+
+• mga karagdagang feature
+• mga advanced na tool
+• mga eksperimental na sistema
+• mga pinalawak na kakayahan ng AI
+
+Ipinagbabawal ang hindi awtorisadong pag-unlock, pag-crack, o pag-bypass sa mga sistema ng paglilisensya ng Charactry PLUS.
+
+Mahigpit na ipinagbabawal ang pamamahagi ng mga binagong build na nag-a-unlock ng mga feature ng PLUS.
+
+5. Mga Plugin at Extension
+
+Sinusuportahan ng Charactry ang mga plugin na gawa ng mga user.
+
+Maaaring ang mga user ay:
+
+• Gumawa ng mga plugin
+• Malayang magbahagi ng mga plugin
+• Ipamahagi nang hiwalay ang mga plugin
+
+Gayunpaman:
+
+• Hindi dapat isama ng mga plugin ang source code o mga file ng aplikasyon ng Charactry
+• Hindi dapat magpanggap ang mga plugin bilang opisyal na software ng Charactry
+• Hindi dapat baguhin ng mga plugin ang mga sistema ng paglilisensya
+
+6. Mga Paghihigpit sa Komersyal na Plugin
+
+Ang mga plugin na ginawa para sa Charactry ay hindi maaaring ibenta para kumita maliban kung nagbigay ng tahasang pahintulot ang developer.
+
+Pinapayagan:
+
+• Mga libreng plugin
+• Mga plugin na sinusuportahan ng donasyon
+• Mga open source na plugin
+
+Hindi pinapayagan:
+
+• Mga bayad na plugin
+• Mga plugin marketplace na naniningil para sa mga download
+• Mga plugin bundle na pinagkakakitaan
+
+Umiiral ang patakarang ito para manatiling naaabot ng lahat ng user ang ecosystem ng Charactry.
+
+7. Mga Dependency at Software ng Ikatlong Partido
+
+Gumagamit ang Charactry ng ilang open-source na library at teknolohiya.
+
+Nananatili ang mga dependency na ito sa ilalim ng kani-kanilang lisensya.
+
+Kabilang sa mga halimbawa ang:
+
+Electron
+Node.js
+HuggingFace Transformers
+Chart.js
+Fuse.js
+Sharp
+SortableJS
+UUID
+Vis Network
+Zod
+LangChain.js
+Lucide Icons
+Tippy.js
+Toastify
+tsParticles
+
+Ang bawat dependency ay kinikilala sa mga orihinal nitong may-akda at nakalisensya sa ilalim ng kani-kanilang open-source na lisensya.
+
+Hindi inaangkin ng Charactry ang pagmamay-ari ng mga proyektong ito.
+
+8. Nilalaman ng User
+
+Ang lahat ng karakter, mundo, lore, at iba pang malikhaing gawa na nilikha sa loob ng Charactry ay ganap na pag-aari ng user.
+
+Walang inaangking pagmamay-ari ang developer ng Charactry sa nilalamang nilikha ng user.
+
+Ganap na responsable ang mga user sa nilalamang nililikha at iniimbak nila sa loob ng software.
+
+9. Pananagutan sa Data
+
+Iniimbak ng Charactry ang data ng user nang lokal sa sistema ng user.
+
+Hindi mananagot ang developer sa nawala o nasirang data dahil sa:
+
+• pag-crash ng sistema
+• pagkasira ng hardware
+• pagkakamali ng user
+• mga plugin ng ikatlong partido
+
+Hinihikayat ang mga user na magpanatili ng sarili nilang mga backup.
+
+10. Pagtanggi sa Garantiya
+
+Ibinibigay ang Charactry nang «kung ano ito» nang walang anumang uri ng garantiya.
+
+Walang ibinibigay na garantiya ang developer tungkol sa:
+
+• pagiging maaasahan
+• pagiging available
+• pagiging angkop para sa isang partikular na layunin
+
+Ang paggamit ng software ay nasa sarili mong pananagutan.
+
+11. Limitasyon ng Pananagutan
+
+Sa anumang pagkakataon, hindi mananagot ang developer para sa:
+
+• pagkawala ng data
+• pagkawala ng kita
+• mga pagkasira ng software
+• pinsalang dulot ng mga plugin ng ikatlong partido
+
+12. Pagwawakas
+
+Ang paglabag sa mga tuntuning ito ay maaaring magresulta sa pagwawakas ng iyong lisensya para gamitin ang Charactry PLUS, kung binili mo ito.
+
+13. Mga Pagbabago sa mga Tuntunin
+
+Maaaring i-update ang mga Tuntunin ng Serbisyong ito sa mga susunod na bersyon ng Charactry.
+
+Ang patuloy na paggamit ng software ay nangangahulugan ng pagtanggap sa mga na-update na tuntunin.
+
+14. Developer
+
+Ang Charactry ay binuo ni:
+
+Yuuma Akira
+
+15. Pinal na Kasunduan
+
+Sa pag-install o paggamit ng Charactry, kinikilala mong nabasa mo at sumasang-ayon ka sa mga Tuntunin ng Serbisyong ito.

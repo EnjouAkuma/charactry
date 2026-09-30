@@ -419,6 +419,7 @@
       </div>
       <div class="divider"></div>`);
     WebData.refreshInfo();
+    if (WEB.version) about.insertAdjacentHTML('beforeend', `<div style="font-size:11px;color:var(--text3);margin-top:6px">${esc(T('versionWeb', { v: WEB.version }))}</div>`);
   }
 
   window.WebData = {
@@ -553,8 +554,21 @@
   } catch { /* BroadcastChannel unsupported */ }
 
   /* ═══════════ 7. Boot: shell, OAuth notice, PWA ═══════════ */
+  /* Version badge in the top bar (from web/version.json) */
+  async function showVersion() {
+    await WEB.versionReady;
+    if (!WEB.version || $('#web-version')) return;
+    const right = $('#topbar-right');
+    if (!right) return;
+    const pill = document.createElement('span');
+    pill.id = 'web-version'; pill.textContent = 'v' + WEB.version + ' · Web';
+    pill.title = T('versionWeb', { v: WEB.version });
+    right.insertBefore(pill, right.firstChild);
+  }
+
   function boot() {
     initShell();
+    showVersion();
     // After returning from OpenRouter, jump to AI Studio and say how it went
     if (WEB.pendingNotice || new URLSearchParams(location.search).has('code')) {
       let tries = 0;

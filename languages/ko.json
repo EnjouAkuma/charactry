@@ -13,8 +13,9 @@
     "tagline": "개인 OC 아카이브 및 관리",
     "builtWith": "모든 창작자를 위해 ♡와 함께 제작되었습니다.",
     "donate": "☕ 후원하기",
-    "footer": "© 2026 명우진. 무단 전재를 금지합니다.",
-    "taglineShort": "개인 OC 아카이브"
+    "footer": "© 2026 연소악마 (EnjouAkuma) / 명우진 (Yuuma Akira). 무단 전재를 금지합니다.",
+    "taglineShort": "개인 OC 아카이브",
+    "author": "연소악마 (EnjouAkuma) / 명우진 (Yuuma Akira)"
   },
   "nav": {
     "dashboard": "대시보드",
@@ -479,14 +480,21 @@
   "languageOptions": {
     "en": "🇺🇸 English (EN)",
     "ja": "🇯🇵 日本語 (JA)",
-    "es": "🇪🇸 Español (ES)",
+    "es-es": "🇪🇸 Español – España (ES-ES)",
+    "es-mx": "🇲🇽 Español – México (ES-MX)",
     "fr": "🇫🇷 Français (FR)",
     "pt-br": "🇧🇷 Português BR (PT-BR)",
+    "pt": "🇵🇹 Português – Portugal (PT)",
     "de": "🇩🇪 Deutsch (DE)",
+    "it": "🇮🇹 Italiano (IT)",
     "ko": "🇰🇷 한국어 (KO)",
-    "zh": "🇨🇳 中文 (ZH)",
+    "zh": "🇨🇳 中文简体 (ZH)",
+    "zh-tw": "🇹🇼 中文繁體 (ZH-TW)",
+    "yue": "🇭🇰 粵語 (YUE)",
     "ru": "🇷🇺 Русский (RU)",
-    "yue": "🇭🇰 粵語 (YUE)"
+    "tl": "🇵🇭 Filipino (TL)",
+    "vi": "🇻🇳 Tiếng Việt (VI)",
+    "es": "🇪🇸 Español (ES)"
   },
   "gallery": {
     "avatars": "아바타",
