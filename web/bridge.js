@@ -44,6 +44,19 @@
   WEB.blobToDataURL = blobToDataURL;
   WEB.mimeOf = mimeOf;
 
+  /* Translations for the strings this web layer adds (web/i18n.json).
+     Uses the language chosen in Settings, falling back to English. */
+  let I18N = {};
+  WEB.i18nReady = fetch(ROOT + "web/i18n.json").then(r => r.json()).then(j => { I18N = j; }).catch(() => {});
+  WEB.T = function (key, vars) {
+    let lang = "en";
+    try { lang = (typeof settings !== "undefined" && settings.language) || "en"; } catch {}
+    let s = (I18N[lang] && I18N[lang][key]) || (I18N.en && I18N.en[key]) || key;
+    if (vars) s = s.replace(/{(w+)}/g, (m, n) => (vars[n] != null ? vars[n] : m));
+    return s;
+  };
+  const T = WEB.T;
+
   /* ═══════════════════════════════════════════════════════════════
      AI PROVIDER CONFIG
      Kept in its own key (never in `settings`) so it is not swept
@@ -105,8 +118,7 @@
     return h;
   }
 
-  const NOT_CONFIGURED =
-    'AI is not connected yet. Open AI Studio → Setup and connect OpenRouter (free models available) or your own endpoint.';
+  const NOT_CONFIGURED = () => T("notConfigured");
 
   function friendlyError(status, body, fallback) {
     let msg = '';
@@ -115,10 +127,10 @@
       msg = (j && (j.error?.message || j.error || j.message)) || '';
       if (typeof msg !== 'string') msg = JSON.stringify(msg);
     } catch { /* not JSON */ }
-    msg = msg || fallback || ('AI server returned ' + status);
-    if (status === 401) msg = 'The AI key was rejected (401). Reconnect in AI Studio → Setup. ' + msg;
-    else if (status === 402) msg = 'This model needs credits on your OpenRouter account (402). Pick a “:free” model or add credits. ' + msg;
-    else if (status === 429) msg = 'Rate limited (429) — free models allow only a few requests per minute/day. Wait a bit or pick another model. ' + msg;
+    msg = msg || fallback || T("serverReturned", { status });
+    if (status === 401) msg = T("err401") + " " + msg;
+    else if (status === 402) msg = T("err402") + " " + msg;
+    else if (status === 429) msg = T("err429") + " " + msg;
     return msg;
   }
 
@@ -166,11 +178,11 @@
   async function providerChat({ model, messages, stream, stop, options, signal }) {
     await aiReady;
     if (!isConfigured()) {
-      return new Response(JSON.stringify({ error: NOT_CONFIGURED }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: NOT_CONFIGURED() }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     }
     const m = resolveModel(model);
     if (!m) {
-      return new Response(JSON.stringify({ error: 'No AI model selected. Open AI Studio → Setup and pick one.' }),
+      return new Response(JSON.stringify({ error: T("noModel") }),
         { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     const body = { model: m, messages, stream: !!stream };
@@ -187,7 +199,7 @@
       });
     } catch (e) {
       if (e.name === 'AbortError') throw e;
-      return new Response(JSON.stringify({ error: 'Could not reach the AI server (' + e.message + '). Check your connection and endpoint URL.' }),
+      return new Response(JSON.stringify({ error: T("cantReach", { msg: e.message }) }),
         { status: 502, headers: { 'Content-Type': 'application/json' } });
     }
     if (!resp.ok) {
@@ -260,7 +272,7 @@
     }
     const p = path.split('?')[0];
     if (p === '/' || p === '') {
-      return isConfigured() ? new Response('AI ready', { status: 200 }) : new Response(NOT_CONFIGURED, { status: 503 });
+      return isConfigured() ? new Response('AI ready', { status: 200 }) : new Response(NOT_CONFIGURED(), { status: 503 });
     }
     if (p === '/api/tags') {
       const models = await listModels();
@@ -297,7 +309,7 @@
     try {
       const r = await ollamaShim('/api/generate', { body: JSON.stringify({ model, prompt, stream: false }) });
       const j = await r.json().catch(() => ({}));
-      if (!r.ok) return { ok: false, status: r.status, error: j.error || ('AI server returned ' + r.status) };
+      if (!r.ok) return { ok: false, status: r.status, error: j.error || T("serverReturned", { status: r.status }) };
       return { ok: true, response: j.response || '' };
     } catch (e) { return { ok: false, error: e.message }; }
   }
@@ -306,7 +318,7 @@
       const r = await ollamaShim('/api/generate', { body: JSON.stringify({ model, prompt, stream: true }) });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
-        return { ok: false, status: r.status, error: j.error || ('AI server returned ' + r.status) };
+        return { ok: false, status: r.status, error: j.error || T("serverReturned", { status: r.status }) };
       }
       const reader = r.body.getReader(), dec = new TextDecoder();
       let full = '', buf = '';
@@ -368,9 +380,9 @@
       const j = await r.json();
       if (!r.ok || !j.key) throw new Error(j.error?.message || j.error || ('HTTP ' + r.status));
       await WEB.ai.set({ provider: 'openrouter', openrouter: { key: j.key } });
-      WEB.pendingNotice = { type: 'success', msg: 'OpenRouter connected ✦ — now pick a model.', goto: 'aistudio' };
+      WEB.pendingNotice = { type: 'success', msg: () => T("oauthOk"), goto: 'aistudio' };
     } catch (e) {
-      WEB.pendingNotice = { type: 'error', msg: 'OpenRouter connection failed: ' + e.message, goto: 'aistudio' };
+      WEB.pendingNotice = { type: 'error', msg: () => T("oauthFail", { msg: e.message }), goto: 'aistudio' };
     }
   })();
 
@@ -474,7 +486,7 @@
     host.innerHTML =
       `<div class="wph-win" style="--wph-w:${w}px;--wph-h:${h}px" role="dialog" aria-label="${(manifest.name || id).replace(/"/g, '&quot;')}">
          <div class="wph-bar"><span class="wph-title"></span>
-           <button class="wph-close" aria-label="Close plugin" title="Close (Esc)">✕</button></div>
+           <button class="wph-close" aria-label="${T('closePlugin')}" title="${T('closePlugin')} (Esc)">✕</button></div>
          <iframe class="wph-frame" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
        </div>`;
     host.querySelector('.wph-title').textContent = manifest.name || id;
@@ -603,7 +615,17 @@
       catch { return null; }
     },
     readPresetsFile: async (f) => /^[a-zA-Z0-9_\-]+\.json$/i.test(f) ? fetchText(ROOT + 'presets/' + f) : null,
-    readLangFile:    async (code) => SAFE_ID.test(code) ? fetchText(ROOT + 'languages/' + code + '.json') : null,
+    readLangFile: async (code) => {
+      if (!SAFE_ID.test(code)) return null;
+      await WEB.i18nReady;
+      const txt = await fetchText(ROOT + "languages/" + code + ".json");
+      if (!txt) return null;
+      try {                       // make sure every language can label the Cantonese option
+        const j = JSON.parse(txt);
+        if (j.languageOptions && !j.languageOptions.yue) { j.languageOptions.yue = "🇭🇰 粵語 (YUE)"; return JSON.stringify(j); }
+      } catch {}
+      return txt;
+    },
     listLangFiles: async () => {
       try { return await (await fetch(ROOT + 'languages/index.json', { cache: 'no-cache' })).json(); } catch { return ['en']; }
     },
