@@ -6118,7 +6118,7 @@ function buildRelGraph() {
       graphEdges.push({
         from: c.id,
         to: r.targetId,
-        label: relTypeLabel(r.type),
+        label: String(relTypeLabel(r.type) || ''),   // a relationship saved without a type must not break the graph
         color: r.color || REL_COLORS[r.type] || '#9ca3af'
       });
     });
@@ -6370,6 +6370,11 @@ function buildRelGraph() {
   }
 
   function updateGraph() {
+    graphNodes.forEach(node => {
+      const point = positions.get(node.id);
+      const group = nodeGroups.get(node.id);
+      if (point && group) group.setAttribute('transform', `translate(${point.x} ${point.y})`);
+    });
     edgeVisuals.forEach(({ edge, path, labelBackground, text }, index) => {
       const geometry = edgeGeometry(edge, index);
       if (!geometry) return;
@@ -6381,11 +6386,6 @@ function buildRelGraph() {
       labelBackground.setAttribute('height', '20');
       text.setAttribute('x', geometry.label.x);
       text.setAttribute('y', geometry.label.y);
-    });
-    graphNodes.forEach(node => {
-      const point = positions.get(node.id);
-      const group = nodeGroups.get(node.id);
-      if (point && group) group.setAttribute('transform', `translate(${point.x} ${point.y})`);
     });
   }
 
@@ -6533,7 +6533,7 @@ function buildRelGraph() {
         if (!relevantIds.has(c.id) || !relevantIds.has(r.targetId)) return;
         const col = r.color || REL_COLORS[r.type] || '#9ca3af';
         if (!colorTypes[col]) colorTypes[col] = new Set();
-        colorTypes[col].add(relTypeLabel(r.type));
+        colorTypes[col].add(String(relTypeLabel(r.type) || '') || '—');
       });
     });
     legend.innerHTML = Object.entries(colorTypes).map(([col, types]) =>
