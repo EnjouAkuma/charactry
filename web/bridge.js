@@ -272,6 +272,7 @@
     await aiReady;
     if (aiCfg.provider === 'ollama') {
       const base = (aiCfg.ollama.url || AI_DEFAULT.ollama.url).replace(/\/+$/, '');
+      if (init.body && !init.method) init = { ...init, method: 'POST', headers: { 'Content-Type': 'application/json', ...(init.headers || {}) } };
       return _fetch(base + path, init);
     }
     const p = path.split('?')[0];
