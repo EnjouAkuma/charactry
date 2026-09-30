@@ -4,11 +4,13 @@
 
 **OC Archive & Management**
 
-*A cozy, powerful home for your original characters, your universes, and everything in between!*
+*A cozy, powerful home for your original characters, your universes, and everything in between.*
 
 [**Open the web app**](https://enjouakuma.github.io/charactry/) · [**Get Charactry PLUS**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Join the Discord](https://discord.gg/geCKXeYpsY) · [Support on Ko-fi](https://ko-fi.com/enjouakuma)
 
 `v3.2.0` · Windows app + Web (any device) · 10 languages
+
+🌐 **English** · [粵語](translations/README.yue.md) · [中文](translations/README.zh.md) · [日本語](translations/README.ja.md) · [한국어](translations/README.ko.md) · [Español](translations/README.es.md) · [Français](translations/README.fr.md) · [Português (BR)](translations/README.pt-br.md) · [Русский](translations/README.ru.md) · [Deutsch](translations/README.de.md)
 
 </div>
 
@@ -34,7 +36,7 @@ You can use it two ways, and they share the same interface and the same license:
 
 ---
 
-## Features (free)
+## ✨ Features (free)
 
 The core app is completely free. No paywalled basics.
 
@@ -77,31 +79,31 @@ The core app is completely free. No paywalled basics.
 
 ---
 
-## Charactry PLUS
+## 💎 Charactry PLUS
 
 PLUS is a **one-time purchase**. No subscription, no recurring fees. It unlocks the power tools for people who are seriously building a world (or a very large cast).
 
-### [Get Charactry PLUS here](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00)
+### 👉 [Get Charactry PLUS here](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00)
 
-After purchasing, your **license key arrives by email**. Enter it once in **Settings → Charactry PLUS** and you're in. Your license works on **up to 2 devices/browsers**, and it's shared across the Windows app and the web app. You can deactivate one device any time to free up a slot.
+After purchasing, your **license key arrives by email**. Enter it once in **Settings → Charactry PLUS** and you're in. Your license works on **up to 2 devices**, and it's shared across the Windows app and the web app. You can deactivate one device any time to free up a slot.
 
 ### What you get
 
 **Visual & analysis tools**
-- **Relationship Graph**: an interactive, draggable map of every connection in your cast
-- **Lore Map**: see how your worldbuilding entries and characters link together
-- **Personality Radar**: RPG-style stat breakdown for each character
-- **Character Compare**: two characters side by side, stats overlaid
-- **Fusion Generator**: blend two characters into something new
-- **Interaction Simulator**: simulate a scene between two characters
-- **Statistics**: your whole archive at a glance
+- 🕸 **Relationship Graph**: an interactive, draggable map of every connection in your cast
+- 🗺 **Lore Map**: see how your worldbuilding entries and characters link together
+- 🎯 **Personality Radar**: RPG-style stat breakdown for each character
+- ⚖️ **Character Compare**: two characters side by side, stats overlaid
+- 🧬 **Fusion Generator**: blend two characters into something new
+- 💬 **Interaction Simulator**: simulate a scene between two characters
+- 📊 **Statistics**: your whole archive at a glance
 
 **AI Studio**: writing-only AI tools that read your characters and lore as context
-- **OC Forge**: names, eyes, hair, outfits, species, traits, or a full OC
-- **AU Weaver**: a tailor-made alternate-universe concept for a specific character
-- **Story Spark**: prompts, lore expansion, and in-character lines
-- **Fusion Lab**, ⚡ **Scene Engine**, 📚 **Lore Forge**, 🔍 **Lore Check**, 💞 **Rel Spark**
-- **Character Brain**: chat with your character, using their full profile and your lorebooks as memory, with expression sprites and saved sessions
+- ✦ **OC Forge**: names, eyes, hair, outfits, species, traits, or a full OC
+- ⟳ **AU Weaver**: a tailor-made alternate-universe concept for a specific character
+- ✎ **Story Spark**: prompts, lore expansion, and in-character lines
+- ⬡ **Fusion Lab**, ⚡ **Scene Engine**, 📚 **Lore Forge**, 🔍 **Lore Check**, 💞 **Rel Spark**
+- 🧠 **Character Brain**: chat with your character, using their full profile and your lorebooks as memory, with expression sprites and saved sessions
 
 > AI Studio is **text only**. No AI art generation, ever. Your characters' visual identity stays yours.
 
@@ -117,7 +119,7 @@ Plus priority on updates and features, and you're directly supporting a solo dev
 
 ---
 
-## Using the web version
+## 🌐 Using the web version
 
 - **Your data stays with you.** Everything is saved in your browser on your device. Close the tab, come back tomorrow, it's all still there. Nothing is uploaded to a server.
 - **Back it up.** Clearing your browser's site data (or using a private window) erases it, so use **Settings → Download full backup** every now and then, and to move to another device.
@@ -140,18 +142,18 @@ Full guide: see the [documentation](https://enjouakuma.neocities.org/charactry_d
 ## Requirements
 
 - **Windows app:** a Windows PC.
-- **Web app:** any modern browser (Chrome, Brave, Edge, Firefox, Safari) on any device.
+- **Web app:** any modern browser (Chrome, Edge, Firefox, Safari) on any device.
 - An internet connection is needed to **activate PLUS** and verify your license. Everything else works locally.
 
 ## Credits
 
-Made by **EnjouAkuma (炎上悪魔) / Yuuma Akira (明優真)** with Claude (Anthropic) as a development collaborator.
+Made by **EnjouAkuma / Yuuma Akira (明優真)** with Claude (Anthropic) as a development collaborator.
 Parts and big chunks of this program were built together with Claude. That's noted up front for anyone who prefers to avoid AI-assisted code. It still took months of work to get here, and I hope you'll give it a try.
 
 Want a new language or a feature? Reach out on [Discord](https://discord.gg/geCKXeYpsY).
 
 ## License
 
-Charactry is **not open source**. It's free to use, but all rights are reserved: please don't redistribute, repackage, mirror, or sell the app or modified copies, or unlock PLUS features without a license. See the Terms of Service in `LICENSE` for the details, and link people to the official sources instead of re-hosting.
+Charactry is **not open source**. It's free to use, but all rights are reserved: please don't redistribute, repackage, mirror, or sell the app or modified copies, or unlock PLUS features without a license. See the Terms of Service in [`LICENSE.txt`](LICENSE.txt) for the details (translations for convenience: [粵語](translations/LICENSE.yue.txt) · [中文](translations/LICENSE.zh.txt) · [日本語](translations/LICENSE.ja.txt) · [한국어](translations/LICENSE.ko.txt) · [Español](translations/LICENSE.es.txt) · [Français](translations/LICENSE.fr.txt) · [Português (BR)](translations/LICENSE.pt-br.txt) · [Русский](translations/LICENSE.ru.txt) · [Deutsch](translations/LICENSE.de.txt); the English version prevails if they differ), and link people to the official sources instead of re-hosting.
 
-© 2026–Present EnjouAkuma / Yuuma Akira. All rights reserved. Charactry is an independent project and is not affiliated with any other service.
+© 2026–2027 EnjouAkuma / Yuuma Akira. All rights reserved. Charactry is an independent project and is not affiliated with any other service.

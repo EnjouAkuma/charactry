@@ -1,0 +1,189 @@
+Conditions d'utilisation de Charactry (traduction française)
+
+Remarque : cette traduction est fournie à titre indicatif uniquement. En cas de divergence entre cette traduction et la version originale anglaise (LICENSE.txt), la version anglaise fait foi.
+
+Version 3.2.0 — En vigueur 2026-2027
+
+1. Présentation
+
+Charactry est une application personnelle de gestion de personnages et de construction de mondes, créée et maintenue par Yuuma Akira.
+
+En installant ou en utilisant Charactry, vous acceptez les présentes Conditions d'utilisation. Si vous n'êtes pas d'accord, n'installez pas et n'utilisez pas le logiciel.
+
+Ces conditions s'appliquent à :
+
+Charactry (édition standard)
+
+Charactry PLUS
+
+2. Licence d'utilisation du logiciel
+
+Charactry est concédé sous licence, et non vendu.
+
+Il vous est accordé une licence personnelle, non transférable et non exclusive pour utiliser Charactry dans le cadre d'un travail créatif personnel ou professionnel.
+
+Vous pouvez :
+
+• Utiliser le logiciel pour des projets personnels
+• Utiliser le logiciel pour des projets créatifs commerciaux (livres, jeux, etc.)
+• Créer des plugins ou des extensions pour Charactry
+• Partager les plugins que vous créez
+
+Vous ne pouvez PAS :
+
+• Redistribuer l'installateur de Charactry ou des versions modifiées de celui-ci
+• Reconditionner ou mettre en miroir le logiciel pour le proposer au téléchargement ailleurs
+• Effectuer de l'ingénierie inverse ni extraire le code source en vue de le redistribuer
+• Présenter Charactry comme votre propre logiciel
+
+Les téléchargements officiels doivent provenir des sources de distribution officielles fournies par le développeur.
+
+3. Restrictions de redistribution
+
+Les actions suivantes sont strictement interdites :
+
+• Redistribuer les fichiers de l'application Charactry
+• Redistribuer l'installateur
+• Mettre le logiciel en ligne sur des sites miroirs de téléchargement tiers
+• Vendre des copies de Charactry
+
+Si vous souhaitez partager le logiciel avec d'autres personnes, vous devez renvoyer vers la source de téléchargement officielle.
+
+4. Charactry PLUS
+
+Charactry PLUS est une édition premium du logiciel.
+
+Charactry PLUS peut inclure :
+
+• des fonctionnalités supplémentaires
+• des outils avancés
+• des systèmes expérimentaux
+• des capacités d'IA étendues
+
+Il est interdit de débloquer, de cracker ou de contourner sans autorisation les systèmes de licence de Charactry PLUS.
+
+La distribution de versions modifiées qui débloquent les fonctionnalités PLUS est strictement interdite.
+
+5. Plugins et extensions
+
+Charactry prend en charge les plugins créés par les utilisateurs.
+
+Les utilisateurs peuvent :
+
+• Créer des plugins
+• Partager librement des plugins
+• Distribuer des plugins de manière indépendante
+
+Toutefois :
+
+• Les plugins ne doivent pas inclure le code source ni les fichiers de l'application Charactry
+• Les plugins ne doivent pas se faire passer pour un logiciel Charactry officiel
+• Les plugins ne doivent pas modifier les systèmes de licence
+
+6. Restrictions sur les plugins commerciaux
+
+Les plugins créés pour Charactry ne peuvent pas être vendus à but lucratif, sauf autorisation expresse du développeur.
+
+Autorisé :
+
+• Plugins gratuits
+• Plugins soutenus par des dons
+• Plugins open source
+
+Non autorisé :
+
+• Plugins payants
+• Places de marché de plugins facturant les téléchargements
+• Lots de plugins monétisés
+
+Cette politique vise à garder l'écosystème Charactry accessible à tous les utilisateurs.
+
+7. Dépendances et logiciels tiers
+
+Charactry utilise plusieurs bibliothèques et technologies open source.
+
+Ces dépendances restent soumises à leurs licences respectives.
+
+Exemples :
+
+Electron
+Node.js
+HuggingFace Transformers
+Chart.js
+Fuse.js
+Sharp
+SortableJS
+UUID
+Vis Network
+Zod
+LangChain.js
+Lucide Icons
+Tippy.js
+Toastify
+tsParticles
+
+Chaque dépendance est attribuée à ses auteurs d'origine et placée sous sa licence open source respective.
+
+Charactry ne revendique la propriété d'aucun de ces projets.
+
+8. Contenu de l'utilisateur
+
+Tous les personnages, mondes, lore et autres œuvres créatives réalisés dans Charactry appartiennent entièrement à l'utilisateur.
+
+Le développeur de Charactry ne revendique aucun droit de propriété sur le contenu créé par les utilisateurs.
+
+Les utilisateurs sont entièrement responsables du contenu qu'ils créent et stockent dans le logiciel.
+
+9. Responsabilité en matière de données
+
+Charactry stocke les données de l'utilisateur localement sur son système.
+
+Le développeur n'est pas responsable de la perte ou de la corruption de données due à :
+
+• des plantages du système
+• des pannes matérielles
+• des erreurs de l'utilisateur
+• des plugins tiers
+
+Les utilisateurs sont encouragés à conserver leurs propres sauvegardes.
+
+10. Exclusion de garantie
+
+Charactry est fourni « en l'état », sans garantie d'aucune sorte.
+
+Le développeur ne donne aucune garantie concernant :
+
+• la fiabilité
+• la disponibilité
+• l'adéquation à un usage particulier
+
+L'utilisation du logiciel se fait à vos propres risques.
+
+11. Limitation de responsabilité
+
+En aucun cas le développeur ne saurait être tenu responsable de :
+
+• la perte de données
+• la perte de bénéfices
+• des dysfonctionnements du logiciel
+• des dommages causés par des plugins tiers
+
+12. Résiliation
+
+Toute violation des présentes conditions peut entraîner la résiliation de votre licence d'utilisation de Charactry PLUS, si vous l'avez achetée.
+
+13. Modification des conditions
+
+Les présentes Conditions d'utilisation peuvent être mises à jour dans les versions futures de Charactry.
+
+La poursuite de l'utilisation du logiciel vaut acceptation des conditions mises à jour.
+
+14. Développeur
+
+Charactry est développé par :
+
+Yuuma Akira
+
+15. Accord final
+
+En installant ou en utilisant Charactry, vous reconnaissez avoir lu et accepté les présentes Conditions d'utilisation.
