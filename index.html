@@ -1865,7 +1865,7 @@ async function activateSerial() {
 
   const btn = document.getElementById('serial-activate-btn');
   if (btn) {
-    btn.innerHTML = '<span style="opacity:.6">Checking…</span>';
+    btn.innerHTML = '<span style="opacity:.6">' + tp('plusChecking') + '</span>';
     btn.disabled = true;
   }
 
@@ -1885,22 +1885,22 @@ async function activateSerial() {
     toast(t('toasts.plusActivated') || '✦ Charactry PLUS activated! Welcome.', 'success', 5000);
     setTimeout(() => navigate(currentPage), 200);
   } catch (e) {
-    let message = e.message || 'Could not activate this license.';
+    let message = e.message || tp('plusErrGeneric');
 
     if (e.code === 'ACTIVATION_LIMIT') {
-      message = 'This license has reached its 2-device limit. Deactivate it on another device first.';
+      message = tp('plusErrLimit');
     } else if (e.code === 'LICENSE_NOT_FOUND') {
-      message = 'That license key was not found.';
+      message = tp('plusErrNotFound');
     } else if (e.code === 'LICENSE_INACTIVE') {
-      message = 'That license is no longer active.';
+      message = tp('plusErrInactive');
     } else if (e.code === 'LICENSE_EXPIRED') {
-      message = 'That license has expired.';
+      message = tp('plusErrExpired');
     }
 
     toast(message, 'error', 5000);
   } finally {
     if (btn) {
-      btn.innerHTML = '✓ Activate';
+      btn.innerHTML = tp('plusActivateBtn');
       btn.disabled = false;
     }
   }
@@ -1908,7 +1908,7 @@ async function activateSerial() {
 
 // Deactivate PLUS — frees this device's slot on the server, then clears local state
 async function deactivatePLUS() {
-  if (!confirm('Deactivate Charactry PLUS on this device?\nYour license stays yours and can be activated again later.')) {
+  if (!confirm(tp('plusDeactivateConfirm'))) {
     return;
   }
 
@@ -1918,7 +1918,7 @@ async function deactivatePLUS() {
     if (saved) {
       const result = await plusRequest('deactivate', saved);
       if (!result.deactivated && result.code !== 'NOT_ACTIVATED') {
-        throw new Error(result.error || 'The license server could not deactivate this device.');
+        throw new Error(result.error || tp('plusDeactivateServerFail'));
       }
     }
 
@@ -1932,7 +1932,7 @@ async function deactivatePLUS() {
     toast(t('toasts.plusDeactivated') || 'Charactry PLUS deactivated on this device.', 'success', 3000);
     setTimeout(() => navigate(currentPage), 100);
   } catch (e) {
-    toast('Could not deactivate this device: ' + (e.message || 'Unknown error.'), 'error', 5000);
+    toast(tp('plusDeactivateFail', { msg: e.message || tp('plusUnknownError') }), 'error', 5000);
   }
 }
 
@@ -1957,12 +1957,8 @@ function plusLockOverlay(featureName) {
         ${featureName}
       </div>
       <div style="font-size:13px;color:var(--text3);max-width:360px;line-height:1.7">
-        This feature is exclusive to <b style="color:#f0c040">Charactry PLUS</b>.<br>
-        Unlock it by entering your license key in Settings, or
-        <a href="https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00" target="_blank"
-          style="color:#f0c040;text-decoration:none;border-bottom:1px solid #f0c04055">
-          get Charactry PLUS here
-        </a>.
+        ${tp('plusLockExclusive', { plus: '<b style="color:#f0c040">Charactry PLUS</b>' })}<br>
+        ${tp('plusLockUnlock', { link: `<a href="https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00" target="_blank" style="color:#f0c040;text-decoration:none;border-bottom:1px solid #f0c04055">${tp('plusLockLink')}</a>` })}
       </div>
     </div>
     <button onclick="navigate('settings')" style="
@@ -1971,10 +1967,10 @@ function plusLockOverlay(featureName) {
       background:linear-gradient(135deg,#f0c040,#d4a020);color:#080b14;
       box-shadow:0 4px 20px #f0c04030;transition:all .15s;
     " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-      ✦ Enter Serial Code
+      ${tp('plusLockBtn')}
     </button>
     <div style="font-size:11px;color:var(--text3)">
-      Already have a code? Go to Settings → Charactry PLUS Activation
+      ${tp('plusLockHint')}
     </div>
   </div>`;
 }
@@ -2030,6 +2026,13 @@ function _syncMenuLang() {
 }
 
 // t('nav.dashboard') → looks up _i18n.nav.dashboard, falls back to _i18nEn, then the key itself
+// settings.* lookup with {placeholder} substitution (PLUS / plugin UI strings)
+function tp(key, vars) {
+  let s = t('settings.' + key);
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, n) => (vars[n] != null ? vars[n] : m));
+  return s;
+}
+
 function t(key) {
   const parts = key.split('.');
   let val = _i18n;
@@ -3604,20 +3607,19 @@ function renderSettings(pc) {
       </div>
       ` : `
       <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
-        Enter the license key from your Charactry PLUS purchase email.
-        Don't have one? <a href="https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00" target="_blank" style="color:#f0c040;text-decoration:none;border-bottom:1px solid #f0c04055">Get Charactry PLUS</a>
+        ${tp('plusBuyPrompt', { link: `<a href="https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00" target="_blank" style="color:#f0c040;text-decoration:none;border-bottom:1px solid #f0c04055">${tp('plusGetLink')}</a>` })}
       </p>
 
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Your license supports up to 2 active devices. Deactivating on an old device frees a slot.</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${tp('plusDeviceNote')}</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <input class="form-input" id="serial-input" type="text" autocomplete="off" spellcheck="false"
             placeholder="CHARA-XXXX-XXXX-XXXX"
             style="flex:1;min-width:220px;font-family:'JetBrains Mono',monospace;text-transform:uppercase"
             onkeydown="if(event.key==='Enter') activateSerial()">
-          <button class="btn btn-primary" id="serial-activate-btn" onclick="activateSerial()">✓ Activate</button>
+          <button class="btn btn-primary" id="serial-activate-btn" onclick="activateSerial()">${tp('plusActivateBtn')}</button>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Activation needs an internet connection the first time. A successful check is cached for up to 7 days to ride out short outages.</div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">${tp('plusOnlineNote')}</div>
       </div>
       `}
     </div>
@@ -3713,8 +3715,8 @@ function renderPluginList() {
           ${p.hasLorebook ? '<span style="font-size:10px;background:#f0c04022;color:#f0c040;padding:1px 7px;border-radius:20px;border:1px solid #f0c04044">📖 Lorebook</span>' : ''}
           ${tags}
         </div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${escHTML(m.description || 'No description.')}</div>
-        ${m.author ? `<div style="font-size:11px;color:var(--text3)">by ${escHTML(m.author)}</div>` : ''}
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${escHTML(m.description || tp('pluginNoDescription'))}</div>
+        ${m.author ? `<div style="font-size:11px;color:var(--text3)">${escHTML(tp('pluginBy', { author: m.author }))}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
         <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text2)">
@@ -3724,7 +3726,7 @@ function renderPluginList() {
             <div style="position:absolute;top:2px;${active?'right':'left'}:2px;width:14px;height:14px;
               border-radius:50%;background:#fff;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>
           </div>
-          ${active ? 'Enabled' : 'Disabled'}
+          ${active ? tp('pluginEnabled') : tp('pluginDisabled')}
         </label>
       </div>
     </div>`;
@@ -10920,7 +10922,7 @@ async function injectPluginSidebarItems() {
 // This function never needs to change for new plugins.
 async function openPluginWindow(pluginId, manifest) {
   if (manifest.plusOnly && !isPLUS) {
-    toast('This plugin requires Charactry PLUS.', 'error', 3000);
+    toast(tp('plusRequiresPlugin'), 'error', 3000);
     return;
   }
   if (!window.electronAPI?.openPluginWindow) {
@@ -10928,7 +10930,7 @@ async function openPluginWindow(pluginId, manifest) {
     return;
   }
   const ok = await window.electronAPI.openPluginWindow(pluginId, manifest);
-  if (!ok) toast('Could not open plugin — missing index.html?', 'error', 3000);
+  if (!ok) toast(tp('pluginOpenFail'), 'error', 3000);
 }
 
 // Plugin data loaders — previously loaded data for bundled plugins that lived
