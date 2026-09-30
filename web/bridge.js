@@ -655,12 +655,71 @@
     offOllamaToken:       (cb) => { tokenListeners.delete(cb); },
   };
 
-  /* "Reset everything" in Settings calls localforage.clear(); make it also
-     drop the mirrored copies so deleted characters don't get "recovered". */
-  const _clear = localforage.clear.bind(localforage);
-  localforage.clear = function () {
-    return _clear().then(() => window.electronAPI.resetDisk()).catch((e) => { console.warn('clear', e); });
-  };
+  /* License safety net. The app keeps the license key, its validation time
+     and this browser's device ID inside `settings`. If that object is ever
+     saved without them (a stale copy, a partial write, storage hiccup), the
+     license would silently vanish — and a fresh device ID would burn one of
+     the two device slots. So keep a second copy in localStorage and merge it
+     back whenever settings are read without a license. Deactivating (which
+     sets plusActivated=false) and "Reset everything" clear the copy. */
+  const LIC_KEY = 'charactry_license_backup', DEV_KEY = 'charactry_device_id';
+  const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  const lsDel = (k) => { try { localStorage.removeItem(k); } catch {} };
+  /* localForage re-wraps its own methods when its storage driver finishes
+     starting, which would silently undo overrides made too early. So the
+     patches are (re)applied now AND once more when ready() resolves. */
+  function patchLocalforage() {
+    if (!localforage.setItem.__web) {
+      const orig = localforage.setItem.bind(localforage);
+      const f = function (key, value, ...rest) {
+        if (key === "charactry_settings" && value && typeof value === "object") {
+          if (value.plusDeviceId) lsSet(DEV_KEY, value.plusDeviceId);
+          if (value.serialCode) {
+            lsSet(LIC_KEY, { serialCode: value.serialCode, plusActivated: true, plusValidatedAt: value.plusValidatedAt || 0, plusActivationLimit: value.plusActivationLimit });
+          } else if (value.plusActivated === false) {
+            lsDel(LIC_KEY);
+          }
+        }
+        return orig(key, value, ...rest);
+      };
+      f.__web = true; localforage.setItem = f;
+    }
+    if (!localforage.getItem.__web) {
+      const orig = localforage.getItem.bind(localforage);
+      const f = function (key, ...rest) {
+        const p = orig(key, ...rest);
+        if (key !== "charactry_settings") return p;
+        return p.then((v) => {
+          if (v && typeof v === "object") {        // protect licenses saved before this safety net existed
+            if (v.plusDeviceId && !lsGet(DEV_KEY)) lsSet(DEV_KEY, v.plusDeviceId);
+            if (v.serialCode && !lsGet(LIC_KEY)) lsSet(LIC_KEY, { serialCode: v.serialCode, plusActivated: true, plusValidatedAt: v.plusValidatedAt || 0, plusActivationLimit: v.plusActivationLimit });
+          }
+          const lic = lsGet(LIC_KEY), dev = lsGet(DEV_KEY);
+          if (!lic && !dev) return v;
+          const st = (v && typeof v === "object") ? v : {};
+          let out = st, changed = false;
+          if (lic && !st.serialCode) { out = Object.assign({}, out, lic); changed = true; }
+          if (dev && !st.plusDeviceId) { out = Object.assign({}, out, { plusDeviceId: dev }); changed = true; }
+          return changed ? out : v;
+        });
+      };
+      f.__web = true; localforage.getItem = f;
+    }
+    /* "Reset everything" calls localforage.clear(): also drop the license copy
+       and the mirrored characters so deleted characters aren't "recovered".
+       (The device id is kept on purpose: same browser = same device.) */
+    if (!localforage.clear.__web) {
+      const orig = localforage.clear.bind(localforage);
+      const f = function () {
+        lsDel(LIC_KEY);
+        return orig().then(() => window.electronAPI.resetDisk()).catch((e) => { console.warn("clear", e); });
+      };
+      f.__web = true; localforage.clear = f;
+    }
+  }
+  patchLocalforage();
+  localforage.ready().then(patchLocalforage).catch(() => {});
 
   /* Ask the browser not to evict our data under storage pressure. */
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
