@@ -46,6 +46,9 @@ patch('index.html', [
     '<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>\n<script src="web/bridge.js"></script>'],
   ['web-ui after ai.js', '<script src="ai.js"></script>', '<script src="ai.js"></script>\n<script src="web/web-ui.js"></script>'],
   ['web stylesheet', '</head>', '<link rel="stylesheet" href="web/web.css">\n</head>'],
+  ['restore Theme Pack colours on load',
+    "  const t = THEME_MAP[settings.themeLabel];\n  if (t) applyTheme(t);",
+    "  const t = THEME_MAP[settings.themeLabel];\n  if (t) applyTheme(t);\n  else if (settings.themeLabel === 'Theme Pack' && settings.themePackVars) { const v = settings.themePackVars, r = document.documentElement.style; const m = { '--bg': v.bg, '--bg2': v.bg2, '--bg3': v.bg3, '--sidebar-bg': v.sb, '--card': v.card, '--border': v.border, '--border2': v.border2, '--text': v.text, '--text2': v.text2, '--text3': v.text3, '--accent': v.accent, '--accent2': v.accent2 }; for (const k in m) if (m[k]) r.setProperty(k, m[k]); if (v.accent) r.setProperty('--accent-glow', v.accent + '2e'); if (v.bg) { document.body.style.background = v.bg; const mn = document.getElementById('main'); if (mn) mn.style.background = v.bg; } }"],
   ['license device name', "device_name: 'Charactry Desktop'", "device_name: 'Charactry Web'"],
 ]);
 patch('story.html', [

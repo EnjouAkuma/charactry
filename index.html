@@ -3944,6 +3944,7 @@ function hexToRgba(hex, a) {
 function restoreTheme() {
   const t = THEME_MAP[settings.themeLabel];
   if (t) applyTheme(t);
+  else if (settings.themeLabel === 'Theme Pack' && settings.themePackVars) { const v = settings.themePackVars, r = document.documentElement.style; const m = { '--bg': v.bg, '--bg2': v.bg2, '--bg3': v.bg3, '--sidebar-bg': v.sb, '--card': v.card, '--border': v.border, '--border2': v.border2, '--text': v.text, '--text2': v.text2, '--text3': v.text3, '--accent': v.accent, '--accent2': v.accent2 }; for (const k in m) if (m[k]) r.setProperty(k, m[k]); if (v.accent) r.setProperty('--accent-glow', v.accent + '2e'); if (v.bg) { document.body.style.background = v.bg; const mn = document.getElementById('main'); if (mn) mn.style.background = v.bg; } }
   // Re-apply per-variable UI color overrides
   if (settings.uiColors) applyUiColorsCSS(settings.uiColors);
   // Re-apply accent on top

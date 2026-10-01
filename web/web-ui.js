@@ -549,6 +549,7 @@
       if (!c) return;
       const i = characters.findIndex(x => x.id === e.data.charId);
       if (i >= 0) characters[i] = { ...characters[i], ...c, id: e.data.charId };
+      if (typeof saveData === 'function') saveData();   // desktop re-reads the char file next launch; the browser copy must be saved now
       renderPage(currentPage);
     };
   } catch { /* BroadcastChannel unsupported */ }
