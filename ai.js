@@ -214,7 +214,6 @@ async function charMergeFromFile(char) {
 
 /* ── Render AI Studio ── */
 function renderAIStudio(pc) {
-  if (typeof isPLUS !== 'undefined' && !isPLUS) { pc.innerHTML = plusLockOverlay('AI Studio'); return; }
   const tabBar = AI_TOOLS.map(tool =>
     `<button class="ai-tab${tool.id===_aiTab?' active':''}${tool.soon?' soon':''}"
       onclick="${tool.soon ? '' : `_aiTab='${tool.id}';renderPage('aistudio')`}"

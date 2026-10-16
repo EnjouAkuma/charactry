@@ -6,7 +6,7 @@
 
 *A cozy, powerful home for your original characters, your universes, and everything in between.*
 
-[**Open the web app**](https://enjouakuma.github.io/charactry/) · [**Get Charactry PLUS**](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00) · [Join the Discord](https://discord.gg/geCKXeYpsY) · [Support on Ko-fi](https://ko-fi.com/enjouakuma)
+[**Open the web app**](https://enjouakuma.github.io/charactry/) · [Join the Discord](https://discord.gg/geCKXeYpsY) · [Support on Ko-fi](https://ko-fi.com/enjouakuma)
 
 `v3.2.0` · Windows app + Web (any device) · 16 languages
 
@@ -38,7 +38,7 @@ You can use it two ways, and they share the same interface and the same license:
 
 ## ✨ Features (free)
 
-The core app is completely free. No paywalled basics.
+Every feature in Charactry is free. No paywalls, no license keys.
 
 ### Characters
 - **Full character profiles**: names, nicknames, pronouns, age, height, species, alignment, appearance, traits, likes/dislikes, strengths/weaknesses, backstory, abilities, trivia, quotes, and more.
@@ -79,13 +79,9 @@ The core app is completely free. No paywalled basics.
 
 ---
 
-## 💎 Charactry PLUS
+## 🧰 Power tools & AI Studio
 
-PLUS is a **one-time purchase**. No subscription, no recurring fees. It unlocks the power tools for people who are seriously building a world (or a very large cast).
-
-### 👉 [Get Charactry PLUS here](https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00)
-
-After purchasing, your **license key arrives by email**. Enter it once in **Settings → Charactry PLUS** and you're in. Your license works on **up to 2 devices**, and it's shared across the Windows app and the web app. You can deactivate one device any time to free up a slot.
+Everything below is **free for everyone**: no license key, no activation, no purchase.
 
 ### What you get
 
@@ -107,15 +103,13 @@ After purchasing, your **license key arrives by email**. Enter it once in **Sett
 
 > AI Studio is **text only**. No AI art generation, ever. Your characters' visual identity stays yours.
 
-**PLUS plugins**
+**More plugins**
 | Plugin | What it does |
 |---|---|
 | **Gallery Pro** | Lightbox viewer, image tagging, slideshows, and a reference sheet builder |
 | **Mood Board** | Pinterest-style mood boards per character: images, palettes, quotes, notes |
 | **Story Bible Export** | Export your whole universe as a beautifully formatted PDF/DOCX story bible |
 | **AI Memory Expansion** | Voice profiles, long-term memory, and custom persona rules for Character Brain |
-
-Plus priority on updates and features, and you're directly supporting a solo dev. ♡
 
 ---
 
@@ -124,7 +118,7 @@ Plus priority on updates and features, and you're directly supporting a solo dev
 - **Your data stays with you.** Everything is saved in your browser on your device. Close the tab, come back tomorrow, it's all still there. Nothing is uploaded to a server.
 - **Back it up.** Clearing your browser's site data (or using a private window) erases it, so use **Settings → Download full backup** every now and then, and to move to another device.
 - **Install it like an app.** On a phone or tablet, use your browser's "Add to Home Screen".
-- **AI Studio on the web (PLUS):** connect your own [OpenRouter](https://openrouter.ai) account (free models available), any OpenAI-compatible endpoint, or a local Ollama, under **AI Studio → Setup**. Your key stays in your browser.
+- **AI Studio on the web:** connect your own [OpenRouter](https://openrouter.ai) account (free models available), any OpenAI-compatible endpoint, or a local Ollama, under **AI Studio → Setup**. Your key stays in your browser.
 - **Plugins:** the eight bundled plugins are included. To add more, use **Settings → Install plugin** and pick a `.zip` or `.rar` file.
 
 ## 🔌 Plugins & community
@@ -132,7 +126,7 @@ Plus priority on updates and features, and you're directly supporting a solo dev
 Know some HTML and JavaScript? You can build plugins that slot right into Charactry's sidebar and share them.
 
 - Free sharing is always welcome. **Selling plugins requires permission** from the developer.
-- Be upfront about any sensitive content, no malicious code, credit yourself, and don't bypass or tamper with PLUS verification.
+- Be upfront about any sensitive content, no malicious code, and credit yourself.
 - **Only install plugins from people you trust**, since plugins run inside Charactry.
 
 Full guide: see the [documentation](https://enjouakuma.neocities.org/charactry_docs.html).
@@ -143,7 +137,6 @@ Full guide: see the [documentation](https://enjouakuma.neocities.org/charactry_d
 
 - **Windows app:** a Windows PC.
 - **Web app:** any modern browser (Chrome, Edge, Firefox, Safari) on any device.
-- An internet connection is needed to **activate PLUS** and verify your license. Everything else works locally.
 
 ## Credits
 
@@ -154,6 +147,6 @@ Want a new language or a feature? Reach out on [Discord](https://discord.gg/geCK
 
 ## License
 
-Charactry is **not open source**. It's free to use, but all rights are reserved: please don't redistribute, repackage, mirror, or sell the app or modified copies, or unlock PLUS features without a license. See the Terms of Service in [`LICENSE.txt`](LICENSE.txt) for the details (translations for convenience: [日本語](translations/LICENSE.ja.txt) · [Español (España)](translations/LICENSE.es-es.txt) · [Español (México)](translations/LICENSE.es-mx.txt) · [Français](translations/LICENSE.fr.txt) · [Deutsch](translations/LICENSE.de.txt) · [Italiano](translations/LICENSE.it.txt) · [한국어](translations/LICENSE.ko.txt) · [Português (BR)](translations/LICENSE.pt-br.txt) · [Português (PT)](translations/LICENSE.pt.txt) · [Русский](translations/LICENSE.ru.txt) · [中文（简体）](translations/LICENSE.zh.txt) · [中文（繁體）](translations/LICENSE.zh-tw.txt) · [粵語](translations/LICENSE.yue.txt) · [Filipino](translations/LICENSE.tl.txt) · [Tiếng Việt](translations/LICENSE.vi.txt); the English version prevails if they differ), and link people to the official sources instead of re-hosting.
+Charactry is **not open source**. It's free to use, but all rights are reserved: please don't redistribute, repackage, mirror, or sell the app or modified copies. See the Terms of Service in [`LICENSE.txt`](LICENSE.txt) for the details (translations for convenience: [日本語](translations/LICENSE.ja.txt) · [Español (España)](translations/LICENSE.es-es.txt) · [Español (México)](translations/LICENSE.es-mx.txt) · [Français](translations/LICENSE.fr.txt) · [Deutsch](translations/LICENSE.de.txt) · [Italiano](translations/LICENSE.it.txt) · [한국어](translations/LICENSE.ko.txt) · [Português (BR)](translations/LICENSE.pt-br.txt) · [Português (PT)](translations/LICENSE.pt.txt) · [Русский](translations/LICENSE.ru.txt) · [中文（简体）](translations/LICENSE.zh.txt) · [中文（繁體）](translations/LICENSE.zh-tw.txt) · [粵語](translations/LICENSE.yue.txt) · [Filipino](translations/LICENSE.tl.txt) · [Tiếng Việt](translations/LICENSE.vi.txt); the English version prevails if they differ), and link people to the official sources instead of re-hosting.
 
 © 2026–2027 EnjouAkuma / Yuuma Akira. All rights reserved. Charactry is an independent project and is not affiliated with any other service.

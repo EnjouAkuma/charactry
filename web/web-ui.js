@@ -241,13 +241,11 @@
     return installedPlugins.map(p => {
       const m = p.manifest, active = m.enabled !== false;
       const tags = (m.tags || []).map(t => `<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:20px;font-size:10px">${esc(t)}</span>`).join('');
-      const tier = m.plusOnly ? '<span style="font-size:10px;background:#f0c04022;color:#f0c040;padding:1px 7px;border-radius:20px;border:1px solid #f0c04044">PLUS</span>' : '';
       return `<div class="web-plugin-card" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
             <b style="color:var(--text);font-size:14px">${esc(m.name || p.id)}</b>
             <span style="font-size:10px;color:var(--text3)">v${esc(m.version || '?')}</span>
-            ${tier}
             ${m.brainContext ? '<span style="font-size:10px;background:#6688f522;color:#6688f5;padding:1px 7px;border-radius:20px;border:1px solid #6688f544">🧠 Brain</span>' : ''}
             ${p.hasLorebook ? '<span style="font-size:10px;background:#f0c04022;color:#f0c040;padding:1px 7px;border-radius:20px;border:1px solid #f0c04044">📖 Lorebook</span>' : ''}
             ${tags}
@@ -578,10 +576,9 @@
         const ready = typeof navigate === 'function' && $('#splash')?.classList.contains('hidden');
         if (n && ready) {
           clearInterval(t);
-          const plus = typeof isPLUS !== 'undefined' && isPLUS;
-          if (plus) { try { _aiTab = 'setup'; } catch {} navigate(n.goto); }
-          const base = typeof n.msg === 'function' ? n.msg() : n.msg;
-          say(base + (!plus && n.type === 'success' ? T('aiNeedsPlus') : ''), n.type, 6000);
+          try { _aiTab = 'setup'; } catch {}
+          navigate(n.goto);
+          say(typeof n.msg === 'function' ? n.msg() : n.msg, n.type, 6000);
           WEB.pendingNotice = null;
         } else if (++tries > 120) clearInterval(t);
       }, 500);

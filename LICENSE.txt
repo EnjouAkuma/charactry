@@ -10,9 +10,7 @@ By installing or using Charactry, you agree to the following Terms of Service. I
 
 These terms apply to:
 
-Charactry (Standard Edition)
-
-Charactry PLUS
+Charactry
 
 2. License to Use the Software
 
@@ -47,22 +45,7 @@ The following is strictly prohibited:
 
 If you wish to share the software with others, you must link to the official download source instead.
 
-4. Charactry PLUS
-
-Charactry PLUS is a premium edition of the software.
-
-Charactry PLUS may include:
-
-• additional features
-• advanced tools
-• experimental systems
-• extended AI capabilities
-
-Unauthorized unlocking, cracking, or bypassing of Charactry PLUS licensing systems is prohibited.
-
-Distribution of modified builds that unlock PLUS features is strictly forbidden.
-
-5. Plugins and Extensions
+4. Plugins and Extensions
 
 Charactry supports user-created plugins.
 
@@ -78,7 +61,7 @@ However:
 • Plugins must not impersonate official Charactry software
 • Plugins must not modify licensing systems
 
-6. Commercial Plugin Restrictions
+5. Commercial Plugin Restrictions
 
 Plugins created for Charactry may not be sold for profit unless explicit permission is granted by the developer.
 
@@ -96,7 +79,7 @@ Not allowed:
 
 This policy exists to keep the Charactry ecosystem accessible to all users.
 
-7. Dependencies and Third-Party Software
+6. Dependencies and Third-Party Software
 
 Charactry uses several open-source libraries and technologies.
 
@@ -124,7 +107,7 @@ Each dependency is credited to its original authors and licensed under their res
 
 Charactry does not claim ownership of these projects.
 
-8. User Content
+7. User Content
 
 All characters, worlds, lore, and other creative works created within Charactry belong entirely to the user.
 
@@ -132,7 +115,7 @@ The developer of Charactry claims no ownership over user-created content.
 
 Users are fully responsible for the content they create and store within the software.
 
-9. Data Responsibility
+8. Data Responsibility
 
 Charactry stores user data locally on the user's system.
 
@@ -145,7 +128,7 @@ The developer is not responsible for lost or corrupted data due to:
 
 Users are encouraged to maintain their own backups.
 
-10. Disclaimer of Warranty
+9. Disclaimer of Warranty
 
 Charactry is provided "as is" without warranties of any kind.
 
@@ -157,7 +140,7 @@ The developer makes no guarantees regarding:
 
 Use of the software is at your own risk.
 
-11. Limitation of Liability
+10. Limitation of Liability
 
 Under no circumstances shall the developer be liable for:
 
@@ -166,22 +149,22 @@ Under no circumstances shall the developer be liable for:
 • software malfunctions
 • damages caused by third-party plugins
 
-12. Termination
+11. Termination
 
-Violation of these terms may result in termination of your license to use Charactry PLUS if have purchased.
+Violation of these terms may result in termination of your license to use Charactry.
 
-13. Changes to the Terms
+12. Changes to the Terms
 
 These Terms of Service may be updated in future versions of Charactry.
 
 Continued use of the software constitutes acceptance of updated terms.
 
-14. Developer
+13. Developer
 
 Charactry is developed by:
 
 Yuuma Akira
 
-15. Final Agreement
+14. Final Agreement
 
 By installing or using Charactry, you acknowledge that you have read and agreed to these Terms of Service.

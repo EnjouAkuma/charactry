@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="assets/charactry_transparent.png">
 <link rel="apple-touch-icon" href="assets/charactry_icon.png">
-<title>Charactry PLUS — Personal OC Archive & Management</title>
+<title>Charactry — Personal OC Archive & Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =====================================================
@@ -1038,7 +1038,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
     <img id="app-logo" src="assets/charactry_transparent.png" onerror="this.src='charactry.ico'" alt="Charactry" style="width:26px;height:26px;object-fit:contain">
     <span id="app-logo-fb" style="display:none;font-size:18px">✦</span>
     <div>
-      <div id="app-name" data-i18n="app.name">Charactry PLUS</div>
+      <div id="app-name" data-i18n="app.name">Charactry</div>
       <div id="app-slogan" data-i18n="app.tagline">Personal OC Archive &amp; Management</div>
     </div>
   </div>
@@ -1673,306 +1673,49 @@ let loreNotes   = [];
 let settings    = {};
 
 /* ═══════════════════════════════════════════
-   CHARACTRY PLUS — LICENSE VALIDATION
-   Stripe → Supabase → license-api. Licenses are created
-   server-side when a purchase completes and emailed to the
-   customer; the app only ever talks to license-api with the
-   license key + this install's device ID. No local hash files,
-   no secrets of any kind live in this file or anywhere in the
-   renderer/client code.
+   BRANDING — every feature is free for everyone
 ═══════════════════════════════════════════ */
-const PLUS_API_URL  = 'https://utnoniwrgiuqdwitboru.supabase.co/functions/v1/license-api';
-const PLUS_CACHE_MS = 7 * 24 * 60 * 60 * 1000; // 7-day offline grace period
-let   isPLUS         = false; // true after a successful license-api validation/activation
-
-// Persistent per-install device ID — generated once, reused on every launch.
-// Belongs to the installation, not the license, so it survives deactivation.
-function getPLUSDeviceId() {
-  if (!settings.plusDeviceId) {
-    settings.plusDeviceId = crypto.randomUUID();
-    localforage.setItem('charactry_settings', settings).catch(e => console.warn('[PLUS] Could not save device ID:', e));
-  }
-  return settings.plusDeviceId;
-}
-
-// Calls license-api with { action, license_key, device_id, device_name }.
-// action is one of: 'activate' | 'validate' | 'deactivate'
-async function plusRequest(action, licenseKey) {
-  const key = String(licenseKey || '').trim().toUpperCase();
-  if (!key) throw new Error('Missing license key.');
-
-  const response = await fetch(PLUS_API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action,
-      license_key: key,
-      device_id: getPLUSDeviceId(),
-      device_name: 'Charactry Web'
-    })
-  });
-
-  let data = {};
-  try { data = await response.json(); } catch (_) {}
-
-  if (!response.ok) {
-    const err = new Error(data.error || `License server returned ${response.status}.`);
-    err.code = data.code || '';
-    err.status = response.status;
-    throw err;
-  }
-
-  return data;
-}
-
-// Validates the saved license against the server. A recent successful
-// validation is cached briefly so a short outage doesn't kill PLUS —
-// but a failed/denied validation is never cached as a pass.
-async function validatePLUSOnline(licenseKey, allowCache = true) {
-  const now = Date.now();
-
-  if (
-    allowCache &&
-    settings.plusValidatedAt &&
-    now - Number(settings.plusValidatedAt) < PLUS_CACHE_MS
-  ) {
-    return true;
-  }
-
-  const result = await plusRequest('validate', licenseKey);
-  if (!result.active) return false;
-
-  settings.plusValidatedAt = now;
-  settings.plusActivationLimit = result.activation_limit || 2;
-  await localforage.setItem('charactry_settings', settings);
-  return true;
-}
-
-// Called on init — checks the saved license key against the server,
-// sets isPLUS, applies branding. The old local hash system is never consulted.
-async function initPLUS() {
-  const saved = settings.serialCode || '';
-  isPLUS = false;
-
-  if (saved) {
-    try {
-      isPLUS = await validatePLUSOnline(saved, true);
-      if (!isPLUS) {
-        settings.plusValidatedAt = 0;
-        await localforage.setItem('charactry_settings', settings);
-        console.warn('[PLUS] License is inactive, expired, revoked, or not activated on this device.');
-      }
-    } catch (e) {
-      console.warn('[PLUS] Could not reach license server:', e);
-    }
-  }
-
-  applyBranding();
-}
-
-// Swap all branding between Charactry ↔ Charactry PLUS
 function applyBranding() {
-  const appName    = isPLUS ? 'Charactry PLUS' : 'Charactry';
-  const tagline    = isPLUS ? (t('app.tagline')||'Personal OC Archive & Management') : (t('app.taglineShort')||'Personal OC Archive');
-  const splashLogo = isPLUS ? 'assets/charactryplus_light_transparent.png' : 'assets/charactry_light_transparent.png'; // slogan version for splash only
+  const appName = 'Charactry';
+  const tagline = t('app.tagline') || 'Personal OC Archive & Management';
 
-  // Title bar
   document.title = appName + ' — ' + tagline;
 
-  // Splash subtitle
   const splashSubEl = document.getElementById('splash-sub');
-  if (splashSubEl) splashSubEl.textContent = isPLUS ? (t('app.tagline')||'Personal OC Archive & Management') : (t('app.taglineShort')||'Personal OC Archive');
+  if (splashSubEl) splashSubEl.textContent = tagline;
 
-  // Sidebar app name
   const appNameEl = document.getElementById('app-name');
   if (appNameEl) {
     appNameEl.textContent = appName;
-    if (isPLUS) {
-      appNameEl.style.background = 'linear-gradient(90deg, var(--gold, #f0c040), var(--indigo, #6688f5))';
-      appNameEl.style.webkitBackgroundClip = 'text';
-      appNameEl.style.webkitTextFillColor  = 'transparent';
-    } else {
-      appNameEl.style.background = '';
-      appNameEl.style.webkitBackgroundClip = '';
-      appNameEl.style.webkitTextFillColor  = 'var(--accent)';
-    }
+    appNameEl.style.background = '';
+    appNameEl.style.webkitBackgroundClip = '';
+    appNameEl.style.webkitTextFillColor = 'var(--accent)';
   }
 
-  // Splash logo & title
   const splashLogoEl = document.getElementById('splash-logo');
   if (splashLogoEl) {
-    splashLogoEl.src = splashLogo;
+    splashLogoEl.src = 'assets/charactry_light_transparent.png';
     splashLogoEl.onerror = () => { splashLogoEl.onerror = null; splashLogoEl.src = 'charactry.ico'; };
   }
 
   const splashTitleEl = document.getElementById('splash-title');
   if (splashTitleEl) splashTitleEl.textContent = appName;
 
-  // Sidebar corner icon — uses icon version (not the slogan/light version)
-  const cornerIcon = isPLUS ? 'assets/charactryplus_transparent.png' : 'assets/charactry_transparent.png';
   const appLogoEl = document.getElementById('app-logo');
   if (appLogoEl) {
-    appLogoEl.src = cornerIcon;
+    appLogoEl.src = 'assets/charactry_transparent.png';
     appLogoEl.alt = appName;
     appLogoEl.onerror = () => { appLogoEl.onerror = null; appLogoEl.src = 'charactry.ico'; };
   }
 
-  // Swap the Electron window/taskbar icon
   if (window.electronAPI?.setAppIcon) {
-    window.electronAPI.setAppIcon(isPLUS).catch(() => {});
+    window.electronAPI.setAppIcon().catch(() => {});
   }
 
-  // Dashboard welcome subtitle
   const subEl = document.querySelector('.page-subtitle');
   if (subEl && subEl.textContent.includes('Welcome back')) {
     subEl.textContent = `Welcome back to ${appName} ✦`;
   }
-
-  // PLUS sidebar lock indicators — dim PLUS-only nav items when not activated
-  const plusNavIds = ['nav-relgraph','nav-loremap','nav-stats','nav-radar','nav-compare','nav-fusion','nav-interact'];
-  plusNavIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    // Remove any existing badge
-    el.querySelectorAll('.plus-nav-badge').forEach(b => b.remove());
-    if (!isPLUS) {
-      el.style.opacity = '0.45';
-      el.style.pointerEvents = 'none';
-      const badge = document.createElement('span');
-      badge.className = 'plus-nav-badge';
-      badge.textContent = 'PLUS';
-      badge.style.cssText = 'font-size:8px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,#f0c040,#d4960a);color:#000;padding:1px 5px;border-radius:10px;margin-left:auto;flex-shrink:0';
-      el.appendChild(badge);
-    } else {
-      el.style.opacity = '';
-      el.style.pointerEvents = '';
-    }
-  });
-
-  // Plugin sidebar items — handled separately by injectPluginSidebarItems
-}
-
-// Activate with a license key — called from Settings UI
-async function activateSerial() {
-  const input = document.getElementById('serial-input');
-  if (!input) return;
-
-  const code = input.value.trim().toUpperCase();
-  if (!code) {
-    toast(t('toasts.enterCodeFirst') || 'Enter your license key first.', 'error');
-    return;
-  }
-
-  const btn = document.getElementById('serial-activate-btn');
-  if (btn) {
-    btn.innerHTML = '<span style="opacity:.6">' + tp('plusChecking') + '</span>';
-    btn.disabled = true;
-  }
-
-  try {
-    const result = await plusRequest('activate', code);
-
-    settings.serialCode = code;
-    settings.plusActivated = true;
-    settings.plusValidatedAt = Date.now();
-    settings.plusActivationLimit = result.activation_limit || 2;
-    await localforage.setItem('charactry_settings', settings);
-
-    isPLUS = true;
-    applyBranding();
-
-    // Show toast first, THEN navigate so toast is visible
-    toast(t('toasts.plusActivated') || '✦ Charactry PLUS activated! Welcome.', 'success', 5000);
-    setTimeout(() => navigate(currentPage), 200);
-  } catch (e) {
-    let message = e.message || tp('plusErrGeneric');
-
-    if (e.code === 'ACTIVATION_LIMIT') {
-      message = tp('plusErrLimit');
-    } else if (e.code === 'LICENSE_NOT_FOUND') {
-      message = tp('plusErrNotFound');
-    } else if (e.code === 'LICENSE_INACTIVE') {
-      message = tp('plusErrInactive');
-    } else if (e.code === 'LICENSE_EXPIRED') {
-      message = tp('plusErrExpired');
-    }
-
-    toast(message, 'error', 5000);
-  } finally {
-    if (btn) {
-      btn.innerHTML = tp('plusActivateBtn');
-      btn.disabled = false;
-    }
-  }
-}
-
-// Deactivate PLUS — frees this device's slot on the server, then clears local state
-async function deactivatePLUS() {
-  if (!confirm(tp('plusDeactivateConfirm'))) {
-    return;
-  }
-
-  const saved = settings.serialCode || '';
-
-  try {
-    if (saved) {
-      const result = await plusRequest('deactivate', saved);
-      if (!result.deactivated && result.code !== 'NOT_ACTIVATED') {
-        throw new Error(result.error || tp('plusDeactivateServerFail'));
-      }
-    }
-
-    settings.serialCode = '';
-    settings.plusActivated = false;
-    settings.plusValidatedAt = 0;
-    isPLUS = false;
-    await localforage.setItem('charactry_settings', settings);
-
-    applyBranding();
-    toast(t('toasts.plusDeactivated') || 'Charactry PLUS deactivated on this device.', 'success', 3000);
-    setTimeout(() => navigate(currentPage), 100);
-  } catch (e) {
-    toast(tp('plusDeactivateFail', { msg: e.message || tp('plusUnknownError') }), 'error', 5000);
-  }
-}
-
-// Returns a PLUS-lock overlay HTML for locked pages
-function plusLockOverlay(featureName) {
-  return `<div style="
-    position:relative;min-height:400px;display:flex;align-items:center;justify-content:center;
-    flex-direction:column;gap:20px;text-align:center;padding:40px 20px;overflow:hidden;
-  ">
-    <!-- blurred background hint -->
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, #f0c04008 0%, transparent 70%);pointer-events:none"></div>
-    <!-- lock icon -->
-    <div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#f0c04018,#6688f518);
-      border:1px solid #f0c04033;display:flex;align-items:center;justify-content:center">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f0c040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-    </div>
-    <div>
-      <div style="font-family:Cinzel,serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">
-        ${featureName}
-      </div>
-      <div style="font-size:13px;color:var(--text3);max-width:360px;line-height:1.7">
-        ${tp('plusLockExclusive', { plus: '<b style="color:#f0c040">Charactry PLUS</b>' })}<br>
-        ${tp('plusLockUnlock', { link: `<a href="https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00" target="_blank" style="color:#f0c040;text-decoration:none;border-bottom:1px solid #f0c04055">${tp('plusLockLink')}</a>` })}
-      </div>
-    </div>
-    <button onclick="navigate('settings')" style="
-      padding:10px 24px;border-radius:10px;border:none;cursor:pointer;font-weight:700;
-      font-family:'Nunito',sans-serif;font-size:13px;
-      background:linear-gradient(135deg,#f0c040,#d4a020);color:#080b14;
-      box-shadow:0 4px 20px #f0c04030;transition:all .15s;
-    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-      ${tp('plusLockBtn')}
-    </button>
-    <div style="font-size:11px;color:var(--text3)">
-      ${tp('plusLockHint')}
-    </div>
-  </div>`;
 }
 
 /* ─────────────────────────────────────────────
@@ -2027,7 +1770,7 @@ function _syncMenuLang() {
 }
 
 // t('nav.dashboard') → looks up _i18n.nav.dashboard, falls back to _i18nEn, then the key itself
-// settings.* lookup with {placeholder} substitution (PLUS / plugin UI strings)
+// settings.* lookup with {placeholder} substitution (plugin UI strings)
 function tp(key, vars) {
   let s = t('settings.' + key);
   if (vars) s = s.replace(/\{(\w+)\}/g, (m, n) => (vars[n] != null ? vars[n] : m));
@@ -2064,7 +1807,7 @@ const I18N_BUILTIN = {
   app:{ name:'Charactry', tagline:'Personal OC Archive & Management',
         donate:'☕ Donate', footer:'© 2026 Yuuma Akira. All Rights Reserved.' },
   sidebar:{ menu:'Menu', tools:'Tools', universes:'Universes', worldbuilding:'Worldbuilding',
-            extras:'Extras', plusFeatures:'PLUS Features', aiStudio:'AI Studio', system:'System' },
+            extras:'Extras', aiStudio:'AI Studio', system:'System' },
   common:{ save:'Save', cancel:'Cancel', close:'✕', delete:'✕ Delete', add:'+ Add',
            edit:'Edit', remove:'✕ Remove', clear:'✕ Clear', confirm:'Confirm',
            export:'Export', import:'Import', refresh:'↺ Refresh', new:'+ New',
@@ -2322,7 +2065,7 @@ function renderDashboard(pc) {
     <div class="page-header">
       <div>
         <div class="page-title">${t('nav.dashboard')}</div>
-        <div class="page-subtitle">${t('toasts.recovered')||'Welcome back to'} ${isPLUS ? t('app.name') : 'Charactry'} ✦</div>
+        <div class="page-subtitle">${t('toasts.recovered')||'Welcome back to'} Charactry ✦</div>
       </div>
     </div>
 
@@ -3376,7 +3119,7 @@ function renderFavorites(pc) {
    SETTINGS
 ===================================================== */
 const THEMES = [
-  {label:'Charactry PLUS', bg:'#080b14', bg2:'#0d1122', bg3:'#121830', sb:'#05070f', card:'#0f1426', border:'#1e2b50', accent:'#f0c040', accent2:'#6688f5'},
+  {label:'Charactry', bg:'#080b14', bg2:'#0d1122', bg3:'#121830', sb:'#05070f', card:'#0f1426', border:'#1e2b50', accent:'#f0c040', accent2:'#6688f5'},
   {label:'Deep Dark',     bg:'#0e0e14', bg2:'#13131c', bg3:'#1a1a28', sb:'#0b0b12', card:'#16161f', border:'#2a2a3d', accent:'#a78bfa', accent2:'#7c3aed'},
   {label:'Midnight Blue', bg:'#080d1a', bg2:'#0c1220', bg3:'#101828', sb:'#060b14', card:'#0d1525', border:'#1a2540', accent:'#60a5fa', accent2:'#2563eb'},
   {label:'Forest',        bg:'#080f0a', bg2:'#0c150e', bg3:'#0f1c12', sb:'#050c06', card:'#0f1a10', border:'#1a3020', accent:'#4ade80', accent2:'#16a34a'},
@@ -3386,6 +3129,7 @@ const THEMES = [
 ];
 const THEME_MAP = {};
 THEMES.forEach(t => { THEME_MAP[t.label] = t; });
+THEME_MAP['Charactry PLUS'] = THEME_MAP['Charactry']; // legacy saved name
 
 const ACCENT_PRESETS = [
   '#a78bfa','#7c3aed','#60a5fa','#2563eb','#4ade80','#16a34a',
@@ -3394,7 +3138,7 @@ const ACCENT_PRESETS = [
 ];
 
 function renderSettings(pc) {
-  const cur  = settings.themeLabel   || 'Charactry PLUS';
+  const cur  = (settings.themeLabel === 'Charactry PLUS' ? 'Charactry' : settings.themeLabel) || 'Charactry';
   const mode = settings.accentMode   || 'solid';
   const ac1  = settings.accentColor1 || '#a78bfa';
   const ac2  = settings.accentColor2 || '#7c3aed';
@@ -3588,47 +3332,9 @@ function renderSettings(pc) {
         <div style="font-size:11px;color:var(--text3)">${t('settings.languageRestart')}</div>
       </div>
       <div style="margin-top:8px;font-size:11px;color:var(--text3)">
-        ${t('settings.languageContrib')||'Want to translate Charactry PLUS? Copy languages/en.json, translate the values, and contribute. ♡'}
+        ${t('settings.languageContrib')||'Want to translate Charactry? Copy languages/en.json, translate the values, and contribute. ♡'}
         <div id="lang-availability-note" style="margin-top:6px;font-size:11px;color:var(--text3)">Loading available languages…</div>
       </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- ══ CHARACTRY PLUS ACTIVATION ══ -->
-    <div class="settings-section">
-      <div class="settings-section-title">
-        <svg style="display:inline;vertical-align:-3px;margin-right:6px" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        ${t('settings.plusActivation')||'Charactry PLUS Activation'}
-      </div>
-      ${isPLUS ? `
-      <div style="display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid #f0c04033;border-radius:12px;padding:14px 18px;margin-bottom:12px">
-        <div style="width:36px;height:36px;border-radius:10px;background:#f0c04018;border:1px solid #f0c04033;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0c040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:#f0c040">${t('settings.plusActive')||'Charactry PLUS is active ✦'}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;font-family:'JetBrains Mono',monospace">${settings.serialCode}</div>
-        </div>
-        <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;color:var(--danger);border-color:#f8717133" onclick="deactivatePLUS()">${t('settings.deactivate')||'Deactivate'}</button>
-      </div>
-      ` : `
-      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
-        ${tp('plusBuyPrompt', { link: `<a href="https://buy.stripe.com/9B63cw1y6gG9aEw7kja3u00" target="_blank" style="color:#f0c040;text-decoration:none;border-bottom:1px solid #f0c04055">${tp('plusGetLink')}</a>` })}
-      </p>
-
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${tp('plusDeviceNote')}</div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <input class="form-input" id="serial-input" type="text" autocomplete="off" spellcheck="false"
-            placeholder="CHARA-XXXX-XXXX-XXXX"
-            style="flex:1;min-width:220px;font-family:'JetBrains Mono',monospace;text-transform:uppercase"
-            onkeydown="if(event.key==='Enter') activateSerial()">
-          <button class="btn btn-primary" id="serial-activate-btn" onclick="activateSerial()">${tp('plusActivateBtn')}</button>
-        </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text3)">${tp('plusOnlineNote')}</div>
-      </div>
-      `}
     </div>
 
     <div class="divider"></div>
@@ -3676,7 +3382,7 @@ function renderSettings(pc) {
     <div class="settings-section">
       <div class="settings-section-title">${t('settings.about')}</div>
       <div style="color:var(--text2);font-size:13px;line-height:2">
-        <b style="color:var(--text)">Charactry PLUS</b> — ${t('app.tagline')||'Personal OC Archive &amp; Management'}<br>
+        <b style="color:var(--text)">Charactry</b> — ${t('app.tagline')||'Personal OC Archive &amp; Management'}<br>
         <span style="font-size:11px;color:var(--text3)">${t('settings.aboutCredit')||t('app.builtWith')||'Built with ♡ by'} <b style="color:var(--text2)">${t('app.author')==='app.author' ? 'Yuuma Akira (明優真)' : t('app.author')}</b></span>
       </div>
     </div>`;
@@ -6059,7 +5765,6 @@ function destroyRelGraph() {
 
 function renderRelGraph(pc) {
   destroyRelGraph();
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay(t('nav.relGraph')||'Relationship Graph'); return; }
   REL_COLORS = loadRelColors();
   pc.innerHTML = `
     <div class="page-header">
@@ -6708,7 +6413,6 @@ function ccRadarSliderInput(stat, val) {
 }
 
 function renderRadar(pc) {
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay(t('nav.radar')||'Personality Radar'); return; }
   const STATS = ['strength','intelligence','charisma','aggression','empathy','morality'];
   const chars = characters.filter(c => c.radarStats && STATS.some(s => (c.radarStats[s]||0) > 0));
 
@@ -6933,7 +6637,6 @@ function renderRadarChart(charId) {
 let _compareChart = null;
 
 function renderCompare(pc) {
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay(t('nav.compare')||'Character Compare'); return; }
   const hasChars = characters.length >= 2;
   const opts = characters.map(c =>
     `<option value="${escAttr(c.id)}">${escHTML(c.name)}${c.species ? ` (${escHTML(c.species)})` : ''}${c.favorite ? ' ★' : ''}</option>`
@@ -7259,7 +6962,6 @@ function _buildCompareRadar(a, b, colorA, colorB, LABELS, rsA, rsB) {
 }
 
 function renderFusion(pc){
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay(t('nav.fusion')||'Fusion Generator'); return; }
   if(!characters.length){pc.innerHTML=`<div class="page-header"><div class="page-title">${'🧬 '+(t('nav.fusion')||'Fusion Generator')}</div></div><div class="card" style="text-align:center;padding:48px;color:var(--text3)"><div style="font-size:40px;margin-bottom:12px">🧬</div><div style="font-size:15px;color:var(--text2);margin-bottom:6px">No characters yet</div><div>Create at least two characters first.</div></div>`;return;}
   const opts=characters.map(c=>`<option value="${escAttr(c.id)}">${escHTML(c.name)}${c.species?` (${escHTML(c.species)})`:''}${c.favorite?' ★':''}</option>`).join('');
   pc.innerHTML=`<div class="page-header"><div><div class="page-title">${'🧬 '+(t('nav.fusion')||'Fusion Generator')}</div><div class="page-subtitle" style="margin-top:4px">${t('fusion.subtitle')||'Pick two characters — see what emerges'}</div></div></div>
@@ -7504,7 +7206,6 @@ function doInteract() {
 }
 
 function renderInteract(pc) {
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay(t('nav.interact')||'Interaction Simulator'); return; }
   if (!characters.length) {
     pc.innerHTML = `
       <div class="page-header"><div class="page-title">${t('interact.title')||t('nav.interact')||'Interaction Simulator'}</div></div>
@@ -8188,7 +7889,6 @@ function buildLoreMapElements() {
 }
 
 function renderLoreMap(pc) {
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay(t('nav.loreMap')||'Lore Map'); return; }
   const total = characters.length+wb_worlds.length+wb_locs.length+wb_factions.length+wb_species.length+wb_magic.length+wb_timeline.length;
   if(total<2){
     pc.innerHTML=`<div class="page-header"><div><div class="page-title">${t('loreMap.title')||'🗺 Lore Map'}</div></div></div>
@@ -8578,7 +8278,6 @@ function lmChangeLayout(){
    CHARACTER STATISTICS DASHBOARD
 ===================================================== */
 function renderStats(pc) {
-  if (!isPLUS) { pc.innerHTML = plusLockOverlay('Statistics'); return; }
   const hasChars = characters.length > 0;
   const wbTotal  = wb_worlds.length+wb_locs.length+wb_factions.length+wb_species.length+wb_magic.length+wb_timeline.length;
 
@@ -8932,7 +8631,7 @@ ${(c.images||[]).length ? `
 
 <!-- FOOTER -->
 <div style="margin-top:24px;text-align:center;font-size:10px;color:#bbb;border-top:1px solid #e8e6f5;padding-top:12px">
-  Generated by Charactry PLUS · ${new Date().toLocaleDateString()}
+  Generated by Charactry · ${new Date().toLocaleDateString()}
 </div>
 
 <\/body><\/html>`;
@@ -9238,6 +8937,7 @@ function themeLabel(name) {
     'Rose Dust':     t('universes.themeRoseDust')||'Rose Dust',
     'Obsidian Gold': t('universes.themeObsidianGold')||'Obsidian Gold',
   };
+  if (name === 'Charactry PLUS') return 'Charactry';
   return map[name] || name;
 }
 
@@ -9779,7 +9479,7 @@ async function initApp() {
   await loadPlugins();
   await loadLorebooks();
   await loadPluginData();
-  await initPLUS();    // validate serial, set isPLUS, apply branding
+  applyBranding();
 
   restoreTheme();
   updateUniSelector();
@@ -10909,14 +10609,10 @@ async function injectPluginSidebarItems() {
 
     btn.onclick = () => openPluginWindow(p.id, m);
 
-    const plusBadge = (m.plusOnly && !isPLUS)
-      ? '<span style="font-size:8px;background:var(--accent);color:#fff;border-radius:4px;padding:1px 4px;margin-left:4px;opacity:.8">PLUS</span>'
-      : '';
-
     // Plugin sidebar labels come from the manifest — translatable by the plugin author
     const pluginLabel = m.sidebar.label || m.name;
     btn.innerHTML = buildPluginIconHtml(p)
-      + '<span>' + pluginLabel + plusBadge + '</span>';
+      + '<span>' + pluginLabel + '</span>';
 
     const section = m.sidebar.section || 'Extras';
     const slot = document.getElementById('plugin-inject-' + section);
@@ -10927,13 +10623,8 @@ async function injectPluginSidebarItems() {
 }
 
 // Open a plugin as a popup window via Electron IPC.
-// PLUS-only plugins show a lock toast instead of opening.
 // This function never needs to change for new plugins.
 async function openPluginWindow(pluginId, manifest) {
-  if (manifest.plusOnly && !isPLUS) {
-    toast(tp('plusRequiresPlugin'), 'error', 3000);
-    return;
-  }
   if (!window.electronAPI?.openPluginWindow) {
     toast('Plugin windows require the desktop app.', 'error', 2500);
     return;
