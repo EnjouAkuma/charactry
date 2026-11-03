@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ Tải lên PNG / SVG",
+    "remove": "Xóa ảnh",
+    "svgTooLarge": "Tệp SVG quá lớn (tối đa 300 KB)",
+    "readError": "Không thể đọc ảnh này"
+  },
+  "richText": {
+    "bold": "In đậm (Ctrl+B)",
+    "italic": "In nghiêng (Ctrl+I)",
+    "boldItalic": "In đậm và nghiêng",
+    "strike": "Gạch ngang",
+    "bulletList": "Danh sách gạch đầu dòng",
+    "numberedList": "Danh sách đánh số",
+    "bulletBtn": "• Danh sách",
+    "numberBtn": "1. Danh sách",
+    "hint": "**in đậm** · *in nghiêng* · ***cả hai*** · ・ hoặc - để tạo gạch đầu dòng"
   }
 }

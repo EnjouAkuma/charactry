@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ PNG / SVG をアップロード",
+    "remove": "画像を削除",
+    "svgTooLarge": "SVG が大きすぎます（最大 300 KB）",
+    "readError": "画像を読み込めませんでした"
+  },
+  "richText": {
+    "bold": "太字 (Ctrl+B)",
+    "italic": "斜体 (Ctrl+I)",
+    "boldItalic": "太字の斜体",
+    "strike": "取り消し線",
+    "bulletList": "箇条書きリスト",
+    "numberedList": "番号付きリスト",
+    "bulletBtn": "• リスト",
+    "numberBtn": "1. リスト",
+    "hint": "**太字** · *斜体* · ***両方*** · ・ または - で箇条書き"
   }
 }

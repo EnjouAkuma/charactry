@@ -1017,6 +1017,26 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 .cmp-win{color:var(--accent)}
 .cmp-lose{color:var(--text3)}
 .cmp-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 24px;color:var(--text3);text-align:center}
+
+/* ── Rich text (bold / italic / lists) + format toolbar ── */
+.rt{line-height:1.8;word-break:break-word}
+.rt p{margin:0 0 10px}
+.rt p:last-child,.rt ul:last-child,.rt ol:last-child{margin-bottom:0}
+.rt ul,.rt ol{margin:0 0 10px;padding-left:22px}
+.rt li{margin:2px 0}
+.rt strong{font-weight:800;color:var(--text)}
+.rt em{font-style:italic}
+.rt del{opacity:.6}
+.rt-bar{display:flex;gap:4px;margin-bottom:5px;flex-wrap:wrap}
+.rt-bar button{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:6px;min-width:28px;height:26px;padding:0 8px;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1}
+.rt-bar button:hover{border-color:var(--accent);color:var(--text)}
+.rt-hint{font-size:10px;color:var(--text3);align-self:center;margin-left:4px}
+/* Folder icon: emoji OR uploaded png/svg */
+.folder-icon-img{width:1.15em;height:1.15em;object-fit:contain;vertical-align:-0.2em;display:inline-block;border-radius:3px}
+.folder-icon .folder-icon-img{width:24px;height:24px;vertical-align:middle}
+.fi-picker{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fi-preview{width:44px;height:44px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
+.fi-preview img{width:100%;height:100%;object-fit:contain}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="web/bridge.js"></script>
@@ -1544,7 +1564,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
         <span style="font-size:13px;color:var(--text2)" data-i18n="form.folderColorHint">Click to pick folder colour</span>
       </div>
     </div>
-    <div class="form-group"><label class="form-label" data-i18n="form.iconEmoji">Icon / Emoji</label><input class="form-input" id="cf-icon" placeholder="📁" style="font-size:20px;text-align:center;width:100px" maxlength="10"></div>
+    <div class="form-group"><label class="form-label" data-i18n="form.iconEmoji">Icon / Emoji</label><div id="cf-icon-mount"></div></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-create-folder')" data-i18n="common.cancel">Cancel</button>
       <button class="btn btn-primary" onclick="saveFolder()" data-i18n="buttons.createFolder">◫ Create Folder</button>
@@ -1569,7 +1589,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
         <span style="font-size:13px;color:var(--text2)" data-i18n="form.folderColorHint">Click to pick folder colour</span>
       </div>
     </div>
-    <div class="form-group"><label class="form-label" data-i18n="form.iconEmoji">Icon / Emoji</label><input class="form-input" id="ef-icon" placeholder="📁" style="font-size:20px;text-align:center;width:100px" maxlength="10"></div>
+    <div class="form-group"><label class="form-label" data-i18n="form.iconEmoji">Icon / Emoji</label><div id="ef-icon-mount"></div></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-edit-folder')" data-i18n="common.cancel">Cancel</button>
       <button class="btn btn-primary" onclick="updateFolder()" data-i18n="buttons.saveChanges">✓ Save Changes</button>
@@ -2533,7 +2553,7 @@ function renderFolderTree(parentId=null, depth=0) {
         ondrop="onFolderDrop(event,'${f.id}')">
         <span class="sortable-handle" title="Drag to reorder">⠿</span>
         <div class="folder-stripe" style="background:${f.color||'#a78bfa'}"></div>
-        <div class="folder-icon">${f.icon||'📁'}</div>
+        <div class="folder-icon">${folderIconHTML(f.icon)}</div>
         <div><div class="folder-name">${escHTML(f.name)}</div><div class="folder-meta">${cnt} ${cnt!==1?(t('common.characters')||'characters'):(t('common.character')||'character')}${f.desc?' · '+escHTML(f.desc):''}</div></div>
         <div class="folder-actions">
           <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="event.stopPropagation();filterByFolder('${f.id}')">${t('buttons.view')||'View'}</button>
@@ -2559,7 +2579,7 @@ function filterByFolder(folderId) {
         <div style="display:flex;align-items:center;gap:10px">
           <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="navigate('folders')">${t('buttons.backToFolders')||'← Folders'}</button>
           <div>
-            <div class="page-title">${f.icon||'📁'} ${escHTML(f.name)}</div>
+            <div class="page-title">${folderIconHTML(f.icon)} ${escHTML(f.name)}</div>
             <div class="page-subtitle">${filtered.length} ${filtered.length!==1?(t('common.characters')||'characters'):(t('common.character')||'character')}</div>
           </div>
         </div>
@@ -2766,7 +2786,8 @@ function renderLore(pc) {
                 <button class="btn btn-danger" style="padding:4px 8px;font-size:12px" onclick="deleteLoreNote(${i})">✕</button>
               </div>
               <!-- body -->
-              <textarea class="form-textarea" id="lore-body-${i}" style="min-height:110px;resize:vertical" placeholder="${escAttr(t('loreNotes.bodyPlaceholder')||'Write your lore here…')}">${escHTML(n.content)}</textarea>
+              ${fmtBar('lore-body-'+i)}
+              <textarea class="form-textarea" data-rt="1" id="lore-body-${i}" style="min-height:110px;resize:vertical" placeholder="${escAttr(t('loreNotes.bodyPlaceholder')||'Write your lore here…')}">${escTA(n.content)}</textarea>
               <!-- footer -->
               <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px">
                 <span style="font-size:11px;color:var(--text3)">${n.updated?(t('loreNotes.lastSaved')||'Last saved: ')+new Date(n.updated).toLocaleString():''}</span>
@@ -3810,7 +3831,7 @@ function viewCharacter(id) {
       <div>
         <div class="char-view-name">${escHTML(c.name)}</div>
         <div style="color:var(--text2);font-size:13px;margin-top:3px">${[c.pronouns,c.species,c.age,c.occupation].filter(Boolean).map(escHTML).join(' · ')}</div>
-        ${folder?`<div style="margin-top:6px"><span class="tag" style="border-left:3px solid ${folder.color||'var(--accent)'}">${folder.icon||'📁'} ${escHTML(folder.name)}</span></div>`:''}
+        ${folder?`<div style="margin-top:6px"><span class="tag" style="border-left:3px solid ${folder.color||'var(--accent)'}">${folderIconHTML(folder.icon)} ${escHTML(folder.name)}</span></div>`:''}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-ghost" style="font-size:20px;padding:6px 12px" onclick="toggleFav('${c.id}');closeModal('modal-view-char');viewCharacter('${c.id}')">${c.favorite?'★':'☆'}</button>
@@ -3925,9 +3946,10 @@ function ccRenderTabsList() {
             <button class="btn btn-danger" style="padding:3px 8px;font-size:11px"
               onclick="ccFlushDOM();_ccTabs[${ti}].sections.splice(${si},1);ccRenderTabsList()">✕</button>
           </div>
-          <textarea class="form-textarea" id="cct-seccontent-${ti}-${si}"
+          ${fmtBar('cct-seccontent-'+ti+'-'+si)}
+          <textarea class="form-textarea" data-rt="1" id="cct-seccontent-${ti}-${si}"
             style="min-height:100px;font-size:13px;resize:vertical"
-            placeholder="${escAttr(t('customTabs.sectionContentPlaceholder')||'Write anything here…')}">${escHTML(sec.content||'')}</textarea>
+            placeholder="${escAttr(t('customTabs.sectionContentPlaceholder')||'Write anything here…')}">${escTA(sec.content||'')}</textarea>
         </div>`).join('')}
       <button class="btn btn-ghost" style="padding:5px 14px;font-size:12px;margin-top:4px"
         onclick="ccFlushDOM();_ccTabs[${ti}].sections.push({name:t('customTabs.newSectionDefault')||'New Section',content:''});ccRenderTabsList()">
@@ -3959,7 +3981,7 @@ function renderCustomTabContent(c, tab, i) {
       : sections.map(s=>`
         <div class="card" style="margin-bottom:14px">
           <div style="font-weight:700;font-size:14px;color:var(--accent);margin-bottom:8px">${escHTML(s.name)}</div>
-          <div style="font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap">${escHTML(s.content||'')}</div>
+          <div style="font-size:14px;color:var(--text)">${richText(s.content||'')}</div>
         </div>`).join('')}
   </div>`;
 }
@@ -4453,15 +4475,21 @@ function saveCharacter() {
 /* =====================================================
    SAVE FOLDER
 ===================================================== */
+function mountFolderIconPickers(){
+  ['cf','ef'].forEach(p=>{const m=document.getElementById(p+'-icon-mount'); if(m&&!m.firstChild) m.innerHTML=folderIconPickerHTML(p);});
+}
+document.addEventListener('DOMContentLoaded',mountFolderIconPickers);
+if(document.readyState!=='loading') mountFolderIconPickers();
+
 function saveFolder() {
   const name=document.getElementById('cf-name').value.trim();
   if (!name){toast(t('toasts.folderNameRequired')||'Folder name required!','error');return;}
   folders.push({id:'f_'+Date.now(),name,desc:document.getElementById('cf-desc').value,
     parent:document.getElementById('cf-parent').value||null,
     color:document.getElementById('cf-color').value,
-    icon:document.getElementById('cf-icon').value||'📁'});
+    icon:folderIconValue('cf')});
   saveData(); closeModal('modal-create-folder');
-  ['cf-name','cf-desc','cf-icon'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  ['cf-name','cf-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''}); folderIconSet('cf','');
   renderPage(currentPage); toast(t('toasts.folderCreated')||'Folder created!');
 }
 
@@ -4470,7 +4498,7 @@ function openEditFolder(id) {
   document.getElementById('ef-id').value=f.id;
   document.getElementById('ef-name').value=f.name||'';
   document.getElementById('ef-desc').value=f.desc||'';
-  document.getElementById('ef-icon').value=f.icon||'';
+  mountFolderIconPickers(); folderIconSet('ef',f.icon||'');
   document.getElementById('ef-color').value=f.color||'#a78bfa';
   const swatch=document.getElementById('btn-ef-color');
   if(swatch) swatch.style.background=f.color||'#a78bfa';
@@ -4505,7 +4533,7 @@ function updateFolder() {
   if(!name){toast(t('toasts.folderNameRequired')||'Folder name required!','error');return;}
   f.name=name;
   f.desc=document.getElementById('ef-desc').value;
-  f.icon=document.getElementById('ef-icon').value||'📁';
+  f.icon=folderIconValue('ef');
   f.color=document.getElementById('ef-color').value;
   f.parent=document.getElementById('ef-parent').value||null;
   saveData(); closeModal('modal-edit-folder');
@@ -4525,7 +4553,7 @@ function populateFolderDropdowns(preselectFolder='') {
     ['cc-folder','cf-parent'].forEach(id=>{
       const el=document.getElementById(id); if(!el) return;
       el.innerHTML=(id==='cf-parent'?`<option value="">${t('form.rootFolder')||'Root (no parent)'}</option>`:'<option value="" data-i18n="form.noFolder">No folder</option>')
-        +folders.map(f=>`<option value="${f.id}">${f.icon||'📁'} ${escHTML(f.name)}</option>`).join('');
+        +folders.map(f=>`<option value="${f.id}">${escHTML(folderIconText(f.icon))} ${escHTML(f.name)}</option>`).join('');
       if (id==='cc-folder' && preselectFolder) el.value=preselectFolder;
     });
     populateUniDropdown();
@@ -4980,6 +5008,153 @@ function onFolderDrop(e, targetId) {
   renderPage('folders');
   dragFolderId = null;
 }
+
+/* ── escTA: safe text for <textarea>. Turns legacy "<br>" back into real newlines. ── */
+function escTA(s){
+  if(!s) return '';
+  return String(s).replace(/<br\s*\/?>/gi,'\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── richText: light markdown → safe HTML ──
+   ***bold italic***  **bold**  *italic*  ~~strike~~
+   lines starting with  - * + • ・  become bullet lists, "1." lines become numbered lists.
+   Blank line = new paragraph. Old saved "<br>" is treated as a line break. */
+function richText(raw){
+  if(raw==null||raw==='') return '';
+  let s = String(raw).replace(/<br\s*\/?>/gi,'\n').replace(/\r\n?/g,'\n');
+  s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const inline = t => t
+    .replace(/\*\*\*([^\s*](?:[^*]*?[^\s*])?)\*\*\*/g,'<strong><em>$1</em></strong>')
+    .replace(/\*\*([^\s*](?:[^*]*?[^\s*])?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^\s*](?:[^*]*?[^\s*])?)\*/g,'<em>$1</em>')
+    .replace(/~~([^\s~](?:[^~]*?[^\s~])?)~~/g,'<del>$1</del>');
+  const out = []; let para = [], list = null;
+  const flushPara = () => { if(para.length){ out.push('<p>'+para.join('<br>')+'</p>'); para=[]; } };
+  const flushList = () => { if(list){ out.push(list.html+'</'+list.tag+'>'); list=null; } };
+  for(const line of s.split('\n')){
+    if(!line.trim()){ flushPara(); flushList(); continue; }
+    let m;
+    if((m = line.match(/^\s*(?:[-*+]\s+|[•・]\s*)(.*)$/))){
+      flushPara();
+      if(!list || list.tag!=='ul'){ flushList(); list={tag:'ul',html:'<ul>'}; }
+      list.html += '<li>'+inline(m[1])+'</li>';
+    } else if((m = line.match(/^\s*(\d+)[.)]\s+(.*)$/))){
+      flushPara();
+      if(!list || list.tag!=='ol'){ flushList(); list={tag:'ol',html:'<ol start="'+m[1]+'">'}; }
+      list.html += '<li>'+inline(m[2])+'</li>';
+    } else {
+      flushList(); para.push(inline(line));
+    }
+  }
+  flushPara(); flushList();
+  return '<div class="rt">'+out.join('')+'</div>';
+}
+
+/* ── Format toolbar for any <textarea id="…"> ── */
+function fmtBar(taId){
+  return `<div class="rt-bar">
+    <button type="button" title="${escAttr(t('richText.bold'))}" onclick="rtWrap('${taId}','**','**')"><b>B</b></button>
+    <button type="button" title="${escAttr(t('richText.italic'))}" onclick="rtWrap('${taId}','*','*')"><i>I</i></button>
+    <button type="button" title="${escAttr(t('richText.boldItalic'))}" onclick="rtWrap('${taId}','***','***')"><b><i>BI</i></b></button>
+    <button type="button" title="${escAttr(t('richText.strike'))}" onclick="rtWrap('${taId}','~~','~~')"><s>S</s></button>
+    <button type="button" title="${escAttr(t('richText.bulletList'))}" onclick="rtList('${taId}','・')">${escHTML(t('richText.bulletBtn'))}</button>
+    <button type="button" title="${escAttr(t('richText.numberedList'))}" onclick="rtList('${taId}','1.')">${escHTML(t('richText.numberBtn'))}</button>
+    <span class="rt-hint">${escHTML(t('richText.hint'))}</span>
+  </div>`;
+}
+function rtWrap(id,a,b){
+  const ta=document.getElementById(id); if(!ta) return;
+  const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value,sel=v.slice(s,e);
+  if(sel && v.slice(s-a.length,s)===a && v.slice(e,e+b.length)===b){   // toggle off
+    ta.value=v.slice(0,s-a.length)+sel+v.slice(e+b.length);
+    ta.setSelectionRange(s-a.length,e-a.length);
+  } else {
+    ta.value=v.slice(0,s)+a+sel+b+v.slice(e);
+    if(sel) ta.setSelectionRange(s+a.length,e+a.length); else ta.setSelectionRange(s+a.length,s+a.length);
+  }
+  ta.focus(); ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function rtList(id,mark){
+  const ta=document.getElementById(id); if(!ta) return;
+  const v=ta.value; let s=ta.selectionStart,e=ta.selectionEnd;
+  const ls=v.lastIndexOf('\n',s-1)+1; let le=v.indexOf('\n',e); if(le<0) le=v.length;
+  let n=0;
+  const block=v.slice(ls,le).split('\n').map(l=>{
+    if(!l.trim()) return l;
+    n++; const pre = mark==='1.' ? (n+'. ') : (mark+' ');
+    return pre + l.replace(/^\s*(?:[-*+]\s+|[•・]\s*|\d+[.)]\s+)/,'');
+  }).join('\n');
+  ta.value=v.slice(0,ls)+block+v.slice(le);
+  ta.setSelectionRange(ls,ls+block.length);
+  ta.focus(); ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+document.addEventListener('keydown',e=>{
+  const ta=e.target;
+  if(!ta||ta.tagName!=='TEXTAREA'||!ta.dataset.rt) return;
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey){
+    if(e.key==='b'||e.key==='B'){e.preventDefault();rtWrap(ta.id,'**','**');}
+    else if(e.key==='i'||e.key==='I'){e.preventDefault();rtWrap(ta.id,'*','*');}
+  }
+});
+
+/* ── Folder icon: emoji text OR uploaded png/svg (stored as a data: URL) ── */
+function folderIconIsImg(ic){ return typeof ic==='string' && /^(data:image\/|https?:\/\/|blob:)/i.test(ic); }
+function folderIconHTML(ic){
+  if(folderIconIsImg(ic)) return `<img class="folder-icon-img" src="${escAttr(ic)}" alt="">`;
+  return escHTML(ic||'📁');
+}
+function folderIconText(ic){ return folderIconIsImg(ic) ? '📁' : (ic||'📁'); }   // for <option> / plain-text spots
+
+function folderIconPickerHTML(p){   // p = 'cf' or 'ef'
+  return `<div class="fi-picker">
+    <div class="fi-preview" id="${p}-icon-preview">📁</div>
+    <input class="form-input" id="${p}-icon" placeholder="📁" style="font-size:20px;text-align:center;width:90px" maxlength="10" oninput="folderIconTyped('${p}')">
+    <button type="button" class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('${p}-icon-file').click()">${escHTML(t('folderIcon.upload'))}</button>
+    <button type="button" class="btn btn-ghost" id="${p}-icon-clear" title="${escAttr(t('folderIcon.remove'))}" style="padding:6px 10px;font-size:12px;display:none" onclick="folderIconClear('${p}')">✕</button>
+    <input type="file" id="${p}-icon-file" accept="image/png,image/svg+xml,image/webp,image/jpeg,image/gif" style="display:none" onchange="folderIconPick('${p}',this)">
+    <input type="hidden" id="${p}-icon-img" value="">
+  </div>`;
+}
+function folderIconRefresh(p){
+  const img=document.getElementById(p+'-icon-img').value, txt=document.getElementById(p+'-icon').value;
+  const pv=document.getElementById(p+'-icon-preview'), clr=document.getElementById(p+'-icon-clear');
+  if(img){ pv.innerHTML=`<img src="${escAttr(img)}" alt="">`; clr.style.display=''; }
+  else   { pv.textContent=txt||'📁'; clr.style.display='none'; }
+}
+function folderIconTyped(p){ if(document.getElementById(p+'-icon').value) document.getElementById(p+'-icon-img').value=''; folderIconRefresh(p); }
+function folderIconClear(p){ document.getElementById(p+'-icon-img').value=''; document.getElementById(p+'-icon-file').value=''; folderIconRefresh(p); }
+function folderIconSet(p, icon){   // used when opening the edit modal / resetting
+  const isImg=folderIconIsImg(icon);
+  document.getElementById(p+'-icon-img').value = isImg ? icon : '';
+  document.getElementById(p+'-icon').value     = isImg ? '' : (icon||'');
+  document.getElementById(p+'-icon-file').value='';
+  folderIconRefresh(p);
+}
+function folderIconValue(p){
+  return document.getElementById(p+'-icon-img').value || document.getElementById(p+'-icon').value || '📁';
+}
+function folderIconPick(p, input){
+  const file=input.files&&input.files[0]; if(!file) return;
+  const done=url=>{ document.getElementById(p+'-icon-img').value=url; document.getElementById(p+'-icon').value=''; folderIconRefresh(p); };
+  if(file.type==='image/svg+xml'){
+    if(file.size>300*1024){ toast(t('folderIcon.svgTooLarge'),'error'); input.value=''; return; }
+    const r=new FileReader(); r.onload=()=>done(r.result); r.readAsDataURL(file); return;
+  }
+  const r=new FileReader();
+  r.onload=()=>{
+    const im=new Image();
+    im.onload=()=>{   // shrink to max 128px so storage stays tiny; PNG keeps transparency
+      const k=Math.min(1,128/Math.max(im.width,im.height));
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(im.width*k)); c.height=Math.max(1,Math.round(im.height*k));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      done(c.toDataURL('image/png'));
+    };
+    im.onerror=()=>toast(t('folderIcon.readError'),'error');
+    im.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+
 function lucideIcon(name,cls='',size=16){return `<i data-lucide="${name}" class="${cls}" style="width:${size}px;height:${size}px;display:inline-block;vertical-align:middle"></i>`;}
 function escHTML(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
 function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
@@ -7619,7 +7794,7 @@ function buildWBModal(type,entry){
   const fieldsHTML=cfg.fields.map(f=>{
     const val=entry?.[f.id]||'';
     if(f.type==='input')    return `<div class="form-group"><label class="form-label">${f.label}${f.required?' *':''}</label><input class="form-input" id="wbf-${f.id}" placeholder="${escAttr(f.placeholder||'')}" value="${escAttr(val)}"></div>`;
-    if(f.type==='textarea') return `<div class="form-group" style="grid-column:1/-1"><label class="form-label">${f.label}</label><textarea class="form-textarea" id="wbf-${f.id}" placeholder="${escAttr(f.placeholder||'')}" rows="3">${escHTML(val)}</textarea></div>`;
+    if(f.type==='textarea') return `<div class="form-group" style="grid-column:1/-1"><label class="form-label">${f.label}</label>${fmtBar('wbf-'+f.id)}<textarea class="form-textarea" id="wbf-${f.id}" placeholder="${escAttr(f.placeholder||'')}" rows="3" data-rt="1">${escTA(val)}</textarea></div>`;
     if(f.type==='select')   return `<div class="form-group"><label class="form-label">${f.label}</label><select class="form-select" id="wbf-${f.id}">${f.options.map(o=>`<option value="${escAttr(o)}"${val===o?' selected':''}>${escHTML(wbOptionLabel(o))}</option>`).join('')}</select></div>`;
     if(f.type==='wb-link')  return `<div class="form-group"><label class="form-label">${f.label}</label><select class="form-select" id="wbf-${f.id}"><option value="">${t('wb.noneOption')||'— None —'}</option>${WB_CFG[f.target].store().map(e=>`<option value="${escAttr(e.id)}"${val===e.id?' selected':''}>${escHTML(e.name)}</option>`).join('')}</select></div>`;
     return '';
@@ -7661,8 +7836,9 @@ function _wbSubRow(idx, title='', content=''){
         style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:0 2px" title="Remove">✕</button>
     </div>
     <div id="${id}_body" style="display:none;padding:0 12px 10px">
+      ${fmtBar(id+'_content')}
       <textarea id="${id}_content" class="form-textarea" placeholder="${escAttr(t('wb.subsectionContent')||'Content for this subsection…')}" rows="4"
-        style="width:100%;box-sizing:border-box">${escHTML(content)}</textarea>
+        style="width:100%;box-sizing:border-box" data-rt="1">${escTA(content)}</textarea>
     </div>
   </div>`;
 }
@@ -7725,7 +7901,7 @@ function openWBView(id,type){
     </div>
     <div style="padding:0 28px 28px">
     ${detailRows?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px">${detailRows}</div>`:''}
-    ${longFields.map(f=>`<div style="margin-bottom:14px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${f.label.toUpperCase()}</div><div style="font-size:13.5px;color:var(--text2);line-height:1.8;white-space:pre-wrap">${escHTML(entry[f.id])}</div></div>`).join('')}
+    ${longFields.map(f=>`<div style="margin-bottom:14px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${f.label.toUpperCase()}</div><div style="font-size:13.5px;color:var(--text2)">${richText(entry[f.id])}</div></div>`).join('')}
     ${tagPills?`<div style="margin-bottom:16px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${t('wb.tagsHeader')||'TAGS'}</div><div style="display:flex;flex-wrap:wrap;gap:7px">${tagPills}</div></div>`:''}
     ${linked.length?`<div style="margin-bottom:16px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${t('wb.linkedCharsHeader')||'LINKED CHARACTERS'}</div><div style="display:flex;flex-wrap:wrap;gap:8px">${charPills}</div></div>`:''}
     ${(entry.subsections||[]).length?`
@@ -7740,7 +7916,7 @@ function openWBView(id,type){
                 <span style="font-size:13px;font-weight:700;color:var(--text)">${escHTML(s.title||'Untitled Subsection')}</span>
               </div>
               <div style="display:none;padding:0 14px 12px">
-                <div style="font-size:13.5px;color:var(--text2);line-height:1.8;white-space:pre-wrap">${escHTML(s.content||'')}</div>
+                <div style="font-size:13.5px;color:var(--text2)">${richText(s.content||'')}</div>
               </div>
             </div>`).join('')}
         </div>
@@ -8226,7 +8402,7 @@ function lmOpenPinEditor(nodeId, label, type) {
     <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:22px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.8)">
       <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--accent);margin-bottom:4px">📌 Pin Note</div>
       <div style="font-size:11px;color:${m.color};margin-bottom:14px;font-weight:700">${escHTML(label)}</div>
-      <textarea id="lm-pin-textarea" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:80px;line-height:1.5" placeholder="${escAttr(t('loreMap.notePlaceholder')||'Write a note about this node…')}">${escHTML(existing.note||'')}</textarea>
+      <textarea id="lm-pin-textarea" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:80px;line-height:1.5" placeholder="${escAttr(t('loreMap.notePlaceholder')||'Write a note about this node…')}">${escTA(existing.note||'')}</textarea>
       <div style="display:flex;gap:6px;margin:10px 0 16px">
         ${PIN_COLORS.map(c => `<div onclick="document.querySelectorAll('.lm-pcol').forEach(x=>x.style.outline='');this.style.outline='2px solid #fff'" class="lm-pcol" style="width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;flex-shrink:0;outline:${c===currentColor?'2px solid #fff':'none'}" data-color="${c}"></div>`).join('')}
       </div>
@@ -8346,7 +8522,7 @@ function renderStats(pc) {
   const occupRows   = count(characters,'occupation');
   const tagMap={};characters.forEach(c=>(c.tags||[]).forEach(t=>{tagMap[t]=(tagMap[t]||0)+1;}));
   const tagRows=Object.entries(tagMap).sort((a,b)=>b[1]-a[1]);
-  const folderMap={};characters.forEach(c=>{const f=folders.find(x=>x.id===c.folder);const lbl=f?(f.icon||'📁')+' '+f.name:'(No folder)';folderMap[lbl]=(folderMap[lbl]||0)+1;});
+  const folderMap={};characters.forEach(c=>{const f=folders.find(x=>x.id===c.folder);const lbl=f?folderIconText(f.icon)+' '+f.name:'(No folder)';folderMap[lbl]=(folderMap[lbl]||0)+1;});
   const folderRows=Object.entries(folderMap).sort((a,b)=>b[1]-a[1]);
 
   /* ── WB data ──────────────────────────────────────── */
@@ -8602,7 +8778,7 @@ function exportCharacterPDF(id) {
   <div style="flex:1;min-width:0">
     <div style="font-family:Cinzel,serif;font-size:28px;font-weight:700;margin-bottom:5px">${esc(c.name)}</div>
     <div style="font-size:13px;opacity:.88">${[c.pronouns,c.species,c.age?c.age+' y/o':null,c.occupation].filter(Boolean).map(esc).join(' · ')}</div>
-    ${folder ? `<div style="margin-top:5px;font-size:11px;opacity:.7">${esc(folder.icon||'📁')} ${esc(folder.name)}</div>` : ''}
+    ${folder ? `<div style="margin-top:5px;font-size:11px;opacity:.7">${folderIconHTML(folder.icon)} ${esc(folder.name)}</div>` : ''}
     ${(c.tags||[]).length
       ? `<div style="margin-top:9px;display:flex;flex-wrap:wrap;gap:4px">${(c.tags||[]).map(t=>`<span style="background:rgba(255,255,255,.2);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:600">${esc(t)}</span>`).join('')}</div>`
       : ''}
@@ -9081,7 +9257,7 @@ function buildVariantsTab(c) {
           </div>
           <div class="variant-field span2">
             <label>${t('charView.auBackstoryLabel')||'AU Backstory / Notes'}</label>
-            <textarea oninput="updateVariant('${c.id}',${i},'bio',this.value)" placeholder="${escAttr(t('charView.auBioPlaceholder')||'How is this version different? What\'s their story in this universe?')}">${escHTML(v.bio||'')}</textarea>
+            <textarea oninput="updateVariant('${c.id}',${i},'bio',this.value)" placeholder="${escAttr(t('charView.auBioPlaceholder')||'How is this version different? What\'s their story in this universe?')}">${escTA(v.bio||'')}</textarea>
           </div>
         </div>
       </div>`;

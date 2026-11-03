@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ PNG / SVG 업로드",
+    "remove": "이미지 제거",
+    "svgTooLarge": "SVG 파일이 너무 큽니다 (최대 300KB)",
+    "readError": "이미지를 읽을 수 없습니다"
+  },
+  "richText": {
+    "bold": "굵게 (Ctrl+B)",
+    "italic": "기울임 (Ctrl+I)",
+    "boldItalic": "굵게 + 기울임",
+    "strike": "취소선",
+    "bulletList": "글머리 기호 목록",
+    "numberedList": "번호 목록",
+    "bulletBtn": "• 목록",
+    "numberBtn": "1. 목록",
+    "hint": "**굵게** · *기울임* · ***둘 다*** · ・ 또는 - 로 글머리 기호"
   }
 }

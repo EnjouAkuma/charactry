@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ Importer un PNG / SVG",
+    "remove": "Retirer l’image",
+    "svgTooLarge": "Le SVG est trop volumineux (max. 300 Ko)",
+    "readError": "Impossible de lire cette image"
+  },
+  "richText": {
+    "bold": "Gras (Ctrl+B)",
+    "italic": "Italique (Ctrl+I)",
+    "boldItalic": "Gras et italique",
+    "strike": "Barré",
+    "bulletList": "Liste à puces",
+    "numberedList": "Liste numérotée",
+    "bulletBtn": "• Liste",
+    "numberBtn": "1. Liste",
+    "hint": "**gras** · *italique* · ***les deux*** · ・ ou - pour les puces"
   }
 }

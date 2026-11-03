@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ Carica PNG / SVG",
+    "remove": "Rimuovi immagine",
+    "svgTooLarge": "L’SVG è troppo grande (max 300 KB)",
+    "readError": "Impossibile leggere l’immagine"
+  },
+  "richText": {
+    "bold": "Grassetto (Ctrl+B)",
+    "italic": "Corsivo (Ctrl+I)",
+    "boldItalic": "Grassetto corsivo",
+    "strike": "Barrato",
+    "bulletList": "Elenco puntato",
+    "numberedList": "Elenco numerato",
+    "bulletBtn": "• Elenco",
+    "numberBtn": "1. Elenco",
+    "hint": "**grassetto** · *corsivo* · ***entrambi*** · ・ o - per i punti elenco"
   }
 }

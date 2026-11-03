@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ Mag-upload ng PNG / SVG",
+    "remove": "Alisin ang larawan",
+    "svgTooLarge": "Masyadong malaki ang SVG (max 300 KB)",
+    "readError": "Hindi mabasa ang larawang iyon"
+  },
+  "richText": {
+    "bold": "Bold (Ctrl+B)",
+    "italic": "Italic (Ctrl+I)",
+    "boldItalic": "Bold italic",
+    "strike": "Strikethrough",
+    "bulletList": "May bullet na listahan",
+    "numberedList": "May numerong listahan",
+    "bulletBtn": "• Listahan",
+    "numberBtn": "1. Listahan",
+    "hint": "**bold** · *italic* · ***pareho*** · ・ o - para sa bullet"
   }
 }

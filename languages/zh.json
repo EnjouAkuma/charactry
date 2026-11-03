@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ 上传 PNG / SVG",
+    "remove": "移除图片",
+    "svgTooLarge": "SVG 文件太大（最大 300 KB）",
+    "readError": "无法读取该图片"
+  },
+  "richText": {
+    "bold": "粗体 (Ctrl+B)",
+    "italic": "斜体 (Ctrl+I)",
+    "boldItalic": "粗斜体",
+    "strike": "删除线",
+    "bulletList": "项目符号列表",
+    "numberedList": "编号列表",
+    "bulletBtn": "• 列表",
+    "numberBtn": "1. 列表",
+    "hint": "**粗体** · *斜体* · ***两者*** · ・ 或 - 表示项目符号"
   }
 }

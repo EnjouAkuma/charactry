@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ Upload PNG / SVG",
+    "remove": "Remove image",
+    "svgTooLarge": "SVG is too big (max 300 KB)",
+    "readError": "Couldn't read that image"
+  },
+  "richText": {
+    "bold": "Bold (Ctrl+B)",
+    "italic": "Italic (Ctrl+I)",
+    "boldItalic": "Bold italic",
+    "strike": "Strikethrough",
+    "bulletList": "Bulleted list",
+    "numberedList": "Numbered list",
+    "bulletBtn": "• List",
+    "numberBtn": "1. List",
+    "hint": "**bold** · *italic* · ***both*** · ・ or - for bullets"
   }
 }

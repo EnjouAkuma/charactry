@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ PNG / SVG hochladen",
+    "remove": "Bild entfernen",
+    "svgTooLarge": "SVG ist zu groß (max. 300 KB)",
+    "readError": "Das Bild konnte nicht gelesen werden"
+  },
+  "richText": {
+    "bold": "Fett (Strg+B)",
+    "italic": "Kursiv (Strg+I)",
+    "boldItalic": "Fett und kursiv",
+    "strike": "Durchgestrichen",
+    "bulletList": "Aufzählung",
+    "numberedList": "Nummerierte Liste",
+    "bulletBtn": "• Liste",
+    "numberBtn": "1. Liste",
+    "hint": "**fett** · *kursiv* · ***beides*** · ・ oder - für Aufzählungen"
   }
 }

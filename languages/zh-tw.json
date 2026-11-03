@@ -1856,5 +1856,22 @@
         ]
       }
     }
+  },
+  "folderIcon": {
+    "upload": "⇪ 上傳 PNG / SVG",
+    "remove": "移除圖片",
+    "svgTooLarge": "SVG 檔案太大（上限 300 KB）",
+    "readError": "無法讀取該圖片"
+  },
+  "richText": {
+    "bold": "粗體 (Ctrl+B)",
+    "italic": "斜體 (Ctrl+I)",
+    "boldItalic": "粗斜體",
+    "strike": "刪除線",
+    "bulletList": "項目符號清單",
+    "numberedList": "編號清單",
+    "bulletBtn": "• 清單",
+    "numberBtn": "1. 清單",
+    "hint": "**粗體** · *斜體* · ***兩者*** · ・ 或 - 表示項目符號"
   }
 }
