@@ -4849,6 +4849,7 @@ function hexToHSV(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.sl
 ===================================================== */
 function openModal(id){
   document.getElementById(id).classList.add('open');
+  if(id==='modal-create-folder'||id==='modal-edit-folder'){ mountFolderIconPickers(); folderIconRelabel(); }
   requestAnimationFrame(()=>{ if(typeof lucide!=='undefined') lucide.createIcons(); });
 }
 
@@ -5050,16 +5051,27 @@ function richText(raw){
   return '<div class="rt">'+out.join('')+'</div>';
 }
 
+/* ── tx(): t() with built-in English fallback (never shows a raw key like "folderIcon.upload") ── */
+const _FX_EN={
+ 'folderIcon.upload':'⇪ Upload PNG / SVG','folderIcon.remove':'Remove image',
+ 'folderIcon.svgTooLarge':'SVG is too big (max 300 KB)','folderIcon.readError':"Couldn't read that image",
+ 'richText.bold':'Bold (Ctrl+B)','richText.italic':'Italic (Ctrl+I)','richText.boldItalic':'Bold italic',
+ 'richText.strike':'Strikethrough','richText.bulletList':'Bulleted list','richText.numberedList':'Numbered list',
+ 'richText.bulletBtn':'• List','richText.numberBtn':'1. List',
+ 'richText.hint':'**bold** · *italic* · ***both*** · ・ or - for bullets'
+};
+function tx(k){ const v=t(k); return v===k ? (_FX_EN[k]||k) : v; }
+
 /* ── Format toolbar for any <textarea id="…"> ── */
 function fmtBar(taId){
   return `<div class="rt-bar">
-    <button type="button" title="${escAttr(t('richText.bold'))}" onclick="rtWrap('${taId}','**','**')"><b>B</b></button>
-    <button type="button" title="${escAttr(t('richText.italic'))}" onclick="rtWrap('${taId}','*','*')"><i>I</i></button>
-    <button type="button" title="${escAttr(t('richText.boldItalic'))}" onclick="rtWrap('${taId}','***','***')"><b><i>BI</i></b></button>
-    <button type="button" title="${escAttr(t('richText.strike'))}" onclick="rtWrap('${taId}','~~','~~')"><s>S</s></button>
-    <button type="button" title="${escAttr(t('richText.bulletList'))}" onclick="rtList('${taId}','・')">${escHTML(t('richText.bulletBtn'))}</button>
-    <button type="button" title="${escAttr(t('richText.numberedList'))}" onclick="rtList('${taId}','1.')">${escHTML(t('richText.numberBtn'))}</button>
-    <span class="rt-hint">${escHTML(t('richText.hint'))}</span>
+    <button type="button" title="${escAttr(tx('richText.bold'))}" onclick="rtWrap('${taId}','**','**')"><b>B</b></button>
+    <button type="button" title="${escAttr(tx('richText.italic'))}" onclick="rtWrap('${taId}','*','*')"><i>I</i></button>
+    <button type="button" title="${escAttr(tx('richText.boldItalic'))}" onclick="rtWrap('${taId}','***','***')"><b><i>BI</i></b></button>
+    <button type="button" title="${escAttr(tx('richText.strike'))}" onclick="rtWrap('${taId}','~~','~~')"><s>S</s></button>
+    <button type="button" title="${escAttr(tx('richText.bulletList'))}" onclick="rtList('${taId}','・')">${escHTML(tx('richText.bulletBtn'))}</button>
+    <button type="button" title="${escAttr(tx('richText.numberedList'))}" onclick="rtList('${taId}','1.')">${escHTML(tx('richText.numberBtn'))}</button>
+    <span class="rt-hint">${escHTML(tx('richText.hint'))}</span>
   </div>`;
 }
 function rtWrap(id,a,b){
@@ -5109,11 +5121,18 @@ function folderIconPickerHTML(p){   // p = 'cf' or 'ef'
   return `<div class="fi-picker">
     <div class="fi-preview" id="${p}-icon-preview">📁</div>
     <input class="form-input" id="${p}-icon" placeholder="📁" style="font-size:20px;text-align:center;width:90px" maxlength="10" oninput="folderIconTyped('${p}')">
-    <button type="button" class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('${p}-icon-file').click()">${escHTML(t('folderIcon.upload'))}</button>
-    <button type="button" class="btn btn-ghost" id="${p}-icon-clear" title="${escAttr(t('folderIcon.remove'))}" style="padding:6px 10px;font-size:12px;display:none" onclick="folderIconClear('${p}')">✕</button>
+    <button type="button" class="btn btn-ghost" id="${p}-icon-upload" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('${p}-icon-file').click()">${escHTML(tx('folderIcon.upload'))}</button>
+    <button type="button" class="btn btn-ghost" id="${p}-icon-clear" title="${escAttr(tx('folderIcon.remove'))}" style="padding:6px 10px;font-size:12px;display:none" onclick="folderIconClear('${p}')">✕</button>
     <input type="file" id="${p}-icon-file" accept="image/png,image/svg+xml,image/webp,image/jpeg,image/gif" style="display:none" onchange="folderIconPick('${p}',this)">
     <input type="hidden" id="${p}-icon-img" value="">
   </div>`;
+}
+function folderIconRelabel(){   // languages load after startup, so re-apply text each time a folder window opens
+  ['cf','ef'].forEach(p=>{
+    const b=document.getElementById(p+'-icon-upload'), c=document.getElementById(p+'-icon-clear');
+    if(b) b.textContent=tx('folderIcon.upload');
+    if(c) c.title=tx('folderIcon.remove');
+  });
 }
 function folderIconRefresh(p){
   const img=document.getElementById(p+'-icon-img').value, txt=document.getElementById(p+'-icon').value;
@@ -5137,7 +5156,7 @@ function folderIconPick(p, input){
   const file=input.files&&input.files[0]; if(!file) return;
   const done=url=>{ document.getElementById(p+'-icon-img').value=url; document.getElementById(p+'-icon').value=''; folderIconRefresh(p); };
   if(file.type==='image/svg+xml'){
-    if(file.size>300*1024){ toast(t('folderIcon.svgTooLarge'),'error'); input.value=''; return; }
+    if(file.size>300*1024){ toast(tx('folderIcon.svgTooLarge'),'error'); input.value=''; return; }
     const r=new FileReader(); r.onload=()=>done(r.result); r.readAsDataURL(file); return;
   }
   const r=new FileReader();
@@ -5149,7 +5168,7 @@ function folderIconPick(p, input){
       c.getContext('2d').drawImage(im,0,0,c.width,c.height);
       done(c.toDataURL('image/png'));
     };
-    im.onerror=()=>toast(t('folderIcon.readError'),'error');
+    im.onerror=()=>toast(tx('folderIcon.readError'),'error');
     im.src=r.result;
   };
   r.readAsDataURL(file);
