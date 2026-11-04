@@ -1873,5 +1873,11 @@
     "bulletBtn": "• Elenco",
     "numberBtn": "1. Elenco",
     "hint": "**grassetto** · *corsivo* · ***entrambi*** · ・ o - per i punti elenco"
+  },
+  "folderTree": {
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto",
+    "expand": "Espandi sottocartelle",
+    "collapse": "Comprimi sottocartelle"
   }
 }

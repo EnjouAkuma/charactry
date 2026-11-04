@@ -1873,5 +1873,11 @@
     "bulletBtn": "• リスト",
     "numberBtn": "1. リスト",
     "hint": "**太字** · *斜体* · ***両方*** · ・ または - で箇条書き"
+  },
+  "folderTree": {
+    "expandAll": "すべて展開",
+    "collapseAll": "すべて折りたたむ",
+    "expand": "サブフォルダを展開",
+    "collapse": "サブフォルダを折りたたむ"
   }
 }

@@ -1031,6 +1031,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 .rt-bar button{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:6px;min-width:28px;height:26px;padding:0 8px;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1}
 .rt-bar button:hover{border-color:var(--accent);color:var(--text)}
 .rt-hint{font-size:10px;color:var(--text3);align-self:center;margin-left:4px}
+/* Collapsible subfolders */
+.folder-chev{width:26px;height:26px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;border-radius:6px;color:var(--text2);cursor:pointer;font-size:12px;padding:0;transition:transform .15s ease,background .15s ease}
+.folder-chev:hover{background:var(--bg3);border-color:var(--border);color:var(--text)}
+.folder-chev.open{transform:rotate(90deg)}
+.folder-chev-spacer{width:26px;flex-shrink:0}
+.folder-sub-badge{font-size:10.5px;font-weight:700;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:1px 8px;margin-left:8px;white-space:nowrap;vertical-align:middle}
+.folder-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 /* Folder icon: emoji OR uploaded png/svg */
 .folder-icon-img{width:1.15em;height:1.15em;object-fit:contain;vertical-align:-0.2em;display:inline-block;border-radius:3px}
 .folder-icon .folder-icon-img{width:24px;height:24px;vertical-align:middle}
@@ -2534,9 +2541,34 @@ function renderFolders(pc) {
   pc.innerHTML = `
     <div class="page-header">
       <div><div class="page-title">${t('nav.folders')}</div><div class="page-subtitle">${folders.length} ${folders.length!==1?(t('common.folders')||'folders'):(t('common.folder')||'folder')}</div></div>
-      <button class="btn btn-primary" onclick="openModal('modal-create-folder');populateFolderDropdowns()">${t('modals.newFolder')}</button>
+      <div class="folder-tools">
+        ${folders.some(f=>f.parent)?`<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="setAllFoldersCollapsed(false)">${escHTML(tx('folderTree.expandAll'))}</button>
+        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="setAllFoldersCollapsed(true)">${escHTML(tx('folderTree.collapseAll'))}</button>`:''}
+        <button class="btn btn-primary" onclick="openModal('modal-create-folder');populateFolderDropdowns()">${t('modals.newFolder')}</button>
+      </div>
     </div>
     <div id="folder-list">${renderFolderTree()}</div>`;
+}
+
+function _collapsedFolders(){ if(!Array.isArray(settings.collapsedFolders)) settings.collapsedFolders=[]; return settings.collapsedFolders; }
+function folderDescendantCount(id, seen){
+  seen = seen || new Set(); if(seen.has(id)) return 0; seen.add(id);
+  let n=0; folders.forEach(f=>{ if(f.parent===id){ n += 1 + folderDescendantCount(f.id, seen); } });
+  return n;
+}
+function refreshFolderTree(){ const el=document.getElementById('folder-list'); if(el) el.innerHTML=renderFolderTree(); }
+function toggleFolderCollapse(id){
+  const a=_collapsedFolders(), i=a.indexOf(id);
+  if(i<0) a.push(id); else a.splice(i,1);
+  saveData(); refreshFolderTree();
+}
+function setAllFoldersCollapsed(flag){
+  settings.collapsedFolders = flag ? folders.filter(f=>folders.some(x=>x.parent===f.id)).map(f=>f.id) : [];
+  saveData(); refreshFolderTree();
+}
+function expandFolderPath(id){   // make sure a folder (and its parents) is visible, e.g. after adding a subfolder
+  const a=_collapsedFolders(); let cur=id, guard=0;
+  while(cur && guard++<50){ const i=a.indexOf(cur); if(i>=0) a.splice(i,1); const f=folders.find(x=>x.id===cur); cur=f&&f.parent; }
 }
 
 function renderFolderTree(parentId=null, depth=0) {
@@ -2544,7 +2576,13 @@ function renderFolderTree(parentId=null, depth=0) {
   if (!items.length) return parentId===null ? `<div class="empty-state"><div class="empty-icon">◫</div><div class="empty-title">No folders yet</div></div>` : '';
   return items.map(f => {
     const cnt  = characters.filter(c=>c.folder===f.id).length;
-    const kids = renderFolderTree(f.id, depth+1);
+    const hasKids   = folders.some(x=>x.parent===f.id);
+    const collapsed = hasKids && _collapsedFolders().includes(f.id);
+    const kids = (hasKids && !collapsed) ? renderFolderTree(f.id, depth+1) : '';
+    const chev = hasKids
+      ? `<button type="button" class="folder-chev ${collapsed?'':'open'}" aria-expanded="${!collapsed}" title="${escAttr(tx(collapsed?'folderTree.expand':'folderTree.collapse'))}" onclick="event.stopPropagation();toggleFolderCollapse('${f.id}')" draggable="false">▸</button>`
+      : `<span class="folder-chev-spacer"></span>`;
+    const badge = collapsed ? `<span class="folder-sub-badge" title="${escAttr(tx('folderTree.expand'))}">◫ ${folderDescendantCount(f.id)}</span>` : '';
     return `<div style="margin-left:${depth*20}px">
       <div class="folder-item draggable" draggable="true" data-id="${f.id}"
         ondragstart="onFolderDragStart(event,'${f.id}')"
@@ -2552,9 +2590,10 @@ function renderFolderTree(parentId=null, depth=0) {
         ondragend="onFolderDragEnd(event)"
         ondrop="onFolderDrop(event,'${f.id}')">
         <span class="sortable-handle" title="Drag to reorder">⠿</span>
+        ${chev}
         <div class="folder-stripe" style="background:${f.color||'#a78bfa'}"></div>
         <div class="folder-icon">${folderIconHTML(f.icon)}</div>
-        <div><div class="folder-name">${escHTML(f.name)}</div><div class="folder-meta">${cnt} ${cnt!==1?(t('common.characters')||'characters'):(t('common.character')||'character')}${f.desc?' · '+escHTML(f.desc):''}</div></div>
+        <div><div class="folder-name">${escHTML(f.name)}${badge}</div><div class="folder-meta">${cnt} ${cnt!==1?(t('common.characters')||'characters'):(t('common.character')||'character')}${f.desc?' · '+escHTML(f.desc):''}</div></div>
         <div class="folder-actions">
           <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="event.stopPropagation();filterByFolder('${f.id}')">${t('buttons.view')||'View'}</button>
           <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="event.stopPropagation();openEditFolder('${f.id}')">✎</button>
@@ -4488,6 +4527,7 @@ function saveFolder() {
     parent:document.getElementById('cf-parent').value||null,
     color:document.getElementById('cf-color').value,
     icon:folderIconValue('cf')});
+  { const _p=document.getElementById('cf-parent').value; if(_p) expandFolderPath(_p); }
   saveData(); closeModal('modal-create-folder');
   ['cf-name','cf-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''}); folderIconSet('cf','');
   renderPage(currentPage); toast(t('toasts.folderCreated')||'Folder created!');
@@ -4536,6 +4576,7 @@ function updateFolder() {
   f.icon=folderIconValue('ef');
   f.color=document.getElementById('ef-color').value;
   f.parent=document.getElementById('ef-parent').value||null;
+  if(f.parent) expandFolderPath(f.parent);
   saveData(); closeModal('modal-edit-folder');
   renderPage(currentPage); toast(t('toasts.folderUpdated')||'Folder updated!');
 }
@@ -5053,6 +5094,7 @@ function richText(raw){
 
 /* ── tx(): t() with built-in English fallback (never shows a raw key like "folderIcon.upload") ── */
 const _FX_EN={
+ 'folderTree.expandAll':'Expand all','folderTree.collapseAll':'Collapse all','folderTree.expand':'Expand subfolders','folderTree.collapse':'Collapse subfolders',
  'folderIcon.upload':'⇪ Upload PNG / SVG','folderIcon.remove':'Remove image',
  'folderIcon.svgTooLarge':'SVG is too big (max 300 KB)','folderIcon.readError':"Couldn't read that image",
  'richText.bold':'Bold (Ctrl+B)','richText.italic':'Italic (Ctrl+I)','richText.boldItalic':'Bold italic',

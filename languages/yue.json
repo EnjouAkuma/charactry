@@ -1873,5 +1873,11 @@
     "bulletBtn": "• 清單",
     "numberBtn": "1. 清單",
     "hint": "**粗體** · *斜體* · ***兩樣都要*** · ・ 或者 - 做項目符號"
+  },
+  "folderTree": {
+    "expandAll": "全部展開",
+    "collapseAll": "全部收埋",
+    "expand": "展開子資料夾",
+    "collapse": "收埋子資料夾"
   }
 }

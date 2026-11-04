@@ -1873,5 +1873,11 @@
     "bulletBtn": "• List",
     "numberBtn": "1. List",
     "hint": "**bold** · *italic* · ***both*** · ・ or - for bullets"
+  },
+  "folderTree": {
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "expand": "Expand subfolders",
+    "collapse": "Collapse subfolders"
   }
 }

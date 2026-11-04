@@ -1873,5 +1873,11 @@
     "bulletBtn": "• Lista",
     "numberBtn": "1. Lista",
     "hint": "**negrito** · *itálico* · ***ambos*** · ・ ou - para marcadores"
+  },
+  "folderTree": {
+    "expandAll": "Expandir tudo",
+    "collapseAll": "Recolher tudo",
+    "expand": "Expandir subpastas",
+    "collapse": "Recolher subpastas"
   }
 }
