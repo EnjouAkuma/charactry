@@ -1032,9 +1032,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 .rt-bar button:hover{border-color:var(--accent);color:var(--text)}
 .rt-hint{font-size:10px;color:var(--text3);align-self:center;margin-left:4px}
 /* Tables in rich text + table maker */
-.rt-tablewrap{overflow-x:auto;margin:0 0 10px;max-width:100%}
-.rt-table{border-collapse:collapse;font-size:13px}
-.rt-table th,.rt-table td{border:1px solid var(--border);padding:6px 12px;text-align:left;vertical-align:top}
+.rt-tablewrap{overflow-x:auto;margin:0 0 10px;max-width:100%;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.rt-table{border-collapse:collapse;font-size:13px;width:max-content;min-width:100%;table-layout:auto}
+.rt-table th,.rt-table td{border:1px solid var(--border);padding:8px 14px;text-align:left;vertical-align:top;line-height:1.55;
+  /* stop letters breaking mid-word (inherited from .rt) and give each column real room */
+  word-break:normal;overflow-wrap:break-word;hyphens:manual;min-width:96px;max-width:340px}
 .rt-table th{background:var(--bg3);font-weight:700;color:var(--text)}
 .rt-table tbody tr:nth-child(even) td{background:rgba(127,127,127,.07)}
 .tbl-grid{border-collapse:separate;border-spacing:4px}
