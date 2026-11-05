@@ -7864,8 +7864,7 @@ function buildWBModal(type,entry){
   const charBoxes=characters.length?`<div class="form-group" style="grid-column:1/-1"><label class="form-label">${t('form.linkedChars')||'Linked Characters'}</label><div style="display:flex;flex-wrap:wrap;gap:8px;max-height:130px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px">${characters.map(c=>`<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2)"><input type="checkbox" id="wbfc-${c.id}" ${linkedIds.includes(c.id)?'checked':''} style="accent-color:${cfg.color}">${c.avatar?`<img src="${c.avatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover">`:''} ${escHTML(c.name)}</label>`).join('')}</div></div>`:'';
 
   // Build subsections HTML from existing data
-  const existingSubs = entry?.subsections || [];
-  const subsHTML = existingSubs.map((s,i)=>_wbSubRow(i, s.title, s.content)).join('');
+  const _wbSubTabs = (entry?.subsections || []).map(wbSubToTab);
 
   document.getElementById('modal-wb-body').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -7877,43 +7876,115 @@ function buildWBModal(type,entry){
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800">${t('wb.subsectionsHeader')||'SUBSECTIONS'}</div>
-        <button type="button" onclick="_wbAddSub()" style="background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">${t('buttons.addSubsection')||'+ Add Subsection'}</button>
+        <button type="button" onclick="ctAdd('wb')" style="background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">${t('buttons.newTab')||'+ New Tab'}</button>
       </div>
-      <div id="wb-subs-list" style="display:flex;flex-direction:column;gap:10px">${subsHTML}</div>
+      <div id="wb-subs-list"></div>
     </div>`;
   document.getElementById('modal-wb-title').textContent=`${isEdit?t('common.edit')||'Edit':t('wb.newVerb')||'New'} ${cfg.label.replace(/s$/,'')}`;
   document.getElementById('modal-wb-save-btn').textContent=isEdit?t('buttons.saveChanges')||'Save Changes':t('wb.createBtn')||'Create';
+  ctLoad('wb', _wbSubTabs, 'wb-subs-list');
 }
 
-let _wbSubCounter = 0;
-function _wbSubRow(idx, title='', content=''){
-  const id = 'wbsub_'+(idx !== undefined ? idx : _wbSubCounter++);
-  return `<div id="${id}" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden">
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;user-select:none" onclick="_wbSubToggle('${id}')">
-      <span id="${id}_chevron" style="font-size:11px;color:var(--text3);transition:transform .15s;display:inline-block">▶</span>
-      <input onclick="event.stopPropagation()" id="${id}_title" class="form-input" placeholder="${escAttr(t('wb.subsectionTitle')||'Subsection title…')}" value="${escAttr(title)}"
-        style="flex:1;background:transparent;border:none;padding:0;font-size:13px;font-weight:700;color:var(--text);outline:none">
-      <button type="button" onclick="event.stopPropagation();document.getElementById('${id}').remove()"
-        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:0 2px" title="Remove">✕</button>
-    </div>
-    <div id="${id}_body" style="display:none;padding:0 12px 10px">
-      ${fmtBar(id+'_content')}
-      <textarea id="${id}_content" class="form-textarea" placeholder="${escAttr(t('wb.subsectionContent')||'Content for this subsection…')}" rows="4"
-        style="width:100%;box-sizing:border-box" data-rt="1">${escTA(content)}</textarea>
-    </div>
-  </div>`;
+/* =====================================================
+   REUSABLE "CUSTOM TABS" EDITOR  (Tab → Sections → header + text)
+   Same look/behaviour as the character custom tabs. Used by
+   worldbuilding entries (subsections) and Universes (AUs).
+===================================================== */
+const _ctState = {};   // key -> { tabs:[{name,sections:[{name,content}]}], boxId }
+
+function ctLoad(key, tabs, boxId){
+  _ctState[key] = { tabs: JSON.parse(JSON.stringify(tabs||[])), boxId };
+  ctRender(key);
 }
-function _wbSubToggle(id){
-  const body=document.getElementById(id+'_body'),chev=document.getElementById(id+'_chevron');
-  const open=body.style.display==='none';
-  body.style.display=open?'block':'none';
-  chev.style.transform=open?'rotate(90deg)':'';
+function ctFlush(key){   // copy what's typed into the state so a re-render never loses text
+  const st=_ctState[key]; if(!st) return;
+  st.tabs.forEach((tab,ti)=>{
+    const n=document.getElementById(`ct-${key}-tn-${ti}`); if(n) tab.name=n.value;
+    (tab.sections||[]).forEach((sec,si)=>{
+      const sn=document.getElementById(`ct-${key}-sn-${ti}-${si}`), sc=document.getElementById(`ct-${key}-sc-${ti}-${si}`);
+      if(sn) sec.name=sn.value; if(sc) sec.content=sc.value;
+    });
+  });
 }
-function _wbAddSub(){
-  const list=document.getElementById('wb-subs-list');
-  const div=document.createElement('div');
-  div.innerHTML=_wbSubRow(undefined,'','');
-  list.appendChild(div.firstElementChild);
+function ctRender(key){
+  const st=_ctState[key]; if(!st) return;
+  const box=document.getElementById(st.boxId); if(!box) return;
+  if(!st.tabs.length){
+    box.innerHTML=`<div style="color:var(--text3);font-size:13px;padding:12px 0">${t('customTabs.noTabsYet')||'No custom tabs yet. Hit &quot;+ New Tab&quot; to add one.'}</div>`;
+    return;
+  }
+  box.innerHTML=st.tabs.map((tab,ti)=>`
+    <div class="card" style="margin-bottom:16px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">${t('customTabs.tabLabel')||'Tab'}</div>
+        <input class="form-input" id="ct-${key}-tn-${ti}" style="flex:1;font-weight:700;font-size:15px"
+          placeholder="${escAttr(t('customTabs.tabNamePlaceholder')||'Tab name (e.g. Powers, Lewd Info, Timeline)…')}"
+          value="${escAttr(tab.name)}">
+        <button type="button" class="btn btn-danger" style="padding:4px 10px;font-size:12px;white-space:nowrap"
+          onclick="ctDelTab('${key}',${ti})">${t('buttons.delete')}</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">${t('customTabs.sectionsLabel')||'Sections'}</div>
+      ${(tab.sections||[]).map((sec,si)=>`
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;background:var(--bg3)">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input class="form-input" id="ct-${key}-sn-${ti}-${si}" style="flex:1;font-size:13px"
+              placeholder="${escAttr(t('customTabs.sectionNamePlaceholder')||'Section name (e.g. Active Skills, Limits)…')}"
+              value="${escAttr(sec.name)}">
+            <button type="button" class="btn btn-danger" style="padding:3px 8px;font-size:11px"
+              onclick="ctDelSec('${key}',${ti},${si})">✕</button>
+          </div>
+          ${fmtBar(`ct-${key}-sc-${ti}-${si}`)}
+          <textarea class="form-textarea" data-rt="1" id="ct-${key}-sc-${ti}-${si}"
+            style="min-height:100px;font-size:13px;resize:vertical;width:100%;box-sizing:border-box"
+            placeholder="${escAttr(t('customTabs.sectionContentPlaceholder')||'Write anything here…')}">${escTA(sec.content||'')}</textarea>
+        </div>`).join('')}
+      <button type="button" class="btn btn-ghost" style="padding:5px 14px;font-size:12px;margin-top:4px"
+        onclick="ctAddSec('${key}',${ti})">${t('customTabs.addSection')||'+ Add Section'}</button>
+    </div>`).join('');
+}
+function ctAdd(key){
+  const st=_ctState[key]; if(!st) return;
+  ctFlush(key);
+  st.tabs.push({name:t('customTabs.newTabDefault')||'New Tab', sections:[]});
+  ctRender(key);
+  setTimeout(()=>{
+    const inp=document.getElementById(`ct-${key}-tn-${st.tabs.length-1}`);
+    if(inp){ inp.focus(); inp.select(); inp.closest('.card')?.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  },50);
+}
+function ctDelTab(key,ti){ ctFlush(key); _ctState[key].tabs.splice(ti,1); ctRender(key); }
+function ctAddSec(key,ti){
+  ctFlush(key);
+  _ctState[key].tabs[ti].sections.push({name:t('customTabs.newSectionDefault')||'New Section',content:''});
+  ctRender(key);
+}
+function ctDelSec(key,ti,si){ ctFlush(key); _ctState[key].tabs[ti].sections.splice(si,1); ctRender(key); }
+function ctCollect(key){   // cleaned copy, ready to save (empty tabs/sections dropped)
+  ctFlush(key);
+  const st=_ctState[key]; if(!st) return [];
+  return st.tabs.map(tb=>({
+    name:(tb.name||'').trim(),
+    sections:(tb.sections||[]).map(s=>({name:(s.name||'').trim(),content:(s.content||'').trim()})).filter(s=>s.name||s.content)
+  })).filter(tb=>tb.name||tb.sections.length);
+}
+/* Read-only display: a real tab strip + a card per section. `lead` = optional extra first tab ({id,label}) whose panel the caller renders itself. */
+function ctViewParts(prefix, tabs, color, lead){
+  const strip=`<div class="tabs" id="${prefix}-tabs" style="margin-bottom:14px">`
+    + (lead?`<div class="tab active" onclick="switchTab('${prefix}','${lead.id}')">${escHTML(lead.label)}</div>`:'')
+    + tabs.map((tb,i)=>`<div class="tab${(!lead&&i===0)?' active':''}" data-tab="t${i}" onclick="switchTab('${prefix}','t${i}')">${escHTML(tb.name||'Untitled')}</div>`).join('')
+    + `</div>`;
+  const panels=tabs.map((tb,i)=>`<div id="${prefix}-tab-t${i}" style="${(lead||i>0)?'display:none':''}">`
+    + (tb.sections||[]).map(s=>`<div class="card" style="margin-bottom:12px">`
+        + (s.name?`<div style="font-weight:700;font-size:14px;color:${color||'var(--accent)'};margin-bottom:8px">${escHTML(s.name)}</div>`:'')
+        + `<div style="font-size:13.5px;color:var(--text2)">${richText(s.content||'')}</div></div>`).join('')
+    + `</div>`).join('');
+  return {strip,panels};
+}
+/* Worldbuilding subsections: old saves were {title,content}; new ones are {title,sections:[{name,content}]} */
+function wbSubToTab(s){
+  return { name:s.title||s.name||'',
+    sections: Array.isArray(s.sections) ? s.sections.map(x=>({name:x.name||'',content:x.content||''}))
+              : (s.content ? [{name:'',content:s.content}] : []) };
 }
 
 function saveWBEntry(){
@@ -7925,12 +7996,8 @@ function saveWBEntry(){
   entry.tags=document.getElementById('wbf-tags')?.value.split(',').map(s=>s.trim()).filter(Boolean)||[];
   entry.color=document.getElementById('wbf-color')?.value||cfg.color;
   entry.linkedChars=characters.filter(c=>document.getElementById('wbfc-'+c.id)?.checked).map(c=>c.id);
-  // Collect subsections
-  const subEls=document.querySelectorAll('#wb-subs-list > div[id^="wbsub_"]');
-  entry.subsections=[...subEls].map(el=>{
-    const id=el.id;
-    return {id:id,title:document.getElementById(id+'_title')?.value.trim()||'',content:document.getElementById(id+'_content')?.value.trim()||''};
-  }).filter(s=>s.title||s.content);
+  // Collect subsections (each one is a tab with its own sections)
+  entry.subsections=ctCollect('wb').map((tb,i)=>({id:'wbsub_'+i,title:tb.name,sections:tb.sections}));
   const store=[...cfg.store()];
   if(_wbEditId){const i=store.findIndex(e=>e.id===_wbEditId);if(i>-1)store[i]=entry;}else{store.push(entry);}
   cfg.set(store);saveData();closeModal('modal-wb');
@@ -7950,6 +8017,8 @@ function openWBView(id,type){
   }).join('');
   const longFields=cfg.fields.filter(f=>skipLong.has(f.id)&&entry[f.id]);
   const charPills=linked.map(c=>`<div onclick="closeModal('modal-wb-view');viewCharacter('${escAttr(c.id)}')" style="display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:7px 12px;cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='${color}'" onmouseleave="this.style.borderColor=''">${c.avatar?`<img src="${c.avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover">`:`<div style="width:28px;height:28px;border-radius:50%;background:${color}33;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${color}">${escHTML((c.name||'?')[0])}</div>`}<div><div style="font-size:13px;font-weight:600;color:var(--text)">${escHTML(c.name)}</div>${c.species?`<div style="font-size:11px;color:var(--text3)">${escHTML(c.species)}</div>`:''}</div></div>`).join('');
+  const _wbvTabs=(entry.subsections||[]).map(wbSubToTab).filter(tb=>tb.name||tb.sections.length);
+  const _wbvParts=ctViewParts('wbv',_wbvTabs,color);
   const tagPills=(entry.tags||[]).map(t=>`<span style="background:${color}22;color:${color};border:1px solid ${color}44;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:700">${escHTML(t)}</span>`).join('');
   document.getElementById('modal-wb-view-body').innerHTML=`
     <div style="background:linear-gradient(135deg,${color},${color}99);padding:28px 28px 20px;margin:0 -28px 20px;border-radius:16px 16px 0 0;overflow:hidden;position:relative">
@@ -7965,22 +8034,10 @@ function openWBView(id,type){
     ${longFields.map(f=>`<div style="margin-bottom:14px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${f.label.toUpperCase()}</div><div style="font-size:13.5px;color:var(--text2)">${richText(entry[f.id])}</div></div>`).join('')}
     ${tagPills?`<div style="margin-bottom:16px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${t('wb.tagsHeader')||'TAGS'}</div><div style="display:flex;flex-wrap:wrap;gap:7px">${tagPills}</div></div>`:''}
     ${linked.length?`<div style="margin-bottom:16px"><div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:8px">${t('wb.linkedCharsHeader')||'LINKED CHARACTERS'}</div><div style="display:flex;flex-wrap:wrap;gap:8px">${charPills}</div></div>`:''}
-    ${(entry.subsections||[]).length?`
+    ${_wbvTabs.length?`
       <div style="margin-bottom:16px">
         <div style="font-size:10px;letter-spacing:1.5px;color:var(--text3);font-weight:800;margin-bottom:10px">${t('wb.subsectionsHeader')||'SUBSECTIONS'}</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${(entry.subsections).map((s,i)=>`
-            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden">
-              <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none"
-                onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.wbv-chev').style.transform=this.nextElementSibling.style.display==='block'?'rotate(90deg)':''">
-                <span class="wbv-chev" style="font-size:11px;color:${color};transition:transform .15s;display:inline-block">▶</span>
-                <span style="font-size:13px;font-weight:700;color:var(--text)">${escHTML(s.title||'Untitled Subsection')}</span>
-              </div>
-              <div style="display:none;padding:0 14px 12px">
-                <div style="font-size:13.5px;color:var(--text2)">${richText(s.content||'')}</div>
-              </div>
-            </div>`).join('')}
-        </div>
+        ${_wbvParts.strip}${_wbvParts.panels}
       </div>`:''}
     <div style="display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
       <button class="btn btn-primary" onclick="closeModal('modal-wb-view');openWBEdit('${escAttr(id)}','${type}')">✎ Edit</button>
@@ -9010,6 +9067,8 @@ function viewUniverse(id) {
   switchUniverse(id);
   const u = universes.find(x=>x.id===id); if (!u) return;
   const chars = characters.filter(c => c.universeId === id);
+  const _uTabs = (u.customTabs||[]).filter(tb=>tb.name||(tb.sections||[]).length);
+  const _uParts = _uTabs.length ? ctViewParts('univ', _uTabs, u.color, {id:'chars', label:t('nav.characters')||'Characters'}) : null;
 
   currentPage = 'uni-view';
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -9040,6 +9099,8 @@ function viewUniverse(id) {
         <button class="btn btn-primary" onclick="openModal('modal-create-char');populateFolderDropdowns();setTimeout(()=>{const s=document.getElementById('cc-universeId');if(s)s.value='${u.id}'},80)">✦ ${t('universes.newCharHere')||'New Char Here'}</button>
       </div>
     </div>
+    ${_uParts ? _uParts.strip : ''}
+    <div id="univ-tab-chars">
     <div id="character-grid">
       ${chars.length === 0
         ? `<div class="empty-state" style="grid-column:1/-1">
@@ -9048,7 +9109,9 @@ function viewUniverse(id) {
             <div class="empty-desc">${(t('universes.noCharsHint')||'Hit <b>{assignChars}</b> to add existing characters, or <b>{newCharHere}</b> to create one.').replace('{assignChars}', t('universes.assignChars')||'Assign Chars').replace('{newCharHere}', t('universes.newCharHere')||'New Char Here')}</div>
           </div>`
         : chars.map(c => charCardHTML(c)).join('')}
-    </div>`;
+    </div>
+    </div>
+    ${_uParts ? _uParts.panels : ''}`;
 }
 
 // ── Sidebar universe quick-links ────────────────────
@@ -9074,6 +9137,7 @@ function openCreateUniModal() {
   document.getElementById('uni-color-swatch').style.background = '#a78bfa';
   document.getElementById('uni-theme').value = '';
   document.getElementById('uni-desc').value = '';
+  ctLoad('uni', [], 'uni-tabs-list');
   openModal('modal-uni');
 }
 
@@ -9087,6 +9151,7 @@ function openEditUniModal(id) {
   document.getElementById('uni-color-swatch').style.background = u.color || '#a78bfa';
   document.getElementById('uni-theme').value = u.theme || '';
   document.getElementById('uni-desc').value = u.desc || '';
+  ctLoad('uni', u.customTabs || [], 'uni-tabs-list');
   openModal('modal-uni');
 }
 
@@ -9105,6 +9170,7 @@ function saveUniverse() {
     color: document.getElementById('uni-color').value || '#a78bfa',
     theme: document.getElementById('uni-theme').value,
     desc:  document.getElementById('uni-desc').value.trim(),
+    customTabs: ctCollect('uni'),
   };
   if (id) {
     const idx = universes.findIndex(x=>x.id===id);
@@ -9954,7 +10020,7 @@ document.addEventListener('keydown', function(e) {
 
 <!-- CREATE / EDIT UNIVERSE MODAL -->
 <div class="modal-overlay" id="modal-uni">
-  <div class="modal" style="max-width:540px">
+  <div class="modal" style="max-width:620px">
     <div class="modal-header">
       <div class="modal-title" id="uni-modal-title">✦ New Universe</div>
       <button class="modal-close" onclick="closeModal('modal-uni')">✕</button>
@@ -10013,6 +10079,13 @@ document.addEventListener('keydown', function(e) {
       <div class="form-group">
         <label class="form-label" data-i18n="universes.descLabel">Description</label>
         <textarea class="form-textarea" id="uni-desc" rows="3" data-i18n-placeholder="universes.descPlaceholder" placeholder="What defines this universe? Tone, setting, rules…"></textarea>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <label class="form-label" style="margin:0" data-i18n="tabs.customTabs">Custom Tabs</label>
+          <button type="button" class="btn btn-primary" style="padding:5px 14px;font-size:12px" onclick="ctAdd('uni')" data-i18n="buttons.newTab">+ New Tab</button>
+        </div>
+        <div id="uni-tabs-list"></div>
       </div>
     </div>
     <div class="modal-footer">
