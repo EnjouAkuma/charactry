@@ -1031,6 +1031,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 .rt-bar button{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:6px;min-width:28px;height:26px;padding:0 8px;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1}
 .rt-bar button:hover{border-color:var(--accent);color:var(--text)}
 .rt-hint{font-size:10px;color:var(--text3);align-self:center;margin-left:4px}
+/* Tables in rich text + table maker */
+.rt-tablewrap{overflow-x:auto;margin:0 0 10px;max-width:100%}
+.rt-table{border-collapse:collapse;font-size:13px}
+.rt-table th,.rt-table td{border:1px solid var(--border);padding:6px 12px;text-align:left;vertical-align:top}
+.rt-table th{background:var(--bg3);font-weight:700;color:var(--text)}
+.rt-table tbody tr:nth-child(even) td{background:rgba(127,127,127,.07)}
+.tbl-grid{border-collapse:separate;border-spacing:4px}
+.tbl-grid td{vertical-align:top;padding:0}
+.tbl-cell{display:block;min-width:130px;width:100%;min-height:34px;height:34px;box-sizing:border-box;resize:both;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 8px;font:13px 'Nunito',sans-serif;outline:none}
+.tbl-cell:focus{border-color:var(--accent)}
+.tbl-cell.hdr{font-weight:800;background:var(--bg2)}
+.tbl-mini{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:6px;min-width:26px;height:26px;cursor:pointer;font-size:12px;padding:0 6px}
+.tbl-mini:hover{border-color:var(--accent);color:var(--text)}
+.tbl-mini.del:hover{border-color:var(--danger);color:var(--danger)}
 /* Collapsible subfolders */
 .folder-chev{width:26px;height:26px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;border-radius:6px;color:var(--text2);cursor:pointer;font-size:12px;padding:0;transition:transform .15s ease,background .15s ease}
 .folder-chev:hover{background:var(--bg3);border-color:var(--border);color:var(--text)}
@@ -5054,28 +5068,69 @@ function onFolderDrop(e, targetId) {
 /* ── escTA: safe text for <textarea>. Turns legacy "<br>" back into real newlines. ── */
 function escTA(s){
   if(!s) return '';
-  return String(s).replace(/<br\s*\/?>/gi,'\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let v=String(s).replace(/\r\n?/g,'\n');
+  v=v.replace(/^[ \t]*\|.*$/gm,l=>l.replace(/<br\s*\/?>/gi,'\u0001'));          // <br> inside a table row is a cell line break: keep it
+  v=v.replace(/<br\s*\/?>/gi,'\n').replace(/\u0001/g,'<br>');
+  return v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 /* ── richText: light markdown → safe HTML ──
    ***bold italic***  **bold**  *italic*  ~~strike~~
    lines starting with  - * + • ・  become bullet lists, "1." lines become numbered lists.
    Blank line = new paragraph. Old saved "<br>" is treated as a line break. */
+/* Markdown-style tables:  | a | b |  then  | --- | --- |  then rows.  \| = a literal pipe, <br> = line break inside a cell. */
+function rtSplitRow(line){
+  let s=line.trim();
+  if(s.startsWith('|')) s=s.slice(1);
+  if(s.endsWith('|') && !s.endsWith('\\|')) s=s.slice(0,-1);
+  const cells=[]; let cur='';
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(ch==='\\' && s[i+1]==='|'){ cur+='\\|'; i++; continue; }
+    if(ch==='|'){ cells.push(cur); cur=''; continue; }
+    cur+=ch;
+  }
+  cells.push(cur);
+  return cells.map(c=>c.trim());
+}
+function rtIsSepRow(line){
+  return typeof line==='string' && line.includes('|') && line.includes('-') && /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(line);
+}
+function rtAlignsOf(sepLine){
+  return rtSplitRow(sepLine).map(c=>{ const l=c.startsWith(':'), r=c.endsWith(':'); return l&&r?'center':r?'right':l?'left':''; });
+}
+
 function richText(raw){
   if(raw==null||raw==='') return '';
-  let s = String(raw).replace(/<br\s*\/?>/gi,'\n').replace(/\r\n?/g,'\n');
+  let s = String(raw).replace(/\r\n?/g,'\n');
+  s = s.replace(/^[ \t]*\|.*$/gm,l=>l.replace(/<br\s*\/?>/gi,'\u0001'));   // cell line breaks survive the <br> → newline step
+  s = s.replace(/<br\s*\/?>/gi,'\n');
   s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const inline = t => t
     .replace(/\*\*\*([^\s*](?:[^*]*?[^\s*])?)\*\*\*/g,'<strong><em>$1</em></strong>')
     .replace(/\*\*([^\s*](?:[^*]*?[^\s*])?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*([^\s*](?:[^*]*?[^\s*])?)\*/g,'<em>$1</em>')
     .replace(/~~([^\s~](?:[^~]*?[^\s~])?)~~/g,'<del>$1</del>');
+  const cellHTML = c => inline(c.replace(/\\\|/g,'|')).replace(/\u0001/g,'<br>');
   const out = []; let para = [], list = null;
   const flushPara = () => { if(para.length){ out.push('<p>'+para.join('<br>')+'</p>'); para=[]; } };
   const flushList = () => { if(list){ out.push(list.html+'</'+list.tag+'>'); list=null; } };
-  for(const line of s.split('\n')){
+  const lines = s.split('\n');
+  for(let i=0;i<lines.length;i++){
+    const line = lines[i];
     if(!line.trim()){ flushPara(); flushList(); continue; }
     let m;
+    if(/^\s*\|/.test(line) && rtIsSepRow(lines[i+1])){            // ── table ──
+      flushPara(); flushList();
+      const head=rtSplitRow(line), aligns=rtAlignsOf(lines[i+1]); const body=[];
+      i+=2; while(i<lines.length && /^\s*\|/.test(lines[i])){ body.push(rtSplitRow(lines[i])); i++; } i--;
+      const n=Math.max(head.length,...body.map(r=>r.length),1);
+      const cell=(tag,c,k)=>`<${tag}${aligns[k]?` style="text-align:${aligns[k]}"`:''}>${cellHTML(c||'')}</${tag}>`;
+      const row=(tag,r)=>'<tr>'+Array.from({length:n},(_,k)=>cell(tag,r[k],k)).join('')+'</tr>';
+      const hasHead=head.some(c=>c.trim());
+      out.push('<div class="rt-tablewrap"><table class="rt-table">'+(hasHead?'<thead>'+row('th',head)+'</thead>':'')+'<tbody>'+body.map(r=>row('td',r)).join('')+'</tbody></table></div>');
+      continue;
+    }
     if((m = line.match(/^\s*(?:[-*+]\s+|[•・]\s*)(.*)$/))){
       flushPara();
       if(!list || list.tag!=='ul'){ flushList(); list={tag:'ul',html:'<ul>'}; }
@@ -5094,6 +5149,12 @@ function richText(raw){
 
 /* ── tx(): t() with built-in English fallback (never shows a raw key like "folderIcon.upload") ── */
 const _FX_EN={
+ 'richText.tableBtn':'▦ Table','richText.tableTip':'Insert or edit a table','richText.tableTitle':'Table maker','richText.tableEditTitle':'Edit table',
+ 'richText.rows':'Rows','richText.cols':'Columns','richText.addRow':'+ Row','richText.addCol':'+ Column',
+ 'richText.insertTable':'Insert table','richText.updateTable':'Update table','richText.removeTable':'Remove table',
+ 'richText.pasteHint':'The first row is the header (leave it blank for no header). Tip: paste cells copied from Excel or Google Sheets straight into the grid.',
+ 'richText.alignTip':'Align: left / center / right','richText.delRowTip':'Remove row','richText.delColTip':'Remove column',
+ 'richText.shrinkConfirm':'Making the table smaller will delete cells that contain text. Continue?',
  'folderTree.expandAll':'Expand all','folderTree.collapseAll':'Collapse all','folderTree.expand':'Expand subfolders','folderTree.collapse':'Collapse subfolders',
  'folderIcon.upload':'⇪ Upload PNG / SVG','folderIcon.remove':'Remove image',
  'folderIcon.svgTooLarge':'SVG is too big (max 300 KB)','folderIcon.readError':"Couldn't read that image",
@@ -5113,6 +5174,7 @@ function fmtBar(taId){
     <button type="button" title="${escAttr(tx('richText.strike'))}" onclick="rtWrap('${taId}','~~','~~')"><s>S</s></button>
     <button type="button" title="${escAttr(tx('richText.bulletList'))}" onclick="rtList('${taId}','・')">${escHTML(tx('richText.bulletBtn'))}</button>
     <button type="button" title="${escAttr(tx('richText.numberedList'))}" onclick="rtList('${taId}','1.')">${escHTML(tx('richText.numberBtn'))}</button>
+    <button type="button" title="${escAttr(tx('richText.tableTip'))}" onclick="rtTable('${taId}')">${escHTML(tx('richText.tableBtn'))}</button>
     <span class="rt-hint">${escHTML(tx('richText.hint'))}</span>
   </div>`;
 }
@@ -5142,6 +5204,113 @@ function rtList(id,mark){
   ta.setSelectionRange(ls,ls+block.length);
   ta.focus(); ta.dispatchEvent(new Event('input',{bubbles:true}));
 }
+/* ── Table maker ── */
+let _tbl = null;   // { ta, range|null, ins, insEnd, rows:[[...]], aligns:[...] }
+function rtFindTable(v, pos){
+  const lines=v.split('\n'), starts=[]; let off=0, idx=-1;
+  for(const l of lines){ starts.push(off); off+=l.length+1; }
+  for(let i=0;i<lines.length;i++){ if(pos>=starts[i] && pos<=starts[i]+lines[i].length){ idx=i; break; } }
+  if(idx<0 || !/^\s*\|/.test(lines[idx])) return null;
+  let a=idx,b=idx;
+  while(a>0 && /^\s*\|/.test(lines[a-1])) a--;
+  while(b<lines.length-1 && /^\s*\|/.test(lines[b+1])) b++;
+  if(b-a<1 || !rtIsSepRow(lines[a+1])) return null;
+  return {start:starts[a], end:starts[b]+lines[b].length, lines:lines.slice(a,b+1)};
+}
+const _tblUnesc = c => c.replace(/<br\s*\/?>/gi,'\n').replace(/\\\|/g,'|');
+const _tblEsc   = c => String(c||'').replace(/\|/g,'\\|').replace(/\r?\n/g,'<br>').trim();
+function rtTable(taId){
+  const ta=document.getElementById(taId); if(!ta) return;
+  const f=rtFindTable(ta.value, ta.selectionStart);
+  let rows, aligns;
+  if(f){
+    aligns=rtAlignsOf(f.lines[1]);
+    rows=[rtSplitRow(f.lines[0]), ...f.lines.slice(2).map(rtSplitRow)].map(r=>r.map(_tblUnesc));
+    const n=Math.max(...rows.map(r=>r.length), aligns.length, 1);
+    rows=rows.map(r=>Array.from({length:n},(_,k)=>r[k]||'')); aligns=Array.from({length:n},(_,k)=>aligns[k]||'');
+  } else {
+    rows=[['','',''],['','',''],['','','']]; aligns=['','',''];
+  }
+  _tbl={ta:taId, range:f?{start:f.start,end:f.end}:null, ins:ta.selectionStart, insEnd:ta.selectionEnd, rows, aligns};
+  rtTableRender();
+  openModal('modal-table');
+}
+function rtTableFlush(){
+  if(!_tbl) return;
+  _tbl.rows.forEach((r,ri)=>r.forEach((_,ci)=>{ const el=document.getElementById(`tbl-c-${ri}-${ci}`); if(el) r[ci]=el.value; }));
+}
+function rtTableRender(){
+  if(!_tbl) return;
+  const nR=_tbl.rows.length, nC=_tbl.aligns.length;
+  const q=id=>document.getElementById(id);
+  q('tbl-title').textContent = tx(_tbl.range?'richText.tableEditTitle':'richText.tableTitle');
+  q('tbl-ok').textContent = tx(_tbl.range?'richText.updateTable':'richText.insertTable');
+  q('tbl-remove').style.display = _tbl.range ? '' : 'none';
+  q('tbl-remove').textContent = tx('richText.removeTable');
+  q('tbl-lbl-r').textContent = tx('richText.rows'); q('tbl-lbl-c').textContent = tx('richText.cols');
+  q('tbl-add-r').textContent = tx('richText.addRow'); q('tbl-add-c').textContent = tx('richText.addCol');
+  q('tbl-cancel').textContent = t('common.cancel')||'Cancel';
+  q('tbl-hint').textContent = tx('richText.pasteHint');
+  q('tbl-nr').value=nR; q('tbl-nc').value=nC;
+  const ALIGN={'':'⇤','left':'⇤','center':'↔','right':'⇥'};
+  let h='<table class="tbl-grid"><tr><td></td>'
+    + _tbl.aligns.map((a,ci)=>`<td><div style="display:flex;gap:4px;justify-content:center"><button type="button" class="tbl-mini" title="${escAttr(tx('richText.alignTip'))}" onclick="rtTableAlign(${ci})">${ALIGN[a]}</button><button type="button" class="tbl-mini del" title="${escAttr(tx('richText.delColTip'))}" onclick="rtTableDelCol(${ci})">✕</button></div></td>`).join('')
+    + '</tr>';
+  _tbl.rows.forEach((r,ri)=>{
+    h+=`<tr><td style="padding-right:4px"><button type="button" class="tbl-mini del" title="${escAttr(tx('richText.delRowTip'))}" onclick="rtTableDelRow(${ri})">✕</button></td>`
+      + r.map((c,ci)=>`<td><textarea class="tbl-cell${ri===0?' hdr':''}" id="tbl-c-${ri}-${ci}" rows="1" onpaste="rtTablePaste(event,${ri},${ci})">${escTA(c)}</textarea></td>`).join('')+'</tr>';
+  });
+  q('tbl-grid').innerHTML=h+'</table>';
+}
+function rtTableAlign(ci){ rtTableFlush(); const o=['','center','right']; const a=_tbl.aligns[ci]; _tbl.aligns[ci]=o[(o.indexOf(a==='left'?'':a)+1)%o.length]; rtTableRender(); }
+function rtTableDelCol(ci){ if(_tbl.aligns.length<=1) return; rtTableFlush(); _tbl.aligns.splice(ci,1); _tbl.rows.forEach(r=>r.splice(ci,1)); rtTableRender(); }
+function rtTableDelRow(ri){ if(_tbl.rows.length<=1) return; rtTableFlush(); _tbl.rows.splice(ri,1); rtTableRender(); }
+function rtTableAddRow(){ rtTableFlush(); _tbl.rows.push(Array.from({length:_tbl.aligns.length},()=>'')); rtTableRender(); }
+function rtTableAddCol(){ rtTableFlush(); _tbl.aligns.push(''); _tbl.rows.forEach(r=>r.push('')); rtTableRender(); }
+function rtTableResize(){
+  rtTableFlush();
+  const nr=Math.max(1,parseInt(document.getElementById('tbl-nr').value)||1), nc=Math.max(1,parseInt(document.getElementById('tbl-nc').value)||1);
+  const lose=_tbl.rows.some((r,ri)=>r.some((c,ci)=>(ri>=nr||ci>=nc)&&String(c).trim()));
+  if(lose && !confirm(tx('richText.shrinkConfirm'))){ rtTableRender(); return; }
+  _tbl.rows=Array.from({length:nr},(_,ri)=>Array.from({length:nc},(_,ci)=>(_tbl.rows[ri]&&_tbl.rows[ri][ci])||''));
+  _tbl.aligns=Array.from({length:nc},(_,ci)=>_tbl.aligns[ci]||'');
+  rtTableRender();
+}
+function rtTablePaste(e, ri, ci){   // paste cells copied from Excel / Google Sheets / another table
+  const txt=(e.clipboardData||window.clipboardData).getData('text');
+  if(!txt || (!txt.includes('\t') && !txt.includes('\n'))) return;   // plain text: normal paste
+  e.preventDefault(); rtTableFlush();
+  const grid=txt.replace(/\r\n?/g,'\n').replace(/\n+$/,'').split('\n').map(l=>l.split('\t'));
+  const needR=ri+grid.length, needC=ci+Math.max(...grid.map(r=>r.length));
+  while(_tbl.rows.length<needR) _tbl.rows.push(Array.from({length:_tbl.aligns.length},()=>''));
+  while(_tbl.aligns.length<needC){ _tbl.aligns.push(''); _tbl.rows.forEach(r=>r.push('')); }
+  grid.forEach((r,gi)=>r.forEach((v,gj)=>{ _tbl.rows[ri+gi][ci+gj]=v.replace(/^"|"$/g,''); }));
+  rtTableRender();
+}
+function rtTableMarkdown(){
+  rtTableFlush();
+  const row=r=>'| '+r.map(_tblEsc).join(' | ')+' |';
+  const sep='| '+_tbl.aligns.map(a=>a==='center'?':---:':a==='right'?'---:':'---').join(' | ')+' |';
+  return [row(_tbl.rows[0]), sep, ..._tbl.rows.slice(1).map(row)].join('\n');
+}
+function rtTableApply(remove){
+  if(!_tbl) return;
+  const ta=document.getElementById(_tbl.ta); if(!ta){ closeModal('modal-table'); return; }
+  const v=ta.value; let md=remove===true?'':rtTableMarkdown(), nv, caret;
+  if(_tbl.range){
+    nv=v.slice(0,_tbl.range.start)+md+v.slice(_tbl.range.end); caret=_tbl.range.start+md.length;
+  } else {
+    const before=v.slice(0,_tbl.ins), after=v.slice(_tbl.insEnd);
+    const pre=before ? (before.endsWith('\n\n')?'':before.endsWith('\n')?'\n':'\n\n') : '';
+    const post=after ? (after.startsWith('\n\n')?'':after.startsWith('\n')?'\n':'\n\n') : '';
+    nv=before+pre+md+post+after; caret=(before+pre+md).length;
+  }
+  if(remove===true){ const _l=nv.length; nv=nv.replace(/\n{3,}/g,'\n\n'); caret=Math.max(0,caret-(_l-nv.length)); }
+  ta.value=nv; ta.setSelectionRange(caret,caret);
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+  closeModal('modal-table'); _tbl=null; ta.focus();
+}
+
 document.addEventListener('keydown',e=>{
   const ta=e.target;
   if(!ta||ta.tagName!=='TEXTAREA'||!ta.dataset.rt) return;
@@ -8837,7 +9006,7 @@ function exportCharacterPDF(id) {
     section(tab.name, (tab.sections||[]).map(s =>
       `<div class="field">
         <div class="field-label">${esc(s.name)}</div>
-        <div class="field-val" style="white-space:pre-wrap">${esc(s.content||'')}</div>
+        <div class="field-val">${richText(s.content||'')}</div>
       </div>`
     ).join(''))
   ).join('');
@@ -8873,6 +9042,8 @@ function exportCharacterPDF(id) {
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Nunito',sans-serif;background:#f5f4fb;color:#1a1a2e;padding:32px;max-width:860px;margin:0 auto}
   .field{margin-bottom:11px}
+  .rt p{margin:0 0 8px}.rt ul,.rt ol{margin:0 0 8px;padding-left:20px}.rt-tablewrap{overflow-x:auto}
+  .rt-table{border-collapse:collapse;font-size:12px}.rt-table th,.rt-table td{border:1px solid #cfcbe6;padding:4px 9px;text-align:left;vertical-align:top}.rt-table th{background:#ece9f8}
   .field-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#999;margin-bottom:3px}
   .field-val{font-size:13px;color:#1a1a2e;line-height:1.6;white-space:pre-wrap;word-break:break-word}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -11066,5 +11237,30 @@ function loadWorldCalendars() { return Promise.resolve(); }
   window.addEventListener('resize', () => { resize(); });
 })();
 </script>
+<div class="modal-overlay" id="modal-table">
+  <div class="modal" style="max-width:min(980px,96vw);width:96vw">
+    <div class="modal-header">
+      <div class="modal-title" id="tbl-title">Table maker</div>
+      <button class="modal-close" onclick="closeModal('modal-table')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label class="form-label" style="margin:0" id="tbl-lbl-r">Rows</label>
+        <input type="number" min="1" class="form-input" id="tbl-nr" style="width:84px" onchange="rtTableResize()">
+        <label class="form-label" style="margin:0 0 0 6px" id="tbl-lbl-c">Columns</label>
+        <input type="number" min="1" class="form-input" id="tbl-nc" style="width:84px" onchange="rtTableResize()">
+        <button type="button" class="btn btn-ghost" style="padding:5px 12px;font-size:12px" id="tbl-add-r" onclick="rtTableAddRow()">+ Row</button>
+        <button type="button" class="btn btn-ghost" style="padding:5px 12px;font-size:12px" id="tbl-add-c" onclick="rtTableAddCol()">+ Column</button>
+      </div>
+      <div id="tbl-grid" style="overflow:auto;max-height:52vh;padding-bottom:6px"></div>
+      <div id="tbl-hint" style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" style="margin-right:auto;color:var(--danger);border-color:var(--danger)" id="tbl-remove" onclick="rtTableApply(true)">Remove table</button>
+      <button type="button" class="btn btn-ghost" id="tbl-cancel" onclick="closeModal('modal-table')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="tbl-ok" onclick="rtTableApply()">Insert table</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
