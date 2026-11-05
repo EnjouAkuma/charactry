@@ -225,28 +225,36 @@
       ? { message: { role: 'assistant', content: '' }, done: true }
       : { response: '', done: true }) + '\n';
     return new Response(new ReadableStream({
+      /* IMPORTANT: a pull() that returns without enqueueing anything is never called again,
+         so the stream (and the app's "waiting…") hangs forever. OpenRouter often starts with a
+         ": OPENROUTER PROCESSING" comment or an empty/reasoning-only delta, which produces no
+         output. So keep reading inside pull() until we have something to send, or the stream ends. */
       async pull(ctrl) {
-        const { done, value } = await reader.read();
-        if (done) {
-          if (!finished) ctrl.enqueue(enc.encode(doneLine()));
-          ctrl.close(); return;
-        }
-        buf += dec.decode(value, { stream: true });
-        const lines = buf.split('\n'); buf = lines.pop();
-        let out = '';
-        for (let line of lines) {
-          line = line.trim();
-          if (!line.startsWith('data:')) continue;         // also skips ": OPENROUTER PROCESSING"
-          const d = line.slice(5).trim();
-          if (d === '[DONE]') { if (!finished) { out += doneLine(); finished = true; } continue; }
-          try {
-            const j = JSON.parse(d);
-            if (j.error) { out += JSON.stringify({ error: j.error.message || 'stream error' }) + '\n'; continue; }
-            const tok = j.choices?.[0]?.delta?.content;
-            if (tok) out += tokLine(tok);
-          } catch { /* partial JSON */ }
-        }
-        if (out) ctrl.enqueue(enc.encode(out));
+        try {
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) {
+              if (!finished) { ctrl.enqueue(enc.encode(doneLine())); finished = true; }
+              ctrl.close(); return;
+            }
+            buf += dec.decode(value, { stream: true });
+            const lines = buf.split('\n'); buf = lines.pop();
+            let out = '';
+            for (let line of lines) {
+              line = line.trim();
+              if (!line.startsWith('data:')) continue;         // also skips ": OPENROUTER PROCESSING"
+              const d = line.slice(5).trim();
+              if (d === '[DONE]') { if (!finished) { out += doneLine(); finished = true; } continue; }
+              try {
+                const j = JSON.parse(d);
+                if (j.error) { out += JSON.stringify({ error: j.error.message || 'stream error' }) + '\n'; continue; }
+                const tok = j.choices?.[0]?.delta?.content;
+                if (tok) out += tokLine(tok);
+              } catch { /* partial JSON */ }
+            }
+            if (out) { ctrl.enqueue(enc.encode(out)); return; }
+          }
+        } catch (e) { ctrl.error(e); }
       },
       cancel() { try { reader.cancel(); } catch {} },
     }), { status: 200, headers: { 'Content-Type': 'application/x-ndjson' } });
