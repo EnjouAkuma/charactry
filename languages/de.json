@@ -362,7 +362,19 @@
     "wbIsRequired": "ist erforderlich",
     "wbUpdated": "aktualisiert",
     "wbCreated": "erstellt",
-    "wbDeleted": "gelöscht"
+    "wbDeleted": "gelöscht",
+    "lorebookImported": "Überlieferungsbuch importiert!",
+    "lorebookExported": "Überlieferungsbuch exportiert!",
+    "invalidLorebookFile": "Ungültige Überlieferungsbuch-Datei!",
+    "lorebookNameRequired": "Name des Überlieferungsbuchs ist erforderlich!",
+    "lorebookCreated": "Überlieferungsbuch erstellt!",
+    "lorebookUpdated": "Überlieferungsbuch aktualisiert!",
+    "lorebookDeleted": "Überlieferungsbuch gelöscht",
+    "lorebookEntryTitleRequired": "Eintragstitel ist erforderlich!",
+    "lorebookEntryContentRequired": "Eintragsinhalt ist erforderlich!",
+    "lorebookEntryUpdated": "Eintrag aktualisiert!",
+    "lorebookEntryDeleted": "Eintrag gelöscht",
+    "lorebookCharsAssigned": "Charaktere zugewiesen!"
   },
   "menu": {
     "file": "Datei",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Neues Überlieferungsbuch",
+    "importBtn": "⬆ Überlieferungsbuch importieren",
     "emptyTitle": "Keine Überlieferungsbücher",
     "emptyHint": "Erstellen Sie ein Überlieferungsbuch und fügen Sie Weltenbau-Einträge hinzu.",
     "description1": "Überlieferungsbücher stellen",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Chars",
     "editLorebook": "✎ Überlieferungsbuch bearbeiten",
     "newEntryBtn": "+ Neuer Eintrag",
-    "noEntriesYet": "Noch keine Einträge. Klicken Sie auf <b>+ Neuer Eintrag</b>, um Ihren ersten Überlieferungseintrag hinzuzufügen."
+    "noEntriesYet": "Noch keine Einträge. Klicken Sie auf <b>+ Neuer Eintrag</b>, um Ihren ersten Überlieferungseintrag hinzuzufügen.",
+    "deleteConfirm": "Überlieferungsbuch „{name}“ löschen?\nAlle Einträge gehen verloren."
   },
   "relGraph": {
     "subtitle": "Visualisieren Sie Verbindungen zwischen all Ihren Charakteren",

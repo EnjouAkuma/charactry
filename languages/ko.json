@@ -362,7 +362,19 @@
     "wbIsRequired": " 필수",
     "wbUpdated": "업데이트됨",
     "wbCreated": "생성됨",
-    "wbDeleted": "삭제됨"
+    "wbDeleted": "삭제됨",
+    "lorebookImported": "세계관 책 가져오기 완료!",
+    "lorebookExported": "세계관 책 내보내기 완료!",
+    "invalidLorebookFile": "잘못된 세계관 책 파일입니다!",
+    "lorebookNameRequired": "세계관 책 이름은 필수입니다!",
+    "lorebookCreated": "세계관 책 생성 완료!",
+    "lorebookUpdated": "세계관 책 업데이트 완료!",
+    "lorebookDeleted": "세계관 책 삭제됨",
+    "lorebookEntryTitleRequired": "항목 제목은 필수입니다!",
+    "lorebookEntryContentRequired": "항목 내용은 필수입니다!",
+    "lorebookEntryUpdated": "항목 업데이트 완료!",
+    "lorebookEntryDeleted": "항목 삭제됨",
+    "lorebookCharsAssigned": "캐릭터 할당 완료!"
   },
   "menu": {
     "file": "파일",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ 새 세계관 책",
+    "importBtn": "⬆ 세계관 책 가져오기",
     "emptyTitle": "아직 세계관 책 없음",
     "emptyHint": "세계관 책을 만들고 세계관 항목을 추가하세요.",
     "description1": "세계관 책은",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 캐릭터",
     "editLorebook": "✎ 세계관 책 수정",
     "newEntryBtn": "+ 새 항목",
-    "noEntriesYet": "아직 항목이 없습니다. <b>+ 새 항목</b>을 클릭하여 첫 번째 세계관 항목을 추가하세요."
+    "noEntriesYet": "아직 항목이 없습니다. <b>+ 새 항목</b>을 클릭하여 첫 번째 세계관 항목을 추가하세요.",
+    "deleteConfirm": "세계관 책 \"{name}\"을(를) 삭제할까요?\n모든 항목이 사라집니다."
   },
   "relGraph": {
     "subtitle": "모든 캐릭터 간의 연결 시각화",

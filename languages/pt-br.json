@@ -325,7 +325,19 @@
     "wbIsRequired": "é obrigatório",
     "wbUpdated": "atualizado",
     "wbCreated": "criado",
-    "wbDeleted": "excluído"
+    "wbDeleted": "excluído",
+    "lorebookImported": "Lorebook importado!",
+    "lorebookExported": "Lorebook exportado!",
+    "invalidLorebookFile": "Arquivo de lorebook inválido!",
+    "lorebookNameRequired": "O nome do lorebook é obrigatório!",
+    "lorebookCreated": "Lorebook criado!",
+    "lorebookUpdated": "Lorebook atualizado!",
+    "lorebookDeleted": "Lorebook excluído",
+    "lorebookEntryTitleRequired": "O título da entrada é obrigatório!",
+    "lorebookEntryContentRequired": "O conteúdo da entrada é obrigatório!",
+    "lorebookEntryUpdated": "Entrada atualizada!",
+    "lorebookEntryDeleted": "Entrada excluída",
+    "lorebookCharsAssigned": "Personagens atribuídos!"
   },
   "menu": {
     "file": "Arquivo",
@@ -1376,6 +1388,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Novo Lorebook",
+    "importBtn": "⬆ Importar Lorebook",
     "emptyTitle": "Nenhum lorebook ainda",
     "emptyHint": "Crie um lorebook e adicione entradas de worldbuilding.",
     "description1": "Lorebooks fornecem conhecimento de mundo para as sessões do",
@@ -1411,7 +1424,8 @@
     "charsBtn": "👤 Personagens",
     "editLorebook": "✎ Editar Lorebook",
     "newEntryBtn": "+ Nova Entrada",
-    "noEntriesYet": "Nenhuma entrada ainda. Clique em <b>+ Nova Entrada</b> para adicionar sua primeira entrada de lore."
+    "noEntriesYet": "Nenhuma entrada ainda. Clique em <b>+ Nova Entrada</b> para adicionar sua primeira entrada de lore.",
+    "deleteConfirm": "Excluir o lorebook \"{name}\"?\nTodas as entradas serão perdidas."
   },
   "aiStudio": {
     "title": "Estúdio de IA",

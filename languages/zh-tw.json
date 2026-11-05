@@ -362,7 +362,19 @@
     "wbIsRequired": "為必填項",
     "wbUpdated": "已更新",
     "wbCreated": "已建立",
-    "wbDeleted": "已刪除"
+    "wbDeleted": "已刪除",
+    "lorebookImported": "世界書已匯入！",
+    "lorebookExported": "世界書已匯出！",
+    "invalidLorebookFile": "無效的世界書檔案！",
+    "lorebookNameRequired": "世界書名稱為必填項目！",
+    "lorebookCreated": "世界書已建立！",
+    "lorebookUpdated": "世界書已更新！",
+    "lorebookDeleted": "世界書已刪除",
+    "lorebookEntryTitleRequired": "條目標題為必填項目！",
+    "lorebookEntryContentRequired": "條目內容為必填項目！",
+    "lorebookEntryUpdated": "條目已更新！",
+    "lorebookEntryDeleted": "條目已刪除",
+    "lorebookCharsAssigned": "角色已指派！"
   },
   "menu": {
     "file": "檔案",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ 新建世界書",
+    "importBtn": "⬆ 匯入世界書",
     "emptyTitle": "還沒有世界書",
     "emptyHint": "建立一個世界書並新增世界觀條目。",
     "description1": "世界書為",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 角色",
     "editLorebook": "✎ 編輯世界書",
     "newEntryBtn": "+ 新建條目",
-    "noEntriesYet": "還沒有條目。點選 <b>+ 新建條目</b> 新增第一個世界觀條目。"
+    "noEntriesYet": "還沒有條目。點選 <b>+ 新建條目</b> 新增第一個世界觀條目。",
+    "deleteConfirm": "刪除世界書「{name}」？\n所有條目都將遺失。"
   },
   "relGraph": {
     "subtitle": "視覺化所有角色之間的聯絡",

@@ -325,7 +325,19 @@
     "wbIsRequired": "は必須項目です",
     "wbUpdated": "更新しました",
     "wbCreated": "作成しました",
-    "wbDeleted": "削除しました"
+    "wbDeleted": "削除しました",
+    "lorebookImported": "ロアブックをインポートしました！",
+    "lorebookExported": "ロアブックをエクスポートしました！",
+    "invalidLorebookFile": "無効なロアブックファイルです！",
+    "lorebookNameRequired": "ロアブック名は必須です！",
+    "lorebookCreated": "ロアブックを作成しました！",
+    "lorebookUpdated": "ロアブックを更新しました！",
+    "lorebookDeleted": "ロアブックを削除しました",
+    "lorebookEntryTitleRequired": "エントリーのタイトルは必須です！",
+    "lorebookEntryContentRequired": "エントリーの内容は必須です！",
+    "lorebookEntryUpdated": "エントリーを更新しました！",
+    "lorebookEntryDeleted": "エントリーを削除しました",
+    "lorebookCharsAssigned": "キャラクターを割り当てました！"
   },
   "menu": {
     "file": "ファイル",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ 新しいロアブック",
+    "importBtn": "⬆ ロアブックをインポート",
     "emptyTitle": "ロアブックがまだありません",
     "emptyHint": "ロアブックを作成して世界設定のエントリーを追加しましょう。",
     "description1": "ロアブックは世界知識を",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 キャラ",
     "editLorebook": "✎ ロアブックを編集",
     "newEntryBtn": "+ 新しいエントリー",
-    "noEntriesYet": "エントリーがまだありません。<b>+ 新しいエントリー</b>をクリックして最初の設定を追加してください。"
+    "noEntriesYet": "エントリーがまだありません。<b>+ 新しいエントリー</b>をクリックして最初の設定を追加してください。",
+    "deleteConfirm": "ロアブック「{name}」を削除しますか？\nすべてのエントリーが失われます。"
   },
   "relGraph": {
     "subtitle": "全キャラクター間のつながりを可視化",

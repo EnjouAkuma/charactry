@@ -362,7 +362,19 @@
     "wbIsRequired": "là bắt buộc",
     "wbUpdated": "đã cập nhật",
     "wbCreated": "đã tạo",
-    "wbDeleted": "đã xóa"
+    "wbDeleted": "đã xóa",
+    "lorebookImported": "Đã nhập sách thiết lập!",
+    "lorebookExported": "Đã xuất sách thiết lập!",
+    "invalidLorebookFile": "Tệp sách thiết lập không hợp lệ!",
+    "lorebookNameRequired": "Cần nhập tên sách thiết lập!",
+    "lorebookCreated": "Đã tạo sách thiết lập!",
+    "lorebookUpdated": "Đã cập nhật sách thiết lập!",
+    "lorebookDeleted": "Đã xóa sách thiết lập",
+    "lorebookEntryTitleRequired": "Cần nhập tiêu đề mục!",
+    "lorebookEntryContentRequired": "Cần nhập nội dung mục!",
+    "lorebookEntryUpdated": "Đã cập nhật mục!",
+    "lorebookEntryDeleted": "Đã xóa mục",
+    "lorebookCharsAssigned": "Đã gán nhân vật!"
   },
   "menu": {
     "file": "Tệp",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Sách thiết lập mới",
+    "importBtn": "⬆ Nhập sách thiết lập",
     "emptyTitle": "Chưa có sách thiết lập nào",
     "emptyHint": "Hãy tạo một sách thiết lập và thêm các mục xây dựng thế giới.",
     "description1": "Sách thiết lập cung cấp kiến thức thế giới cho các phiên",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Nhân vật",
     "editLorebook": "✎ Sửa sách thiết lập",
     "newEntryBtn": "+ Mục mới",
-    "noEntriesYet": "Chưa có mục nào. Nhấp <b>+ Mục mới</b> để thêm mục thiết lập đầu tiên."
+    "noEntriesYet": "Chưa có mục nào. Nhấp <b>+ Mục mới</b> để thêm mục thiết lập đầu tiên.",
+    "deleteConfirm": "Xóa sách thiết lập \"{name}\"?\nTất cả các mục sẽ bị mất."
   },
   "relGraph": {
     "subtitle": "Trực quan hóa mối liên kết giữa tất cả nhân vật của bạn",

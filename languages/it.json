@@ -362,7 +362,19 @@
     "wbIsRequired": "è obbligatorio",
     "wbUpdated": "aggiornato",
     "wbCreated": "creato",
-    "wbDeleted": "eliminato"
+    "wbDeleted": "eliminato",
+    "lorebookImported": "Lorebook importato!",
+    "lorebookExported": "Lorebook esportato!",
+    "invalidLorebookFile": "File del lorebook non valido!",
+    "lorebookNameRequired": "Il nome del lorebook è obbligatorio!",
+    "lorebookCreated": "Lorebook creato!",
+    "lorebookUpdated": "Lorebook aggiornato!",
+    "lorebookDeleted": "Lorebook eliminato",
+    "lorebookEntryTitleRequired": "Il titolo della voce è obbligatorio!",
+    "lorebookEntryContentRequired": "Il contenuto della voce è obbligatorio!",
+    "lorebookEntryUpdated": "Voce aggiornata!",
+    "lorebookEntryDeleted": "Voce eliminata",
+    "lorebookCharsAssigned": "Personaggi assegnati!"
   },
   "menu": {
     "file": "File",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Nuovo lorebook",
+    "importBtn": "⬆ Importa lorebook",
     "emptyTitle": "Ancora nessun lorebook",
     "emptyHint": "Crea un lorebook e aggiungi voci di worldbuilding.",
     "description1": "I lorebook forniscono conoscenza del mondo alle sessioni di",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Personaggi",
     "editLorebook": "✎ Modifica lorebook",
     "newEntryBtn": "+ Nuova voce",
-    "noEntriesYet": "Ancora nessuna voce. Clicca su <b>+ Nuova voce</b> per aggiungere la tua prima voce di lore."
+    "noEntriesYet": "Ancora nessuna voce. Clicca su <b>+ Nuova voce</b> per aggiungere la tua prima voce di lore.",
+    "deleteConfirm": "Eliminare il lorebook \"{name}\"?\nTutte le voci andranno perse."
   },
   "relGraph": {
     "subtitle": "Visualizza le connessioni tra tutti i tuoi personaggi",

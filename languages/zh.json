@@ -362,7 +362,19 @@
     "wbIsRequired": "为必填项",
     "wbUpdated": "已更新",
     "wbCreated": "已创建",
-    "wbDeleted": "已删除"
+    "wbDeleted": "已删除",
+    "lorebookImported": "世界书已导入！",
+    "lorebookExported": "世界书已导出！",
+    "invalidLorebookFile": "无效的世界书文件！",
+    "lorebookNameRequired": "世界书名称为必填项！",
+    "lorebookCreated": "世界书已创建！",
+    "lorebookUpdated": "世界书已更新！",
+    "lorebookDeleted": "世界书已删除",
+    "lorebookEntryTitleRequired": "条目标题为必填项！",
+    "lorebookEntryContentRequired": "条目内容为必填项！",
+    "lorebookEntryUpdated": "条目已更新！",
+    "lorebookEntryDeleted": "条目已删除",
+    "lorebookCharsAssigned": "角色已分配！"
   },
   "menu": {
     "file": "文件",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ 新建世界书",
+    "importBtn": "⬆ 导入世界书",
     "emptyTitle": "还没有世界书",
     "emptyHint": "创建一个世界书并添加世界观条目。",
     "description1": "世界书为",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 角色",
     "editLorebook": "✎ 编辑世界书",
     "newEntryBtn": "+ 新建条目",
-    "noEntriesYet": "还没有条目。点击 <b>+ 新建条目</b> 添加第一个世界观条目。"
+    "noEntriesYet": "还没有条目。点击 <b>+ 新建条目</b> 添加第一个世界观条目。",
+    "deleteConfirm": "删除世界书“{name}”？\n所有条目都将丢失。"
   },
   "relGraph": {
     "subtitle": "可视化所有角色之间的联系",

@@ -362,7 +362,19 @@
     "wbIsRequired": "é obrigatório",
     "wbUpdated": "atualizado",
     "wbCreated": "criado",
-    "wbDeleted": "eliminado"
+    "wbDeleted": "eliminado",
+    "lorebookImported": "Lorebook importado!",
+    "lorebookExported": "Lorebook exportado!",
+    "invalidLorebookFile": "Ficheiro de lorebook inválido!",
+    "lorebookNameRequired": "O nome do lorebook é obrigatório!",
+    "lorebookCreated": "Lorebook criado!",
+    "lorebookUpdated": "Lorebook atualizado!",
+    "lorebookDeleted": "Lorebook eliminado",
+    "lorebookEntryTitleRequired": "O título da entrada é obrigatório!",
+    "lorebookEntryContentRequired": "O conteúdo da entrada é obrigatório!",
+    "lorebookEntryUpdated": "Entrada atualizada!",
+    "lorebookEntryDeleted": "Entrada eliminada",
+    "lorebookCharsAssigned": "Personagens atribuídos!"
   },
   "menu": {
     "file": "Ficheiro",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Novo Lorebook",
+    "importBtn": "⬆ Importar Lorebook",
     "emptyTitle": "Ainda não há lorebooks",
     "emptyHint": "Crie um lorebook e adicione entradas de worldbuilding.",
     "description1": "Os lorebooks fornecem conhecimento do mundo às sessões de",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Personagens",
     "editLorebook": "✎ Editar Lorebook",
     "newEntryBtn": "+ Nova Entrada",
-    "noEntriesYet": "Ainda não há entradas. Clique em <b>+ Nova Entrada</b> para adicionar a sua primeira entrada de lore."
+    "noEntriesYet": "Ainda não há entradas. Clique em <b>+ Nova Entrada</b> para adicionar a sua primeira entrada de lore.",
+    "deleteConfirm": "Eliminar o lorebook \"{name}\"?\nTodas as entradas serão perdidas."
   },
   "relGraph": {
     "subtitle": "Visualize as ligações entre todos os seus personagens",

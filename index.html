@@ -1900,7 +1900,9 @@ const I18N_BUILTIN = {
     uiOverridesHint:'Fine-tune every surface colour independently.',
     languageHint:'Choose the UI language.',
     languageRestart:'Restart after changing language.' },
-  toasts:{ languageSet:'Language set: ', languageRestart:'— restart to fully apply' },
+  toasts:{ languageSet:'Language set: ', languageRestart:'— restart to fully apply',
+    lorebookImported:'Lorebook imported!', lorebookExported:'Lorebook exported!', invalidLorebookFile:'Invalid lorebook file!' },
+  lorebooks:{ importBtn:'⬆ Import Lorebook' },
   empty:{ noCharacters:'No characters yet. Create your first!',
     noFavorites:'No favorites yet.',
     noFolders:'No folders yet.', noLoreNotes:'No lore notes yet.',
@@ -9109,7 +9111,7 @@ ${(c.images||[]).length ? `
   a.download = `${c.name.replace(/[^a-z0-9]/gi,'_')}_character_sheet.html`;
   a.click();
   URL.revokeObjectURL(a.href);
-  toast('Character sheet downloaded!');
+  toast(t('toasts.characterSheetDownloaded'));
 }
 
 /* =====================================================
@@ -9138,7 +9140,7 @@ function initImgDropZone(charId) {
     e.preventDefault(); e.stopPropagation();
     zone.classList.remove('drag-active');
     const files = [...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
-    if (!files.length) { toast('No image files detected!','error'); return; }
+    if (!files.length) { toast(t('toasts.noImageFiles'),'error'); return; }
     // Reuse existing upload handler
     const fakeInput = { files, value:'' };
     handleCharImageUpload(fakeInput, charId);
@@ -9335,7 +9337,7 @@ function setUniColor(hex) {
 
 function saveUniverse() {
   const name = document.getElementById('uni-name').value.trim();
-  if (!name) { toast('Name is required!','error'); return; }
+  if (!name) { toast(t('toasts.nameRequired'),'error'); return; }
   const id   = document.getElementById('uni-edit-id').value;
   const data = {
     name,
@@ -9368,7 +9370,7 @@ function deleteUniverse(id) {
   if (activeUniId===id) switchUniverse('all');
   saveData(); updateUniSidebar(); updateUniSelector();
   renderPage('universes');
-  toast('Universe deleted');
+  toast(t('toasts.universeDeleted'));
 }
 
 // ── Color picker callback hook for uni-color ────────
@@ -9386,7 +9388,7 @@ function addUniTimelineEntry(id) {
   const eventEl = document.getElementById(`utl-event-${id}`);
   const year  = yearEl?.value.trim();
   const event = eventEl?.value.trim();
-  if (!year || !event) { toast('Enter both year and event','error'); return; }
+  if (!year || !event) { toast(t('toasts.enterYearAndEvent'),'error'); return; }
   u.timeline = u.timeline || [];
   u.timeline.push({ year, event });
   u.timeline.sort((a,b) => String(a.year).localeCompare(String(b.year), undefined, {numeric:true}));
@@ -9394,7 +9396,7 @@ function addUniTimelineEntry(id) {
   if (yearEl) yearEl.value='';
   if (eventEl) eventEl.value='';
   renderPage('universes');
-  toast('Entry added!');
+  toast(t('toasts.entryAdded'));
 }
 
 function deleteUniTimelineEntry(uId, idx) {
@@ -9569,14 +9571,14 @@ function buildVariantsTab(c) {
 function addVariant(charId) {
   const c = characters.find(x=>x.id===charId); if (!c) return;
   const uniId = document.getElementById('new-variant-uni')?.value;
-  if (!uniId) { toast('Pick a universe first!','error'); return; }
-  if ((c.variants||[]).find(v=>v.universeId===uniId)) { toast('Already have a version in that universe!','error'); return; }
+  if (!uniId) { toast(t('toasts.pickUniverseFirst'),'error'); return; }
+  if ((c.variants||[]).find(v=>v.universeId===uniId)) { toast(t('toasts.alreadyHaveVersion'),'error'); return; }
   c.variants = c.variants || [];
   c.variants.push({ universeId:uniId, role:'', species:'', age:'', occupation:'', traits:'', bio:'' });
   saveData();
   const tab = document.getElementById('view-char-tab-variants');
   if (tab) tab.innerHTML = buildVariantsTab(c);
-  toast('AU version added!');
+  toast(t('toasts.auVersionAdded'));
 }
 
 function updateVariant(charId, idx, field, value) {
@@ -9592,7 +9594,7 @@ function deleteVariant(charId, idx) {
   saveData();
   const tab = document.getElementById('view-char-tab-variants');
   if (tab) tab.innerHTML = buildVariantsTab(c);
-  toast('AU version removed');
+  toast(t('toasts.auVersionRemoved'));
 }
 
 // ── Populate universe dropdown in create/edit char modal ─
@@ -10013,7 +10015,7 @@ initApp();
 const CMD_ITEMS = [
   // Actions
   { icon:'✦', label:t('form.nameStar').replace(' *','').replace('Name','New Character')||'New Character',        hint:'Ctrl+N',  action:()=>{ openModal('modal-create-char'); populateFolderDropdowns(); } },
-  { icon:'💾', label:'Save',                 hint:'Ctrl+S',  action:()=>{ saveData(); toast('Saved!'); } },
+  { icon:'💾', label:'Save',                 hint:'Ctrl+S',  action:()=>{ saveData(); toast(t('toasts.saved')); } },
   { icon:'⊙', label:t('nav.search'),               hint:'Ctrl+F',  action:()=>navigate('search') },
   { icon:'⚙', label:t('nav.settings'),             hint:'Ctrl+,',  action:()=>navigate('settings') },
   // Core pages
@@ -10133,7 +10135,7 @@ document.addEventListener('keydown', function(e) {
   if (ctrl) {
     switch (e.key.toLowerCase()) {
       case 'n': e.preventDefault(); openModal('modal-create-char'); populateFolderDropdowns(); break;
-      case 's': e.preventDefault(); saveData(); toast('Saved!'); break;
+      case 's': e.preventDefault(); saveData(); toast(t('toasts.saved')); break;
       case 'f': e.preventDefault(); navigate('search'); setTimeout(()=>document.getElementById('search-input')?.focus(), 120); break;
       case ',': e.preventDefault(); navigate('settings'); break;
     }
@@ -10502,7 +10504,7 @@ function renderLorebooks(pc) {
       <div class="page-title">${t('nav.lorebooks')||'📖 Lorebooks'}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-primary" onclick="openNewLorebook()">${t('lorebooks.newBtn')||'+ New Lorebook'}</button>
-        <button class="btn btn-ghost" onclick="lbImportFile()">${t('buttons.importBackup')||'⬆ Import'}</button>
+        <button class="btn btn-ghost" onclick="lbImportFile()">${t('lorebooks.importBtn')}</button>
       </div>
     </div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.7">
@@ -10526,7 +10528,7 @@ function renderLorebooks(pc) {
 function lbCard(lb) {
   const entryCount   = (lb.entries || []).length;
   const activeCount  = (lb.entries || []).filter(e => e.enabled !== false).length;
-  const assignedCount= (lb.assignedCharIds || []).length;
+  const assignedCount= (lb.assignedCharIds || []).filter(id => characters.some(c => c.id === id)).length;
   const coverStyle   = lb.cover
     ? `background:url('${lb.cover}') center/cover no-repeat`
     : `background:linear-gradient(135deg,var(--bg3),var(--card))`;
@@ -10746,7 +10748,7 @@ function lbEditCoverClear() {
 
 async function saveLorebook() {
   const name    = document.getElementById('lb-edit-name').value.trim();
-  if (!name) { toast('Lorebook name is required!', 'error'); return; }
+  if (!name) { toast(t('toasts.lorebookNameRequired'), 'error'); return; }
   const desc    = document.getElementById('lb-edit-desc').value.trim();
   const enabled = document.getElementById('lb-edit-enabled').checked;
   const cover   = document.getElementById('lb-edit-cover-preview').dataset.base64 || '';
@@ -10759,7 +10761,7 @@ async function saveLorebook() {
       lb.name = name; lb.desc = desc; lb.enabled = enabled;
       if (cover) lb.cover = cover;
     }
-    toast('Lorebook updated!', 'success');
+    toast(t('toasts.lorebookUpdated'), 'success');
   } else {
     // New
     const newLb = {
@@ -10769,7 +10771,7 @@ async function saveLorebook() {
       assignedCharIds: [],
     };
     lorebooks.push(newLb);
-    toast('Lorebook created!', 'success');
+    toast(t('toasts.lorebookCreated'), 'success');
   }
 
   await saveLorebooks();
@@ -10780,8 +10782,7 @@ async function saveLorebook() {
 async function deleteLorebook(lbId) {
   const lb = lorebooks.find(x => x.id === lbId);
   if (!lb) return;
-  if (!confirm(`Delete lorebook "${lb.name}"?
-All entries will be lost.`)) return;
+  if (!confirm(t('lorebooks.deleteConfirm').replace('{name}', lb.name))) return;
   lorebooks = lorebooks.filter(x => x.id !== lbId);
   if (window.electronAPI?.deleteLorebook) {
     const safe = lbId.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -10790,7 +10791,7 @@ All entries will be lost.`)) return;
   if (_lbView === lbId) _lbView = null;
   await saveLorebooks();
   renderPage('lorebooks');
-  toast('Lorebook deleted', 'error', 2000);
+  toast(t('toasts.lorebookDeleted'), 'error', 2000);
 }
 
 // ── New / Edit Entry ─────────────────────────────────────────────────
@@ -10862,8 +10863,8 @@ async function saveLoreBrainEntry() {
   const entryId= document.getElementById('lb-entry-id').value;
   const title  = document.getElementById('lb-entry-title-input').value.trim();
   const content= document.getElementById('lb-entry-content').value.trim();
-  if (!title)   { toast('Entry title is required!', 'error'); return; }
-  if (!content) { toast('Entry content is required!', 'error'); return; }
+  if (!title)   { toast(t('toasts.lorebookEntryTitleRequired'), 'error'); return; }
+  if (!content) { toast(t('toasts.lorebookEntryContentRequired'), 'error'); return; }
 
   const keywords = document.getElementById('lb-entry-keywords').value
     .split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
@@ -10877,10 +10878,10 @@ async function saveLoreBrainEntry() {
   if (entryId) {
     const idx = lb.entries.findIndex(e => e.id === entryId);
     if (idx >= 0) Object.assign(lb.entries[idx], { title, keywords, content, enabled, image });
-    toast('Entry updated!', 'success');
+    toast(t('toasts.lorebookEntryUpdated'), 'success');
   } else {
     lb.entries.push({ id: 'lbe_' + Date.now(), title, keywords, content, enabled, image });
-    toast('Entry added!', 'success');
+    toast(t('toasts.entryAdded'), 'success');
   }
 
   await saveLorebooks();
@@ -10894,7 +10895,7 @@ async function deleteLbEntry(lbId, entryId) {
   lb.entries = (lb.entries || []).filter(e => e.id !== entryId);
   await saveLorebooks();
   if (_lbView === lbId) renderPage('lorebooks');
-  toast('Entry deleted', 'error', 1800);
+  toast(t('toasts.lorebookEntryDeleted'), 'error', 1800);
 }
 
 async function toggleLbEntry(lbId, entryId) {
@@ -10969,7 +10970,7 @@ async function saveLbAssign() {
   await saveLorebooks();
   closeModal('modal-lorebook-assign');
   if (_lbView === _lbAssigning) renderPage('lorebooks');
-  toast('Characters assigned!', 'success');
+  toast(t('toasts.lorebookCharsAssigned'), 'success');
 }
 
 // ── Import / Export ──────────────────────────────────────────────────
@@ -10981,29 +10982,39 @@ async function exportLorebook(lbId) {
   a.href     = URL.createObjectURL(blob);
   a.download = `lorebook_${(lb.name||'export').replace(/[^a-z0-9]/gi,'_').toLowerCase()}.json`;
   a.click();
-  toast('Lorebook exported!', 'success');
+  toast(t('toasts.lorebookExported'), 'success');
 }
 
 function lbImportFile() {
-  const input = document.createElement('input');
-  input.type  = 'file';
-  input.accept= '.json';
+  const input    = document.createElement('input');
+  input.type     = 'file';
+  input.accept   = '.json,application/json';
+  input.multiple = true;               // pick several lorebooks at once
   input.onchange = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const text = await file.text();
-    try {
-      const lb = JSON.parse(text);
-      if (!lb.name || !Array.isArray(lb.entries)) throw new Error('Invalid lorebook format');
-      // Give it a fresh ID to avoid collisions
-      lb.id = 'lb_' + Date.now();
-      lorebooks.push(lb);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    let imported = 0, failed = 0;
+    for (const file of files) {
+      try {
+        const lb = JSON.parse(await file.text());
+        if (!lb || typeof lb.name !== 'string' || !Array.isArray(lb.entries)) throw new Error('Invalid lorebook format');
+        // Fresh ID so it never collides with an existing lorebook (even if imported twice)
+        lb.id = 'lb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        lb.desc    = lb.desc || '';
+        lb.cover   = lb.cover || '';
+        lb.enabled = lb.enabled !== false;
+        lb.assignedCharIds = Array.isArray(lb.assignedCharIds) ? lb.assignedCharIds : [];
+        lb.entries.forEach((en, i) => { if (!en.id) en.id = 'lbe_' + Date.now() + '_' + i; });
+        lorebooks.push(lb);
+        imported++;
+      } catch(err) { console.warn('[Lorebooks] import failed for', file.name, err); failed++; }
+    }
+    if (imported) {
       await saveLorebooks();
       renderPage('lorebooks');
-      toast(`Imported: ${lb.name}`, 'success');
-    } catch(e) {
-      toast('Invalid lorebook file!', 'error');
+      toast(t('toasts.lorebookImported'), 'success');
     }
+    if (failed) toast(t('toasts.invalidLorebookFile'), 'error');
   };
   input.click();
 }

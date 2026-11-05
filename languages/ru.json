@@ -362,7 +362,19 @@
     "wbIsRequired": "обязательно",
     "wbUpdated": "обновлено",
     "wbCreated": "создано",
-    "wbDeleted": "удалено"
+    "wbDeleted": "удалено",
+    "lorebookImported": "Книга лора импортирована!",
+    "lorebookExported": "Книга лора экспортирована!",
+    "invalidLorebookFile": "Неверный файл книги лора!",
+    "lorebookNameRequired": "Укажите название книги лора!",
+    "lorebookCreated": "Книга лора создана!",
+    "lorebookUpdated": "Книга лора обновлена!",
+    "lorebookDeleted": "Книга лора удалена",
+    "lorebookEntryTitleRequired": "Укажите заголовок записи!",
+    "lorebookEntryContentRequired": "Укажите содержимое записи!",
+    "lorebookEntryUpdated": "Запись обновлена!",
+    "lorebookEntryDeleted": "Запись удалена",
+    "lorebookCharsAssigned": "Персонажи назначены!"
   },
   "menu": {
     "file": "Файл",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Новая книга лора",
+    "importBtn": "⬆ Импорт книги лора",
     "emptyTitle": "Нет книг лора",
     "emptyHint": "Создайте книгу лора и добавляйте записи миростроения.",
     "description1": "Книги лора предоставляют знания о мире для сессий",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Персонажи",
     "editLorebook": "✎ Редактировать книгу лора",
     "newEntryBtn": "+ Новая запись",
-    "noEntriesYet": "Пока нет записей. Нажмите <b>+ Новая запись</b>, чтобы добавить первую запись лора."
+    "noEntriesYet": "Пока нет записей. Нажмите <b>+ Новая запись</b>, чтобы добавить первую запись лора.",
+    "deleteConfirm": "Удалить книгу лора «{name}»?\nВсе записи будут потеряны."
   },
   "relGraph": {
     "subtitle": "Визуализируйте связи между всеми вашими персонажами",

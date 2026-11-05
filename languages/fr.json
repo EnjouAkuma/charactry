@@ -362,7 +362,19 @@
     "wbIsRequired": "est requis",
     "wbUpdated": "mis à jour",
     "wbCreated": "créé",
-    "wbDeleted": "supprimé"
+    "wbDeleted": "supprimé",
+    "lorebookImported": "Livre d'histoire importé !",
+    "lorebookExported": "Livre d'histoire exporté !",
+    "invalidLorebookFile": "Fichier de livre d'histoire invalide !",
+    "lorebookNameRequired": "Le nom du livre d'histoire est requis !",
+    "lorebookCreated": "Livre d'histoire créé !",
+    "lorebookUpdated": "Livre d'histoire mis à jour !",
+    "lorebookDeleted": "Livre d'histoire supprimé",
+    "lorebookEntryTitleRequired": "Le titre de l'entrée est requis !",
+    "lorebookEntryContentRequired": "Le contenu de l'entrée est requis !",
+    "lorebookEntryUpdated": "Entrée mise à jour !",
+    "lorebookEntryDeleted": "Entrée supprimée",
+    "lorebookCharsAssigned": "Personnages assignés !"
   },
   "menu": {
     "file": "Fichier",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Nouveau livre d'histoire",
+    "importBtn": "⬆ Importer un livre d'histoire",
     "emptyTitle": "Pas encore de livres d'histoire",
     "emptyHint": "Créez un livre d'histoire et ajoutez des entrées de construction du monde.",
     "description1": "Les livres d'histoire fournissent des connaissances du monde aux sessions",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Personnages",
     "editLorebook": "✎ Modifier le livre d'histoire",
     "newEntryBtn": "+ Nouvelle entrée",
-    "noEntriesYet": "Pas encore d'entrées. Cliquez sur <b>+ Nouvelle entrée</b> pour ajouter votre première entrée d'histoire."
+    "noEntriesYet": "Pas encore d'entrées. Cliquez sur <b>+ Nouvelle entrée</b> pour ajouter votre première entrée d'histoire.",
+    "deleteConfirm": "Supprimer le livre d'histoire « {name} » ?\nToutes les entrées seront perdues."
   },
   "relGraph": {
     "subtitle": "Visualisez les connexions entre tous vos personnages",

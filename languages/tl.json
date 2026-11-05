@@ -362,7 +362,19 @@
     "wbIsRequired": "ay kailangan",
     "wbUpdated": "na-update",
     "wbCreated": "nagawa",
-    "wbDeleted": "nabura"
+    "wbDeleted": "nabura",
+    "lorebookImported": "Na-import ang lorebook!",
+    "lorebookExported": "Na-export ang lorebook!",
+    "invalidLorebookFile": "Hindi wastong file ng lorebook!",
+    "lorebookNameRequired": "Kailangan ang pangalan ng lorebook!",
+    "lorebookCreated": "Nagawa ang lorebook!",
+    "lorebookUpdated": "Na-update ang lorebook!",
+    "lorebookDeleted": "Na-delete ang lorebook",
+    "lorebookEntryTitleRequired": "Kailangan ang pamagat ng entry!",
+    "lorebookEntryContentRequired": "Kailangan ang nilalaman ng entry!",
+    "lorebookEntryUpdated": "Na-update ang entry!",
+    "lorebookEntryDeleted": "Na-delete ang entry",
+    "lorebookCharsAssigned": "Naitalaga ang mga karakter!"
   },
   "menu": {
     "file": "File",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ Bagong Lorebook",
+    "importBtn": "⬆ I-import ang Lorebook",
     "emptyTitle": "Wala pang lorebook",
     "emptyHint": "Gumawa ng lorebook at magdagdag ng mga entry ng worldbuilding.",
     "description1": "Nagbibigay ang mga lorebook ng kaalaman sa mundo sa mga session ng",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 Mga Karakter",
     "editLorebook": "✎ I-edit ang Lorebook",
     "newEntryBtn": "+ Bagong Entry",
-    "noEntriesYet": "Wala pang entry. I-click ang <b>+ Bagong Entry</b> para idagdag ang una mong entry ng lore."
+    "noEntriesYet": "Wala pang entry. I-click ang <b>+ Bagong Entry</b> para idagdag ang una mong entry ng lore.",
+    "deleteConfirm": "I-delete ang lorebook na \"{name}\"?\nMawawala ang lahat ng entry."
   },
   "relGraph": {
     "subtitle": "Biswalisahin ang mga koneksyon ng lahat ng karakter mo",

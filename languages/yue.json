@@ -362,7 +362,19 @@
     "wbIsRequired": "係必填",
     "wbUpdated": "已更新",
     "wbCreated": "已建立",
-    "wbDeleted": "已刪除"
+    "wbDeleted": "已刪除",
+    "lorebookImported": "設定集已匯入！",
+    "lorebookExported": "設定集已匯出！",
+    "invalidLorebookFile": "設定集檔案無效！",
+    "lorebookNameRequired": "設定集名稱必須填寫！",
+    "lorebookCreated": "設定集已建立！",
+    "lorebookUpdated": "設定集已更新！",
+    "lorebookDeleted": "設定集已刪除",
+    "lorebookEntryTitleRequired": "條目標題必須填寫！",
+    "lorebookEntryContentRequired": "條目內容必須填寫！",
+    "lorebookEntryUpdated": "條目已更新！",
+    "lorebookEntryDeleted": "條目已刪除",
+    "lorebookCharsAssigned": "角色已指派！"
   },
   "menu": {
     "file": "檔案",
@@ -877,6 +889,7 @@
   },
   "lorebooks": {
     "newBtn": "+ 新設定集",
+    "importBtn": "⬆ 匯入設定集",
     "emptyTitle": "仲未有設定集",
     "emptyHint": "建立一個設定集，然後加入世界觀項目。",
     "description1": "設定集會為",
@@ -912,7 +925,8 @@
     "charsBtn": "👤 角色",
     "editLorebook": "✎ 編輯設定集",
     "newEntryBtn": "+ 新項目",
-    "noEntriesYet": "仲未有項目。撳 <b>+ 新項目</b> 加入你第一個設定項目。"
+    "noEntriesYet": "仲未有項目。撳 <b>+ 新項目</b> 加入你第一個設定項目。",
+    "deleteConfirm": "要刪除設定集「{name}」嗎？\n所有條目都會消失。"
   },
   "relGraph": {
     "subtitle": "將所有角色之間嘅連繫視覺化",
